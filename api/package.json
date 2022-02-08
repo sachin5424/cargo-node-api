@@ -1,0 +1,36 @@
+{
+  "name": "corgo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node --exec ./node_modules/.bin/babel-node app.js --interpreter babel-node --name imageshms-api",
+    "dev": "nodemon --exec ./node_modules/.bin/babel-node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.1",
+    "cors": "^2.8.5",
+    "deep-email-validator": "^0.1.21",
+    "dotenv": "^14.3.2",
+    "express": "^4.17.2",
+    "express-validator": "^6.13.0",
+    "jsonwebtoken": "^8.5.1",
+    "module-alias": "^2.2.2",
+    "moment": "^2.29.1",
+    "mongoose": "^6.1.8",
+    "mongoose-paginate-v2": "^1.5.0",
+    "rand-token": "^1.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.0",
+    "@babel/node": "^7.16.8",
+    "@babel/preset-env": "^7.13.12",
+    "nodemon": "^2.0.7"
+  },
+  "bugs": {},
+  "homepage": ""
+}
