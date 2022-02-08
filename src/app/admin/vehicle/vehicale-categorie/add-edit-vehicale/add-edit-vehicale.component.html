@@ -1,0 +1,45 @@
+
+<h2 mat-dialog-title>Add Vehical Categorie</h2>
+
+<div class="card-body">
+    <div *ngIf="check_img" class="">
+
+        <div *ngIf="progress > 0" style="">
+            <!-- Progess = {{progress}} % -->
+            <br>
+            <mat-progress-bar class="example-margin" [color]="color" mode="determinate" [value]="value">
+            </mat-progress-bar>
+        </div>
+    </div>
+    <form  style="align-items: center;" [formGroup]="vehicaleCategoriForm" (ngSubmit)="Login()">
+        <mat-form-field class="form-control " appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" placeholder="label"  >
+            <mat-error>Invalid Titile</mat-error>
+        </mat-form-field>
+        <!-- <div class="progress form-group" *ngIf="progress > 0"> -->
+            <!-- <div class="progress-bar progress-bar-striped bg-success" role="progressbar" [style.width.%]="progress">
+            </div> -->
+          
+            <!-- <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+        </div> -->
+      
+
+            <input type="file"  (change)="uploadFile($event)" name="" id="">
+       
+        <br>
+        <div class="p-4">
+
+            <mat-checkbox formControlName="active">Active</mat-checkbox>
+           
+        </div>
+    
+
+        <div class="text-center" >
+             <!-- <button mat-raised-button>text</button> -->
+            <button type="submit" style="border: 2px solid #EF5350;"  mat-raised-button class="btn bg-gradient-{{loginSpinner == false? 'primary':'white'}}">
+                <mat-spinner style="color: white;"  *ngIf="loginSpinner" diameter="30"></mat-spinner>
+                {{loginSpinner == true?"":'Sign in'}}</button>
+        </div>
+    </form>
+    </div>

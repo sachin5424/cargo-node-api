@@ -1,0 +1,127 @@
+<div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-md-9"></div>
+      <div class="col-md-3 text-center p-4" >
+        <button color="accent" (click)="openDialog()" mat-raised-button>Add Trip Category</button>
+        
+      </div>
+    </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="card my-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+              <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                <h1 class="text-white text-capitalize ps-3">
+                    Trip Category
+                </h1>
+               
+              </div>
+            
+            </div>
+            <div class="card-body px-0 pb-2">
+              <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                  <thead>
+                    <tr>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">sNo</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Icon</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                      <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Create Date</th>
+                      <th  class="text-secondary opacity-7">
+                        <samp>View</samp>
+                      </th>
+                     
+                    </tr>
+                  </thead>
+                  <tbody>
+                   
+                    <tr *ngFor="let item of vehicaleCategorieData | paginate: { itemsPerPage: count, currentPage: p }; let i = index" >
+                      <td >
+                        <div class="d-flex px-2 py-1">
+                          <!-- <div>
+                            <img src="../assets/img/team-2.jpg" class="avatar avatar-sm me-3 border-radius-lg" alt="user1">
+                          </div> -->
+                          <div class="d-flex flex-column px-4 justify-content-center">
+                              <!-- <button  color="accent">{{i+1}}</button> -->
+                              {{1+i}}
+                            <!-- <h3 class="mb-0 text-sm bg-secondary p-2 text-white  rounded">{{i+1}}</h3> -->
+                            <!-- <p class="text-xs text-secondary mb-0">{{item.icon}}</p> -->
+                          </div>
+                        </div>
+                      </td>
+                      <td class="align-middle text-center">
+                          <h1 class="mb-0 text-sm    ">{{item.name}}</h1>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                         <div>
+                            <img src="../assets/img/team-2.jpg" class="avatar avatar-sm me-3 border-radius-lg" alt="user1">
+                          </div>
+                      </td>
+                      <td class="align-middle text-center text-sm">
+                          <span class="badge badge-sm bg-gradient-{{item.active ==1? 'success':'danger'}} ">
+                              {{item.active ==1? 'active':'inactive'}}
+                          </span>
+                        </td>
+                      <td  class="align-middle text-center">
+                        <span   class="text-secondary text-xs font-weight-bold">
+                          {{item.createdAt |date: 'dd/MM/yyyy'}}
+                        </span>
+                      </td>
+                      <td class="align-middle">
+                       
+                        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+                          <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+   
+                          <div class=""  appViewPermission  [model_name]="'vehhical_categories'" [method]="'GET'"  >
+                            <button [routerLink]="['/admin/vehicle/vehicle-categorie',item._id]" routerLinkActive="router-link-active" mat-menu-item>
+                              <mat-icon>remove_red_eye</mat-icon>
+                              <span>View</span>
+                            </button>
+                          </div>
+                          <div class="" appViewPermission  [model_name]="'vehhical_categories'" [method]="'PUT'">
+                            <button mat-menu-item >
+                              <mat-icon>delete</mat-icon>
+                              <span>delete</span>
+                            </button>
+                          </div>
+                       
+                          <div class="" appViewPermission  [model_name]="'vehhical_categories'" [method]="'DELETE'">
+                            <button mat-menu-item>
+                              <mat-icon>edit</mat-icon>
+                              <span>update</span>
+                            </button>
+                          </div>
+                        </mat-menu>
+                        <!-- <button  [routerLink]="['/admin/vehicle/vehicle-categorie',item._id]" routerLinkActive="router-link-active" mat-mini-fab><mat-icon>remove_red_eye</mat-icon></button> -->
+                      </td>
+                     
+                    </tr>
+                    <!--Including the pagination control.-->
+                      <div  *ngIf="vehicaleCategorieData.length !==0"  class="text-right">
+                          <pagination-controls (pageChange)="p = $event" ></pagination-controls>
+                      </div>
+                    
+                  </tbody>
+                </table>
+                 
+                <div class="w-100"  >
+                  <mat-progress-bar *ngIf="vehicaleCategorieData.length ==0" mode="indeterminate"></mat-progress-bar>
+                 
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+   
+     
+    </div>
+  
+   
+    
+   
+    
+  
