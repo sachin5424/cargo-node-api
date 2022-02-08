@@ -4,7 +4,8 @@ import { tripCategorieModel } from '../data-base/index';
 import { createData, listPaginate } from '../services/test';
 import { slug } from '../utls/_helper';
 import { vehicalCategorieValidation, updatedVehicalCategorieValidation } from '../validation/index';
-export class VehicalCategoriController {
+
+export default class TripCategoriesConteroller {
     constructor() {
         this.router = express.Router();
         this.vehicalCategoriesUrl = '/trip-categorie';

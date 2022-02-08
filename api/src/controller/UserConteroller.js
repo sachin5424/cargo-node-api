@@ -1,6 +1,7 @@
 import { userRegisterValidation, userLoginValidation, userRefreshTokenValidation, check_params } from "../validation/user.validation";
 import { UserModel, UserTokenModel } from "../data-base/index";
 import { createData, createToken } from "../services/test";
+import {validationResult} from "../settings/import";
 import UserService from "../services/user.server";
 import jwtToken from "jsonwebtoken";
 import randtoken from "rand-token";
