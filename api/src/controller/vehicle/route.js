@@ -12,8 +12,8 @@ router.get("/category",  CategoryConteroller.getVehicalCategorie);
 router.get("/category/:id", CategoryConteroller.detailsVehicalCategorie);
 router.put("/category/:id", jwtTokenPermission, updatedVehicalCategorieValidation, CategoryConteroller.updateVehicalCategorie);
 
-router.get('/type/list', /* jwtTokenPermission, */  typeValidation, TypeController.list);
-router.post('/type/save', /* jwtTokenPermission, */  typeValidation, TypeController.save);
-router.delete("/type/delete/:id", /* jwtTokenPermission, */ TypeController.delete);
+router.get('/type/list', typeValidation, TypeController.list);
+router.post('/type/save', jwtTokenPermission,  typeValidation, TypeController.save);
+router.delete("/type/delete/:id", jwtTokenPermission, TypeController.delete);
 
 export default router;
