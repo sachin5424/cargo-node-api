@@ -5,7 +5,7 @@ import { environment } from 'src/environments/environment';
 
 @Injectable({providedIn: 'root'})
 export class TripCategoryService {
-    trp_category_url:string = 'api/trip-categorie'
+    trp_category_url:string = 'trip/categorie'
     constructor(private _http:HttpClient) { }
 
     fnVehicaleCategories():Observable<any> {
@@ -15,7 +15,7 @@ export class TripCategoryService {
       return this._http.get(environment.baseUrl+this.trp_category_url+id)
     }
     fnGetPermission():Observable<any>{
-      return this._http.get(environment.baseUrl+'api/test?model=vehhical_categories')
+      return this._http.get(environment.baseUrl+'permission/test?model=vehhical_categories')
     }
     PostfnVehicaleCategories(data:any):Observable<any>{return this._http.post(environment.baseUrl+this.trp_category_url,data,
     {

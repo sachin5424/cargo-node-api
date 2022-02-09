@@ -21,7 +21,7 @@ export class AuthService {
   constructor(private _http: HttpClient,private _router:Router) { }
 
   fnLogin(data: Login): [Observable<any>, Observable<any>] {
-    this._http.post(environment.baseUrl+'api/login', data).pipe(take(1)).subscribe((res: any) => {
+    this._http.post(environment.baseUrl+'user/login', data).pipe(take(1)).subscribe((res: any) => {
       this.LoginData.next(res)
     }, (err: any) => {
       this.LoginError.next(err)
@@ -29,7 +29,7 @@ export class AuthService {
     return [this.LoginData, this.LoginError]
   }
   testFnLogin(data: Login):Observable<any>{
-   return this._http.post(environment.baseUrl+'api/login', data)
+   return this._http.post(environment.baseUrl+'user/login', data)
   }
 
   LoginRoutes(token:string){

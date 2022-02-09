@@ -8,15 +8,15 @@ export class VehicleCategoriesService {
     constructor(private _http:HttpClient) { }
 
     fnVehicaleCategories():Observable<any> {
-      return this._http.get(environment.baseUrl+'api/vehical-categorie')
+      return this._http.get(environment.baseUrl+'vehicle/category')
     }
     fnVehicaleCategoriesDetails(id:any):Observable<any> {
-      return this._http.get(environment.baseUrl+'api/vehical-categorie/'+id)
+      return this._http.get(environment.baseUrl+'vehicle/category/'+id)
     }
     fnGetPermission():Observable<any>{
-      return this._http.get(environment.baseUrl+'api/test?model=vehhical_categories')
+      return this._http.get(environment.baseUrl+'permission/test?model=vehhical_categories')
     }
-    PostfnVehicaleCategories(data:any):Observable<any>{return this._http.post(environment.baseUrl+'api/vehical-categorie',data,
+    PostfnVehicaleCategories(data:any):Observable<any>{return this._http.post(environment.baseUrl+'vehicle/category',data,
     {
       reportProgress: true,
       observe: 'events',

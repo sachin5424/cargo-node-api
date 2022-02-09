@@ -7,9 +7,9 @@ import { environment } from 'src/environments/environment';
 export class UserService {
     constructor(private _http: HttpClient) { }
     fnUserList():Observable<any>{
-      return this._http.get(environment.baseUrl+'api/user-list')
+      return this._http.get(environment.baseUrl+'user/list')
     }        
     fnUserProfile(id:any):Observable<any>{
-        return this._http.get(environment.baseUrl+'api/user-profile/'+id)
+        return this._http.get(environment.baseUrl+'user/profile/'+id)
     }
 }

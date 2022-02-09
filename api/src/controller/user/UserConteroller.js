@@ -1,42 +1,28 @@
-import { userRegisterValidation, userLoginValidation, userRefreshTokenValidation, check_params } from "../validation/user.validation";
-import { UserModel, UserTokenModel } from "../data-base/index";
-import { createData, createToken } from "../services/test";
-import {validationResult} from "../settings/import";
-import UserService from "../services/user.server";
+import { UserModel, UserTokenModel } from "../../data-base/index";
+import { createData, createToken } from "../../services/test";
+import {validationResult} from "../../settings/import";
+import UserService from "../../services/user.server";
 import jwtToken from "jsonwebtoken";
 import randtoken from "rand-token";
 import * as dotenv from "dotenv";
-import express from "express";
 
 dotenv.config();
-export class UserController extends UserService {
+export default class UserController extends UserService {
     // private userData:UserListInterface[];
     constructor() {
         super();
-        this.router = express.Router();
-        this.intializeRoutes();
     }
-    intializeRoutes() {
-        this.router.post('/resgister', userRegisterValidation, this.userRegister);
-        this.router.get('/user-list', this.userList);
-        this.router.get('/user-profile/:id', check_params, this.userProfile);
-        this.router.post('/login', userLoginValidation, this.userLogin);
-        this.router.post('/refresh-token', userRefreshTokenValidation, this.userRefreshToken);
-        this.router.post('/delete-refresh-token', userRefreshTokenValidation, this.userTokenDelete);
-    }
-    async userList(req, res) {
+   
+    static async userList(req, res) {
         try {
-            console.log(req);
             const userData = await UserModel.find().select('-password');
-            console.log(userData);
             return res.status(200).json({ data: userData });
         }
         catch (error) {
-            console.log(error);
             return res.status(500).json({ error });
         }
     }
-    async userProfile(req, res) {
+    static async userProfile(req, res) {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -56,7 +42,7 @@ export class UserController extends UserService {
             return res.status(500).json({ error });
         }
     }
-    async userRegister(req, res) {
+    static async userRegister(req, res) {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -75,7 +61,7 @@ export class UserController extends UserService {
             return res.status(500).json({ error });
         }
     }
-    async userLogin(req, res) {
+    static async userLogin(req, res) {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -117,7 +103,7 @@ export class UserController extends UserService {
             return res.status(500).json({ error });
         }
     }
-    async userRefreshToken(req, res) {
+    static async userRefreshToken(req, res) {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -145,7 +131,7 @@ export class UserController extends UserService {
             return res.send(500).json({ error });
         }
     }
-    async userTokenDelete(req, res) {
+    static async userTokenDelete(req, res) {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {

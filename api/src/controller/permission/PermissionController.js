@@ -1,31 +1,31 @@
-import { express, } from '../settings/import';
+import { express, } from '../../settings/import';
 import { validationResult } from 'express-validator';
-import { MongooseService } from '../services/permission-service';
-import { UserAuthPermission, UserAuthModelPermission, UserModel } from '../data-base/index';
-import { jwtTokenPermission } from '../middleware/jwtToken';
-import { aggregateFilter } from '../services/test';
-import { addPermission } from '../validation/model-permission';
+import { MongooseService } from '../../services/permission-service';
+import { UserAuthPermission, UserAuthModelPermission, UserModel } from '../../data-base/index';
+// import { jwtTokenPermission } from '../../middleware/jwtToken';
+import { aggregateFilter } from '../../services/test';
+// import { addPermission } from '../../validation/model-permission';
 import mongoose from 'mongoose';
-class PermissionController extends MongooseService {
+export default class PermissionController extends MongooseService {
     constructor() {
         super();
         this.router = express.Router();
         this.path = '/permission';
         this.permission = UserAuthPermission;
         this.userModelPermission = UserAuthModelPermission;
-        this.intializeRoutes();
+        // this.intializeRoutes();
     }
     /*
      All Intialize Routes
     */
     intializeRoutes() {
-        this.router.get('/test', jwtTokenPermission, this.get);
-        this.router.get(this.path, this.getPermission);
-        this.router.post(this.path, addPermission, this.addPermission);
-        this.router.post(this.path + '-multi', this.addMultiPermission);
+        // this.router.get('/test', jwtTokenPermission, this.get);
+        // this.router.get(this.path, this.getPermission);
+        // this.router.post(this.path, addPermission, this.addPermission);
+        // this.router.post(this.path + '-multi', this.addMultiPermission);
         // this.router.post(this.path,this.validations.addMultiPermission,this.addMultiPermission)
     }
-    async get(req, res) {
+    static async get(req, res) {
         try {
             const getReq = req;
             const { model } = req.query;
@@ -69,7 +69,7 @@ class PermissionController extends MongooseService {
             return res.status(500).json({ error });
         }
     }
-    async getPermission(req, res) {
+    static async getPermission(req, res) {
         try {
             const data = await UserAuthModelPermission.find();
             return res.status(200).json({ data });
@@ -79,7 +79,7 @@ class PermissionController extends MongooseService {
             return res.status(500).json({ error });
         }
     }
-    async addPermission(req, res) {
+    static async addPermission(req, res) {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -100,7 +100,7 @@ class PermissionController extends MongooseService {
             return res.status(500).json({ error: error });
         }
     }
-    async addMultiPermission(req, res) {
+    static async addMultiPermission(req, res) {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -127,4 +127,3 @@ class PermissionController extends MongooseService {
         }
     }
 }
-export { PermissionController };

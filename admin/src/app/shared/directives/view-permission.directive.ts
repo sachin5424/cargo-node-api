@@ -29,7 +29,7 @@ export class ViewPermissionDirective  implements AfterViewInit{
  }
 
  fnGetPermission(){
-   this._http.get(environment.baseUrl+'api/test?model='+this.model_name).subscribe((res:any)=>{
+   this._http.get(environment.baseUrl+'permission/test?model='+this.model_name).subscribe((res:any)=>{
     this.check = res.temp;
     
     if(!this.check.includes(this.method)){
