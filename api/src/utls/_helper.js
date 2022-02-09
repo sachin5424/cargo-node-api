@@ -36,4 +36,17 @@ var slug = function (str) {
     console.log(str);
     return str;
 };
+
+export function clearSearch(obj) {
+    for (const [key, value] of Object.entries(obj)) {
+        if (typeof value === "object") {
+            clearSearch(value)
+        } else {
+            if (typeof value === 'undefined' || (typeof value === 'string' && value.length < 1)) {
+                delete (obj[key])
+            }
+        }
+    }
+}
+
 export { matchPassword, slug };

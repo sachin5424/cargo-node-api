@@ -1,22 +1,10 @@
-import { express, jwtTokenPermission } from '../../settings/import';
 import { validationResult } from 'express-validator';
 import { tripCategorieModel } from '../../data-base/index';
 import { createData, listPaginate } from '../../services/test';
 import { slug } from '../../utls/_helper';
-import { vehicalCategorieValidation, updatedVehicalCategorieValidation } from '../../validation/index';
 
 export default class CategoriesController {
-    constructor() {
-        this.router = express.Router();
-        this.vehicalCategoriesUrl = '/trip-categorie';
-        // this.intializeRoutes();
-    }
-    intializeRoutes() {
-        // this.router.post(this.vehicalCategoriesUrl, jwtTokenPermission, vehicalCategorieValidation, this.addVehicalCategorie);
-        // this.router.get(this.vehicalCategoriesUrl, this.getVehicalCategorie);
-        // this.router.get(this.vehicalCategoriesUrl + '/:id', this.detailsVehicalCategorie);
-        // this.router.put(this.vehicalCategoriesUrl + '/:id', jwtTokenPermission, updatedVehicalCategorieValidation, this.updateVehicalCategorie);
-    }
+    
     static async addVehicalCategorie(req, res) {
         try {
             const errors = validationResult(req);

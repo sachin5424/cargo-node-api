@@ -1,30 +1,16 @@
-import { express, } from '../../settings/import';
 import { validationResult } from 'express-validator';
 import { MongooseService } from '../../services/permission-service';
 import { UserAuthPermission, UserAuthModelPermission, UserModel } from '../../data-base/index';
-// import { jwtTokenPermission } from '../../middleware/jwtToken';
 import { aggregateFilter } from '../../services/test';
-// import { addPermission } from '../../validation/model-permission';
 import mongoose from 'mongoose';
+
+
 export default class PermissionController extends MongooseService {
     constructor() {
         super();
-        this.router = express.Router();
-        this.path = '/permission';
-        this.permission = UserAuthPermission;
         this.userModelPermission = UserAuthModelPermission;
-        // this.intializeRoutes();
     }
-    /*
-     All Intialize Routes
-    */
-    intializeRoutes() {
-        // this.router.get('/test', jwtTokenPermission, this.get);
-        // this.router.get(this.path, this.getPermission);
-        // this.router.post(this.path, addPermission, this.addPermission);
-        // this.router.post(this.path + '-multi', this.addMultiPermission);
-        // this.router.post(this.path,this.validations.addMultiPermission,this.addMultiPermission)
-    }
+    
     static async get(req, res) {
         try {
             const getReq = req;

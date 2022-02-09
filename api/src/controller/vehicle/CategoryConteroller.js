@@ -1,14 +1,9 @@
-import { express } from '../../settings/import';
 import { validationResult } from 'express-validator';
 import { VehicalCategorieModel } from '../../data-base/index';
 import { createData, listPaginate } from '../../services/test';
 import { slug } from '../../utls/_helper';
 
 export default class CategoryController {
-    constructor() {
-        this.router = express.Router();
-        this.vehicalCategoriesUrl = '/vehical-categorie';
-    }
     static async addVehicalCategorie(req, res) {
         try {
             const errors = validationResult(req);
