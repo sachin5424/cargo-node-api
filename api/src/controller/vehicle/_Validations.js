@@ -1,7 +1,23 @@
 import { check } from '../../settings/import';
 import { tripCategorieModel, VehicalCategorieModel} from '../../data-base';
+import VehicleTypeModel from '../../data-base/models/vehicleType';
 
 export const typeValidation = [
+
+    check('_id')
+        .optional()
+        .notEmpty().withMessage("Provide / Select a valid data")
+        .custom(async (v)=>{
+            try{
+                const r = await VehicleTypeModel.findById(v);
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch(e){
+                throw new Error("This data does not exit. Please check or refresh");
+            }
+        }),
+
     check('name')
         .notEmpty().withMessage("The 'name' field is required")
         .isString().withMessage("The 'name' field is not valid"),

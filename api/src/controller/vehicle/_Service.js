@@ -48,11 +48,6 @@ export default class Service {
         try {
             const tplData = _id ? await VehicleTypeModel.findById(_id) : new VehicleTypeModel();
 
-            if (_id && !tplData) {
-                response.message = "This data does not exit. Please check or refresh";
-                throw new Error(response);
-            }
-
             tplData.name = data.name;
             tplData.icon = data.icon;
             tplData.priceKM = data.priceKM;
