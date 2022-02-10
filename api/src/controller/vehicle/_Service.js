@@ -29,7 +29,7 @@ export default class Service {
                 })
                 .catch(err => { throw new Error(err.message) })
 
-            if (response.data.length) {
+            if (response.data.docs.length) {
                 response.message = "Data fetched";
             }
             response.statusCode = 200;

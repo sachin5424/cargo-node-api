@@ -1,28 +1,57 @@
 import { check } from '../../settings/import';
-// import VehicleTypeModel from '../../data-base/models/vehicleType';
+import { tripCategorieModel, VehicalCategorieModel} from '../../data-base';
 
 export const typeValidation = [
-    check('name').notEmpty().withMessage("The 'name' field is required").isString(),
-    check('icon').optional().notEmpty().withMessage("The 'icon' field is required").isString().matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Icon is not an image"),
-    check('priceKM').optional().notEmpty().withMessage("The 'price per KM' field is required").isNumeric(),
-    check('tripCategories').optional().notEmpty().isArray()/*. withMessage("The 'vehicle category' field is required"). */,
-    // {
-        // custom(async (value)=>{
-        //     let count = 0;
-        //     let arrPromise = []
-        //     // throw new Error('YYYY')
-    
-        //     await value?.forEach(async (element) => {
-        //             await VehicleTypeModel.findById(element) ? '' : count++;
-        //     });
-        //     throw new Error(count)
-        //     if(count > 0){
-        //         throw new Error(`${count} field${count > 0?'s are': 'is'} not valid in trip category`)
-        //     }
-        // }),
+    check('name')
+        .notEmpty().withMessage("The 'name' field is required")
+        .isString().withMessage("The 'name' field is not valid"),
 
-    // }
-    check('vehicleCategory').optional().notEmpty().withMessage("The 'vehicle category' field is required"),
-    check('isActive').optional().notEmpty().withMessage("The 'active' field is required").toBoolean(1 ? true : false),
-    check('temp.*.value1').isArray()
+    check('icon')
+        .notEmpty().withMessage("The 'icon' is required")
+        .isString().withMessage("The 'icon' is not valid")
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Icon is not an image"),
+
+    check('priceKM')
+        .notEmpty().withMessage("The 'price per KM' field is required")
+        .isNumeric().withMessage("The 'price per KM' field is must be a number"),
+
+    check('tripCategories')
+        .notEmpty().withMessage("The 'vehicle category' field is required")
+        .isArray().withMessage("The 'vehicle category' field must be an array")
+        .custom(async (value) => {
+            let count = 0;
+            const arrPromise = value?.map(async (v) => {
+                try {
+                    const result = await tripCategorieModel.findOne({ _id: v });
+                    if (!result) {
+                        throw new Error("Data not found");
+                    }
+                } catch (e) {
+                    count++;
+                }
+            });
+            await Promise.all(arrPromise);
+            if (count > 0) {
+                throw new Error(`${count} field${count > 1 ? 's are' : ' is'} not valid in trip category`)
+            }
+        }),
+
+    check('vehicleCategory').
+        notEmpty().withMessage("The 'vehicle category' field is required")
+        .custom(async (value) =>{
+
+            try{
+                const result = await VehicalCategorieModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch(e){
+                throw new Error("Vehicle category is not valid");
+            }
+
+        }),
+
+    check('isActive').
+        notEmpty().withMessage("The 'active' field is required")
+        .toBoolean(1 ? true : false),
 ];
