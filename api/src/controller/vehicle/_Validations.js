@@ -1,6 +1,7 @@
 import { check } from '../../settings/import';
 import { tripCategorieModel, VehicalCategorieModel} from '../../data-base';
 import VehicleTypeModel from '../../data-base/models/vehicleType';
+import VehicleModelModel from '../../data-base/models/vehicleModel';
 
 export const typeValidation = [
 
@@ -65,6 +66,48 @@ export const typeValidation = [
                 throw new Error("Vehicle category is not valid");
             }
 
+        }),
+
+    check('isActive').
+        notEmpty().withMessage("The 'active' field is required")
+        .toBoolean(1 ? true : false),
+];
+
+export const modelValidation = [
+
+    check('_id')
+        .optional()
+        .notEmpty().withMessage("Provide / Select a valid data")
+        .custom(async (v)=>{
+            try{
+                const r = await VehicleModelModel.findById(v);
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch(e){
+                throw new Error("This data does not exit. Please check or refresh");
+            }
+        }),
+
+    check('name')
+        .notEmpty().withMessage("The 'name' field is required")
+        .isString().withMessage("The 'name' field is not valid"),
+
+    check('description')
+        .notEmpty().withMessage("The 'description' field is required")
+        .isString().withMessage("The 'description' field is not valid"),
+
+    check('vehicleType')
+        .notEmpty().withMessage("The 'vehicle type' field is required")
+        .custom(async (value) =>{
+            try{
+                const result = await VehicleTypeModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch(e){
+                throw new Error("Vehicle type is not valid");
+            }
         }),
 
     check('isActive').
