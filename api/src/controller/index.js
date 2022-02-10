@@ -1,7 +1,9 @@
+import { jwtTokenPermission } from '../middleware/jwtToken';
 import routerVehicle from './vehicle/route';
 import routerUser from './user/route';
 import routerPermission from './permission/route';
 import routerTrip from './trip/route';
+import routerDriver from './driver/route';
 
 
 const api = (app) => {
@@ -34,6 +36,7 @@ const api = (app) => {
     app.use('/user', routerUser);
     app.use('/permission', routerPermission);
     app.use('/trip', routerTrip);
+    app.use('/driver', jwtTokenPermission, routerDriver);
 };
 
 export default api;

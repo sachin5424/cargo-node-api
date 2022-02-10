@@ -81,7 +81,7 @@ export default class Service {
             return response;
 
         } catch (e) {
-            throw new Error(e)
+            throw new Error("Con not delete. Something went wrong.")
         }
     }
 
@@ -162,7 +162,7 @@ export default class Service {
             return response;
 
         } catch (e) {
-            throw new Error(e)
+            throw new Error("Con not delete. Something went wrong.")
         }
     }
 }
