@@ -21,6 +21,18 @@ export default class Service {
             clearSearch(search);
 
             response.data.docs = await VehicleTypeModel.find(search)
+                .populate(
+                    [
+                        {
+                            path: 'vehicleCategory',
+                            select: 'name icon',
+                        },
+                        {
+                            path: 'tripCategories',
+                            select: 'name icon',
+                        }
+                    ]
+                )
                 .select('-updatedAt -createdAt -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
@@ -104,6 +116,14 @@ export default class Service {
             clearSearch(search);
 
             response.data.docs = await VehicleModelModel.find(search)
+                .populate(
+                    [
+                        {
+                            path: 'vehicleType',
+                            select: 'name icon',
+                        }
+                    ]
+                )
                 .select('-updatedAt -createdAt -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
