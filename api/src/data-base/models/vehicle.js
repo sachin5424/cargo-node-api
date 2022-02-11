@@ -8,7 +8,7 @@ const VehicleSchema = new Schema({
 
     owner: {
         type: Schema.Types.ObjectId,
-        ref: 'user_auth',
+        ref: 'vehicleOwner',
     },
     driver: {
         type: Schema.Types.ObjectId,
