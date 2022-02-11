@@ -1,7 +1,5 @@
-import DriverModel from "../../data-base/models/driver";
 import { clearSearch } from "../../utls/_helper";
-import { uploadFile } from "../../utls/_helper";
-import config from "../../utls/config";
+import StateModel from "../../data-base/models/state";
 
 export default class Service {
 
@@ -12,22 +10,24 @@ export default class Service {
             data: {
                 docs: [],
                 page: query.page * 1 > 0 ? query.page * 1 : 1,
-                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 200,
                 totalDocs: 0,
             },
             status: false
         };
 
         try {
-            const search = { _id: query._id };
+            const search = { _id: query._id, 
+                // name: {$regex: ".*" + query.name + ".*"} 
+            };
             clearSearch(search);
 
-            response.data.docs = await DriverModel.find(search)
+            response.data.docs = await StateModel.find(search)
                 .select('-updatedAt -createdAt -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
-                    await DriverModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await StateModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })

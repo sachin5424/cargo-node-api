@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import { dotenv } from '../../settings/import';
+import initdata from "./initdata";
+
 dotenv.config();
 let databaseConnect = () => {
     // var connectionString = `mongodb://localhost:27017/ecomm`;
@@ -9,6 +11,7 @@ let databaseConnect = () => {
     mongoose.connection.on('connected', function () {
         console.log("data-base connect");
         console.log(connectionString);
+        initdata();
     });
     mongoose.connection.on('error', function (err) {
         console.log(("Mongoose default connection has occured " + err + " error"));

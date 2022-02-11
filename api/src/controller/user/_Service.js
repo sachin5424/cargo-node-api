@@ -1,11 +1,9 @@
-import DriverModel from "../../data-base/models/driver";
+import { UserModel } from "../../data-base";
 import { clearSearch } from "../../utls/_helper";
-import { uploadFile } from "../../utls/_helper";
-import config from "../../utls/config";
 
 export default class Service {
 
-    static async listStates(query) {
+    static async listUsers(query, cuser) {
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -22,12 +20,12 @@ export default class Service {
             const search = { _id: query._id };
             clearSearch(search);
 
-            response.data.docs = await DriverModel.find(search)
-                .select('-updatedAt -createdAt -__v')
+            response.data.docs = await UserModel.find(search)
+                .select('-password -updatedAt -createdAt -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
-                    await DriverModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await UserModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })

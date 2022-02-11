@@ -2,6 +2,7 @@ import { UserModel, UserTokenModel } from "../../data-base/index";
 import { createData, createToken } from "../../services/test";
 import {validationResult} from "../../settings/import";
 import UserService from "../../services/user.server";
+import Service from "./_Service";
 import jwtToken from "jsonwebtoken";
 import randtoken from "rand-token";
 import * as dotenv from "dotenv";
@@ -13,15 +14,15 @@ export default class UserController extends UserService {
         super();
     }
    
-    static async userList(req, res) {
-        try {
-            const userData = await UserModel.find().select('-password');
-            return res.status(200).json({ data: userData });
-        }
-        catch (error) {
-            return res.status(500).json({ error });
-        }
-    }
+    // static async userList(req, res) {
+    //     try {
+    //         const userData = await UserModel.find().select('-password');
+    //         return res.status(200).json({ data: userData });
+    //     }
+    //     catch (error) {
+    //         return res.status(500).json({ error });
+    //     }
+    // }
     static async userProfile(req, res) {
         try {
             const errors = validationResult(req);
@@ -151,5 +152,15 @@ export default class UserController extends UserService {
         catch (error) {
             return res.status(500).json({ error });
         }
+    }
+
+    static async list(req, res) {
+
+        try {
+			const srvRes = await Service.listUsers(req?.query, req.__cuser)
+            return res.status(srvRes.statusCode).json({ srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
     }
 }
