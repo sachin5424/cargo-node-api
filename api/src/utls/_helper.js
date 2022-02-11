@@ -1,4 +1,7 @@
 import { UserModel } from "../data-base/index";
+import mime from "mime";
+import fs from "fs";
+
 let matchPassword = (email, password) => {
     return new Promise((resolve, reject) => {
         UserModel.findOne({ email: email, }, function (err, user) {
@@ -46,6 +49,44 @@ export function clearSearch(obj) {
                 delete (obj[key])
             }
         }
+    }
+}
+
+
+
+export function decodeBase64Image(dataString) {
+    var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/), response = {};
+
+    if (matches.length !== 3) {
+        return new Error('Invalid input string');
+    }
+
+    response.type = matches[1];
+    response.data = new Buffer(matches[2], 'base64');
+
+    return response;
+}
+
+export async function uploadFile(dataBase64, path, model, key, _id) {
+    var decodedImg = decodeBase64Image(dataBase64);
+    var imageBuffer = decodedImg.data;
+    var type = decodedImg.type;
+    var extension = mime.getExtension(type);
+    var fileName = Date.now() + '-' + Math.round(Math.random() * 1E9) + '.' + extension;
+    try {
+        await fs.writeFileSync(path + fileName, imageBuffer, 'utf8');
+        try{
+            if(_id){
+                const f = await model.findById(_id);
+                fs.unlink(path + f[key], ()=>{});
+            }
+        } catch(e){
+            // new Error
+        }
+        return fileName
+    }
+    catch (err) {
+        throw new Error(err)
     }
 }
 

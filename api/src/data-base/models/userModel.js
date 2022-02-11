@@ -15,6 +15,11 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String
     },
+    type: {
+        type: String,
+        enum: ['superAdmin', 'stateAdmin', 'districtAdmin', 'tehsilAdmin'],
+        default: 'user',
+    },
     isActive: {
         type: Boolean,
         default: false

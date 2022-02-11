@@ -1,5 +1,7 @@
 import DriverModel from "../../data-base/models/driver";
 import { clearSearch } from "../../utls/_helper";
+import { uploadFile } from "../../utls/_helper";
+import config from "../../utls/config";
 
 export default class Service {
 
@@ -53,7 +55,7 @@ export default class Service {
             tplData.lastName = data.lastName;
             tplData.phoneNo = data.phoneNo;
             tplData.dob = data.dob;
-            tplData.photo = data.photo;
+            tplData.photo = await uploadFile(data.photo, config.DRIVER_PHOTO_UPLOAD_PATH, DriverModel, 'photo', _id);
             tplData.drivingLicenceNumber = data.drivingLicenceNumber;
             tplData.drivingLicenceNumberExpiryDate = data.drivingLicenceNumberExpiryDate;
             tplData.adharNo = data.adharNo;
