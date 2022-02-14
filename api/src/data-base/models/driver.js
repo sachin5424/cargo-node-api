@@ -4,9 +4,13 @@ import bcrypt from "bcryptjs";
 const DriverSchema = new Schema({
     firstName: String,
     lastName: String,
-    driverId: String,
+    // driverId: String,
     phoneNo: String,
     email: String,
+    emailVerified: { 
+        type: Boolean, 
+        default: false 
+    },
     password: String,
     dob: Date,
     photo: String,
@@ -33,6 +37,16 @@ const DriverSchema = new Schema({
         ref: "taluk",
     },
     zipcode: String,
+
+    isDocApproved: {
+        type: Boolean,
+        default: false
+    },
+
+    isOnline: {
+        type: Boolean,
+        default: false
+    },
 
     isApproved: {
         type: Boolean,

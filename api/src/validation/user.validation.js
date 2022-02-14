@@ -7,8 +7,8 @@ const validationMessage = {
     invalidPassword: "Invalid email password",
 };
 const userRegisterValidation = [
-    check('first_name').notEmpty().withMessage(validationMessage.required).isString(),
-    check('last_name').notEmpty().withMessage(validationMessage.required).isString(),
+    check('firstName').notEmpty().withMessage(validationMessage.required).isString(),
+    check('lastName').notEmpty().withMessage(validationMessage.required).isString(),
     check('email').notEmpty().withMessage(validationMessage.required).isEmail().withMessage(validationMessage.invalidEmail).custom(async (value, { req }) => {
         return UserModel.findOne({ email: value }).then((email) => {
             if (email) {
@@ -29,7 +29,7 @@ const userLoginValidation = [
         const data = await UserModel.findOne({ email: input, isActive: true });
         if (!data)
             throw Error('Email address not register');
-        if (data.email_verfiy === false)
+        if (data.emailVerified === false)
             throw new Error('Eamil address not verfiy');
     }),
     check('password').notEmpty().withMessage(validationMessage.required).isString().withMessage(validationMessage.invalidPassword).custom(async (input, { req }) => {

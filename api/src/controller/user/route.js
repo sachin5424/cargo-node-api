@@ -2,7 +2,8 @@ import { Router } from "express";
 import UserController from "./UserConteroller";
 import { userRegisterValidation, userLoginValidation, userRefreshTokenValidation, check_params } from "../../validation/user.validation";
 import { jwtTokenPermission } from "../../middleware/jwtToken";
-import { validateSuperAdmin } from "../../middleware/validateAdmin";
+import { validateSuperAdmin, validateAnyOneAdmin } from "../../middleware/validateAdmin";
+import { userValidation } from "./_Validations";
 
 const router = Router({ mergeParams: true });
 
@@ -15,5 +16,7 @@ router.post('/refresh-token', userRefreshTokenValidation, UserController.userRef
 router.post('/delete-refresh-token', userRefreshTokenValidation, UserController.userTokenDelete);
 
 router.get('/list', jwtTokenPermission, validateSuperAdmin, UserController.list);
+
+router.post("/save", jwtTokenPermission, validateSuperAdmin, userValidation, UserController.save );
 
 export default router;

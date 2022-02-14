@@ -30,11 +30,11 @@ export default class Service {
                 //     [
                 //         {
                 //             path: 'owner',
-                //             select: 'first_name last_name email',
+                //             select: 'firstName lastName email',
                 //         },
                 //         {
                 //             path: 'driver',
-                //             select: 'firstName last_name',
+                //             select: 'firstName lastName',
                 //         },
                 //         {
                 //             path: 'vehicleType',
@@ -128,11 +128,11 @@ export default class Service {
                     [
                         {
                             path: 'owner',
-                            select: 'first_name last_name email',
+                            select: 'firstName lastName email',
                         },
                         {
                             path: 'driver',
-                            select: 'firstName last_name',
+                            select: 'firstName lastName',
                         },
                         {
                             path: 'vehicleType',

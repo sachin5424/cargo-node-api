@@ -1,24 +1,37 @@
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 import moment from "moment";
 const bcrypt = require('bcryptjs'), SALT_WORK_FACTOR = 10;
+
+
 const UserSchema = new mongoose.Schema({
-    first_name: {
-        type: String,
+    firstName: String,
+    lastName: String,
+    phoneNo: String,
+    email: String,
+    emailVerified: { 
+        type: Boolean, 
+        default: false 
     },
-    last_name: {
-        type: String
-    },
-    email: {
-        type: String
-    },
-    email_verfiy: { type: Boolean, default: false },
-    password: {
-        type: String
-    },
+
+    password: String,
+    dob: Date,
+    photo: String,
+
     type: {
         type: String,
-        enum: ['superAdmin', 'stateAdmin', 'districtAdmin', 'tehsilAdmin'],
-        default: 'user',
+        enum: ['superAdmin', 'stateAdmin', 'districtAdmin', 'talukAdmin'],
+    },
+    state: {
+        type: Schema.Types.ObjectId,
+        ref: "state",
+    },
+    district: {
+        type: Schema.Types.ObjectId,
+        ref: "district",
+    },
+    taluk: {
+        type: Schema.Types.ObjectId,
+        ref: "taluk",
     },
     isActive: {
         type: Boolean,
@@ -32,9 +45,9 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    joingDate: {
+    joiningDate: {
         type: Date,
-        default: moment().format('YYYY/MM/DD')
+        default: moment().format('YYYY-MM-DD')
     }
 }, { timestamps: true });
 UserSchema.pre('save', function (next) {

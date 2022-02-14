@@ -22,8 +22,6 @@ export default class Service {
             const search = { _id: query._id, isDeleted: false };
             clearSearch(search);
 
-            console.log('search -----', search);
-
             response.data.docs = await DriverModel.find(search)
                 .select('-updatedAt -createdAt -__v')
                 .limit(response.data.limit)
@@ -56,7 +54,7 @@ export default class Service {
 
             tplData.firstName = data.firstName;
             tplData.lastName = data.lastName;
-            tplData.driverId = data.driverId;
+            // tplData.driverId = data.driverId;
             tplData.phoneNo = data.phoneNo;
             tplData.email = data.email;
             tplData.password = data.password;
