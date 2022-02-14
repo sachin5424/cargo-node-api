@@ -5,7 +5,7 @@ import config from "../../utls/config";
 
 export default class Service {
 
-    static async listDrivers(query) {
+    static async listDriver(query) {
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -19,15 +19,17 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id };
+            const search = { _id: query._id, isDeleted: false };
             clearSearch(search);
+
+            console.log('search -----', search);
 
             response.data.docs = await DriverModel.find(search)
                 .select('-updatedAt -createdAt -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
-                    await DriverModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await DriverModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
@@ -92,7 +94,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await DriverModel.findById(id).remove();
+            await DriverModel.findById(id).update({isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;

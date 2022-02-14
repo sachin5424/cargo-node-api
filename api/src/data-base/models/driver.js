@@ -34,6 +34,11 @@ const DriverSchema = new Schema({
     },
     zipcode: String,
 
+    isApproved: {
+        type: Boolean,
+        default: false
+    },
+
     isDeleted: {
         type: Boolean,
         default: false

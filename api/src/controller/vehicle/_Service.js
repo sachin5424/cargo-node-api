@@ -22,7 +22,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id };
+            const search = { _id: query._id, isDeleted: false };
             clearSearch(search);
 
             response.data.docs = await VehicleOwnerModel.find(search)
@@ -46,7 +46,7 @@ export default class Service {
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
-                    await VehicleOwnerModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await VehicleOwnerModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
@@ -93,7 +93,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleOwnerModel.findById(id).remove();
+            await VehicleOwnerModel.findById(id).update({isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -120,7 +120,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id };
+            const search = { _id: query._id, isDeleted: false };
             clearSearch(search);
 
             response.data.docs = await VehicleModel.find(search)
@@ -144,7 +144,7 @@ export default class Service {
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
-                    await VehicleModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await VehicleModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
@@ -193,7 +193,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleModel.findById(id).remove();
+            await VehicleModel.findById(id).update({isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -220,7 +220,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id };
+            const search = { _id: query._id, isDeleted: false };
             clearSearch(search);
 
             response.data.docs = await VehicleTypeModel.find(search)
@@ -240,7 +240,7 @@ export default class Service {
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
-                    await VehicleTypeModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await VehicleTypeModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
@@ -287,7 +287,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleTypeModel.findById(id).remove();
+            await VehicleTypeModel.findById(id).update({isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -315,7 +315,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id };
+            const search = { _id: query._id, isDeleted: false };
             clearSearch(search);
 
             response.data.docs = await VehicleModelModel.find(search)
@@ -331,7 +331,7 @@ export default class Service {
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
-                    await VehicleModelModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await VehicleModelModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
@@ -376,7 +376,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleModelModel.findById(id).remove();
+            await VehicleModelModel.findById(id).update({isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;

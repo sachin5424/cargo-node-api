@@ -17,7 +17,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, 
+            const search = { _id: query._id, isDeleted: false
                 // name: {$regex: ".*" + query.name + ".*"} 
             };
             clearSearch(search);
@@ -27,7 +27,7 @@ export default class Service {
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
-                    await StateModel.count().then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await StateModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
