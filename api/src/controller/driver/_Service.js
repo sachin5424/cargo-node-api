@@ -5,7 +5,7 @@ import config from "../../utls/config";
 
 export default class Service {
 
-    static async listStates(query) {
+    static async listDrivers(query) {
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -42,6 +42,65 @@ export default class Service {
 
         } catch (e) {
             throw new Error(e)
+        }
+    }
+
+    static async saveDriver(data) {
+        const _id = data._id;
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            const tplData = _id ? await DriverModel.findById(_id) : new DriverModel();
+
+            tplData.firstName = data.firstName;
+            tplData.lastName = data.lastName;
+            tplData.driverId = data.driverId;
+            tplData.phoneNo = data.phoneNo;
+            tplData.email = data.email;
+            tplData.password = data.password;
+            tplData.dob = data.dob;
+            tplData.photo = await uploadFile(data.photo, config.uploadPaths.driver.photo, DriverModel, 'photo', _id);
+            tplData.drivingLicenceNumber = data.drivingLicenceNumber;
+            tplData.drivingLicenceImage = await uploadFile(data.drivingLicenceImage, config.uploadPaths.driver.licence, DriverModel, 'drivingLicenceImage', _id);
+            tplData.drivingLicenceNumberExpiryDate = data.drivingLicenceNumberExpiryDate;
+            tplData.adharNo = data.adharNo;
+            tplData.adharImage = await uploadFile(data.adharImage, config.uploadPaths.driver.adhar, DriverModel, 'adharImage', _id);
+            tplData.panNo = data.panNo;
+            tplData.panImage = await uploadFile(data.panImage, config.uploadPaths.driver.pan, DriverModel, 'panImage', _id);
+            tplData.badgeNo = data.badgeNo;
+            tplData.badgeImage = await uploadFile(data.badgeImage, config.uploadPaths.driver.badge, DriverModel, 'badgeImage', _id);
+            tplData.address = data.address;
+            tplData.state = data.state;
+            tplData.district = data.district;
+            tplData.taluk = data.taluk;
+            tplData.zipcode = data.zipcode;
+            tplData.isActive = data.isActive;
+
+            await tplData.save();
+
+            response.message = _id ? "Driver is Updated" : "A new driver is created";
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
+    static async deleteDriver(id) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            await DriverModel.findById(id).remove();
+
+            response.message = "Deleted successfully";
+            response.statusCode = 200;
+            response.status = true;
+            return response;
+
+        } catch (e) {
+            throw new Error("Con not delete. Something went wrong.")
         }
     }
 }

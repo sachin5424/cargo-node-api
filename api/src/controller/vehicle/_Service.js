@@ -73,7 +73,7 @@ export default class Service {
             tplData.firstName = data.firstName;
             tplData.lastName = data.lastName;
             tplData.email = data.email;
-            tplData.photo = await uploadFile(data.photo, config.VEHICLE_OWNER_PHOTO_UPLOAD_PATH, VehicleOwnerModel, 'photo', _id);
+            tplData.photo = await uploadFile(data.photo, config.uploadPaths.vehicle.owner, VehicleOwnerModel, 'photo', _id);
             tplData.password = data.password;
             tplData.isActive = data.isActive;
 
@@ -169,7 +169,7 @@ export default class Service {
             const tplData = _id ? await VehicleModel.findById(_id) : new VehicleModel();
 
             tplData.name = data.name;
-            tplData.photo = await uploadFile(data.photo, config.VEHICLE_PHOTO_UPLOAD_PATH, VehicleModel, 'photo', _id);
+            tplData.photo = await uploadFile(data.photo, config.uploadPaths.vehicle.photo, VehicleModel, 'photo', _id);
             tplData.vehicleNumber = data.vehicleNumber;
             tplData.availableSeats = data.availableSeats;
             tplData.owner = data.owner;
@@ -265,7 +265,7 @@ export default class Service {
             const tplData = _id ? await VehicleTypeModel.findById(_id) : new VehicleTypeModel();
 
             tplData.name = data.name;
-            tplData.icon = await uploadFile(data.icon, config.VEHICLE_TYPE_ICON_UPLOAD_PATH, VehicleTypeModel, 'icon', _id);
+            tplData.icon = await uploadFile(data.icon, config.uploadPaths.vehicle.type, VehicleTypeModel, 'icon', _id);
             tplData.priceKM = data.priceKM;
             tplData.tripCategories = data.tripCategories;
             tplData.vehicleCategory = data.vehicleCategory;
