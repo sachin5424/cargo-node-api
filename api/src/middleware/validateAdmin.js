@@ -57,22 +57,30 @@ export const validateTehsilAdmin = async (req, res, next) => {
 
 export const validateAnyOneAdmin = async (req, res, next, num) => {
 
-    num = ("0000" + ((3 >>> 0).toString(2)));
-    num = num.substring(num.length - 4);
+    /* 
+     * For Super Admin add 8
+     * For State Admin add 4
+     * For District Admin add 2
+     * For Taluk Admin add 1
+     */
 
-    const isSuperAdmin = 8;//num[0] * 1;
-    const isStateAdmin = 4;//num[1] * 1;
-    const isDistrictAdmin = 2;//num[2] * 1;
-    const isTalukAdmin = 1;//num[3] * 1;
+    num = ("0000" + ((num >>> 0).toString(2)));
+    num = num.substring(num.length - 4);
+    
+    const totalPermissions = [
+        num[0] * 1 ? 'superAdmin' : '',
+        num[1] * 1 ? 'stateAdmin' : '',
+        num[2] * 1 ? 'districtAdmin' : '',
+        num[3] * 1 ? 'talukAdmin' : '',
+    ];
 
     try {
         const cuser = req.__cuser;
-        if (admins?.includes(cuser.type)) {
+        if (totalPermissions?.includes(cuser.type)) {
             next();
         } else {
             throw new Error("Unauthorized");
         }
-
     } catch (error) {
         res.status(401).json({ message: "Unauthorized" });
     }
