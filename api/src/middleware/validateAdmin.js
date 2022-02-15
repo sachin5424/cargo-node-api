@@ -23,8 +23,11 @@ export const validateAnyOneAdmin = async (req, res, next, num) => {
         num[3] * 1 ? 'talukAdmin' : '',
     ];
 
+    
     try {
         const cuser = req.__cuser;
+        // console.log('totalPermissions', totalPermissions);
+        // console.log('cuser.type', cuser.type);
         if (totalPermissions?.includes(cuser.type)) {
             next();
         } else {

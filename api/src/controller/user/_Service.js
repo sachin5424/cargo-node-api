@@ -23,7 +23,7 @@ export default class Service {
             clearSearch(search);
 
             response.data.docs = await UserModel.find(search)
-                .select('-password -updatedAt -createdAt -__v')
+                .select('-password   -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {

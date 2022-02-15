@@ -52,6 +52,20 @@ export function clearSearch(obj) {
     }
 }
 
+export function getAdminFilter(cuser, ...keys) {
+    let search = {};
+    if (cuser.type === "superAdmin") {
+        search = search;
+    } else if (cuser.type === "stateAdmin") {
+        search[keys[0] ? keys[0] : 'state'] = cuser.state;
+    } else if (cuser.type === "districtAdmin") {
+        search[keys[1] ? keys[1] : 'district'] = cuser.district;
+    } else if (cuser.type === "talukAdmin") {
+        search[keys[2] ? keys[2] : 'taluk'] = cuser.taluk;
+    }
+    return search;
+}
+
 
 
 export function decodeBase64Image(dataString) {
@@ -68,6 +82,15 @@ export function decodeBase64Image(dataString) {
 }
 
 export async function uploadFile(dataBase64, path, model, key, _id) {
+    if (!dataBase64) {
+        try {
+            const f = await model.findById(_id);
+            return f[key] || '';
+        } catch (e) {
+            return '';
+        }
+
+    }
     var decodedImg = decodeBase64Image(dataBase64);
     var imageBuffer = decodedImg.data;
     var type = decodedImg.type;
@@ -75,12 +98,12 @@ export async function uploadFile(dataBase64, path, model, key, _id) {
     var fileName = Date.now() + '-' + Math.round(Math.random() * 1E9) + '.' + extension;
     try {
         await fs.writeFileSync(path + fileName, imageBuffer, 'utf8');
-        try{
-            if(_id){
+        try {
+            if (_id) {
                 const f = await model.findById(_id);
-                fs.unlink(path + f[key], ()=>{});
+                fs.unlink(path + f[key], () => { });
             }
-        } catch(e){
+        } catch (e) {
             // new Error
         }
         return fileName

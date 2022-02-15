@@ -42,7 +42,7 @@ export default class Service {
                 //         },
                 //     ]
                 // )
-                .select('-updatedAt -createdAt -__v')
+                .select('  -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
@@ -140,7 +140,7 @@ export default class Service {
                         },
                     ]
                 )
-                .select('-updatedAt -createdAt -__v')
+                .select('  -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
@@ -236,7 +236,7 @@ export default class Service {
                         }
                     ]
                 )
-                .select('-updatedAt -createdAt -__v')
+                .select('  -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {
@@ -327,7 +327,7 @@ export default class Service {
                         }
                     ]
                 )
-                .select('-updatedAt -createdAt -__v')
+                .select('  -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {

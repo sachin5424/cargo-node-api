@@ -5,7 +5,7 @@ export default class DriverController {
     
     static async list(req, res) {
         try {
-			const srvRes = await Service.listDriver(req?.query)
+			const srvRes = await Service.listDriver(req?.query, req.__cuser._doc)
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

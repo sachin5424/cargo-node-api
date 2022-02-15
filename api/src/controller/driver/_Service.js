@@ -1,11 +1,11 @@
 import DriverModel from "../../data-base/models/driver";
-import { clearSearch } from "../../utls/_helper";
+import { clearSearch, getAdminFilter } from "../../utls/_helper";
 import { uploadFile } from "../../utls/_helper";
 import config from "../../utls/config";
 
 export default class Service {
 
-    static async listDriver(query) {
+    static async listDriver(query, cuser) {
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -19,11 +19,14 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false };
+            const search = { _id: query._id, isDeleted: false, ...getAdminFilter(cuser) };
             clearSearch(search);
 
+            response.data = search;
+            return response;
+
             response.data.docs = await DriverModel.find(search)
-                .select('-updatedAt -createdAt -__v')
+                .select('  -__v')
                 .limit(response.data.limit)
                 .skip(response.data.limit * (response.data.page - 1))
                 .then(async function (data) {

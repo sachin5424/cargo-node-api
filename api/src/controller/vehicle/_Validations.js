@@ -28,6 +28,7 @@ export const typeValidation = [
         .isString().withMessage("The 'name' field is not valid"),
 
     check('icon')
+        .optional()
         .notEmpty().withMessage("The 'icon' is required")
         .isString().withMessage("The 'icon' is not valid")
         .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Icon is not an image"),
