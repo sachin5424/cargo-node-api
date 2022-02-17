@@ -15,6 +15,9 @@ const config = {
         },
         user: {
             photo: process.env.USER_PHOTO_UPLOAD_PATH || "./uploads/user/photo/",
+        },
+        customer: {
+            photo: process.env.CUSTOMER_PHOTO_UPLOAD_PATH || "/uploads/customer/photo/",
         }
     }
 }

@@ -5,6 +5,7 @@ import routerPermission from './permission/route';
 import routerTrip from './trip/route';
 import routerDriver from './driver/route';
 import routerCommon from './common/route';
+import routerCustomer from './customer/route';
 
 
 const api = (app) => {
@@ -39,6 +40,7 @@ const api = (app) => {
     app.use('/trip', routerTrip);
     app.use('/driver', jwtTokenPermission, routerDriver);
     app.use('/common', routerCommon);
+    app.use('/customer', routerCustomer);
 };
 
 export default api;
