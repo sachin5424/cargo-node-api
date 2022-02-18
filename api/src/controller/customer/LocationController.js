@@ -1,11 +1,18 @@
 import { validationResult } from 'express-validator';
 import Service from './_Service';
 
-export default class CustomerController {
+export default class LocationController {
     
     static async list(req, res) {
         try {
-			const srvRes = await Service.listCustomer(req?.query, req.__cuser._doc)
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    message: errors.msg,
+                    errors: errors.errors
+                });
+            }
+			const srvRes = await Service.listLocation(req?.query, req.query.customer)
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
@@ -22,7 +29,7 @@ export default class CustomerController {
                 });
             }
             
-			const srvRes = await Service.saveCustomer(req.body)
+			const srvRes = await Service.saveLocation(req.body)
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
@@ -31,7 +38,7 @@ export default class CustomerController {
 
     static async delete(req, res) {
         try {
-			const srvRes = await Service.deleteCustomer(req.params.id);
+			const srvRes = await Service.deleteLocation(req.params.id);
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

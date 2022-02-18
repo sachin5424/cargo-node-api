@@ -102,7 +102,7 @@ export default class Service {
             return response;
 
         } catch (e) {
-            throw new Error("Con not delete. Something went wrong.")
+            throw new Error("Can not delete. Something went wrong.")
         }
     }
 
@@ -202,7 +202,7 @@ export default class Service {
             return response;
 
         } catch (e) {
-            throw new Error("Con not delete. Something went wrong.")
+            throw new Error("Can not delete. Something went wrong.")
         }
     }
 
@@ -296,7 +296,7 @@ export default class Service {
             return response;
 
         } catch (e) {
-            throw new Error("Con not delete. Something went wrong.")
+            throw new Error("Can not delete. Something went wrong.")
         }
     }
 
@@ -385,7 +385,7 @@ export default class Service {
             return response;
 
         } catch (e) {
-            throw new Error("Con not delete. Something went wrong.")
+            throw new Error("Can not delete. Something went wrong.")
         }
     }
 }

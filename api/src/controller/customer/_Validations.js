@@ -1,5 +1,6 @@
 import { check } from '../../settings/import';
 import CustomerModel from '../../data-base/models/customer';
+import CustomerLocationModel from '../../data-base/models/customerLocation';
 import StateModel from '../../data-base/models/state';
 import DistrictModel from '../../data-base/models/district';
 import TalukModel from '../../data-base/models/taluk';
@@ -128,4 +129,58 @@ export const customerValidation = [
         .optional()
         .notEmpty().withMessage("The 'active' field is required")
         .toBoolean(1 ? true : false),
+];
+
+export const locationSearch = [
+    check('customer')
+        .notEmpty().withMessage("A customer is required")
+        .custom(async (v) => {
+            try {
+                const r = await CustomerModel.findById(v);
+                if (!r) {
+                    throw new Error("Customer is not valid");
+                }
+            } catch (e) {
+                throw new Error("Customer is not valid");
+            }
+        }),
+];
+
+export const locationValidation = [
+
+    check('_id')
+        .optional()
+        .notEmpty().withMessage("Provide / Select a valid data")
+        .custom(async (v) => {
+            try {
+                const r = await CustomerLocationModel.findById(v);
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("This data does not exit. Please check or refresh");
+            }
+        }),
+
+    check('customer')
+        .notEmpty().withMessage("Select a customer")
+        .custom(async (v) => {
+            try {
+                const r = await CustomerModel.findById(v);
+                if (!r) {
+                    throw new Error("Customer not found");
+                }
+            } catch (e) {
+                throw new Error("Customer does not exit. Please check or refresh");
+            }
+        }),
+
+    check('name')
+        .notEmpty().withMessage("The 'Name' field is required")
+        .isString().withMessage("The 'Name' field is not valid"),
+
+    check('latlong')
+        .notEmpty().withMessage("The 'Latitude & Longitude' field is required")
+        .isLatLong().withMessage("The 'Latitude & Longitude' field is not valid"),
+
 ];

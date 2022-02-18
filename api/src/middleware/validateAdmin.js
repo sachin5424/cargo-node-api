@@ -1,10 +1,11 @@
-export const validateSuperAdmin = async (req, res, next) => { validateAnyOneAdmin(req, res, next, 8); }
-export const validateStateAdmin = async (req, res, next) => { validateAnyOneAdmin(req, res, next, 4); }
-export const validateDistrictAdmin = async (req, res, next) => { validateAnyOneAdmin(req, res, next, 2); }
-export const validateTehsilAdmin = async (req, res, next) => { validateAnyOneAdmin(req, res, next, 1); }
+export const validateSuperAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 8); }
+export const validateStateAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 4); }
+export const validateDistrictAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 2); }
+export const validateTehsilAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 1); }
+export const validateAnyOneAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 15); }
 
 
-export const validateAnyOneAdmin = async (req, res, next, num) => {
+export const validateCustomAdmin = async (req, res, next, num) => {
 
     /* 
      * For Super Admin          add 8
