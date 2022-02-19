@@ -1,7 +1,7 @@
 import { validationResult } from 'express-validator';
-import { MongooseService } from '../../services/permission-service';
-import { UserAuthPermission, UserAuthModelPermission, UserModel } from '../../data-base/index';
-import { aggregateFilter } from '../../services/test';
+import { MongooseService } from '../../../services/permission-service';
+import { UserAuthPermission, UserAuthModelPermission, UserModel } from '../../../data-base/index';
+import { aggregateFilter } from '../../../services/test';
 import mongoose from 'mongoose';
 
 

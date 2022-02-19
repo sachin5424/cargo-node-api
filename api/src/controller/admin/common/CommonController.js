@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
 import Service from './_Service';
-import initdata from "../../data-base/connection/initdata";
+import initdata from "../../../data-base/connection/initdata";
 
 export default class CommonController {
     

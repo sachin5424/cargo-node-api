@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { validateAnyOneAdmin } from "../../middleware/validateAdmin";
+import { validateAnyOneAdmin } from "../../../middleware/validateAdmin";
 import CustomerController from "./CustomerController";
 import LocationController from "./LocationController";
 import { customerValidation, locationSearch, locationValidation } from "./_Validations";
-import { jwtTokenPermission } from "../../middleware/jwtToken";
+import { jwtTokenPermission } from "../../../middleware/jwtToken";
 
 const router = Router({ mergeParams: true });
 

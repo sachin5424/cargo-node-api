@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateAnyOneAdmin } from "../../middleware/validateAdmin";
+import { validateAnyOneAdmin } from "../../../middleware/validateAdmin";
 import DriverController from "./DriverController";
 import { driverValidation } from "./_Validations";
 

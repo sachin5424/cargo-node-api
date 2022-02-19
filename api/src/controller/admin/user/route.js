@@ -1,8 +1,8 @@
 import { Router } from "express";
 import UserController from "./UserConteroller";
-import { userRegisterValidation, userLoginValidation, userRefreshTokenValidation, check_params } from "../../validation/user.validation";
-import { jwtTokenPermission } from "../../middleware/jwtToken";
-import { validateSuperAdmin, validateAnyOneAdmin } from "../../middleware/validateAdmin";
+import { userRegisterValidation, userLoginValidation, userRefreshTokenValidation, check_params } from "../../../validation/user.validation";
+import { jwtTokenPermission } from "../../../middleware/jwtToken";
+import { validateSuperAdmin, validateAnyOneAdmin } from "../../../middleware/validateAdmin";
 import { userValidation } from "./_Validations";
 
 const router = Router({ mergeParams: true });

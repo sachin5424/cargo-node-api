@@ -1,7 +1,7 @@
-import DriverModel from "../../data-base/models/driver";
-import { clearSearch, getAdminFilter } from "../../utls/_helper";
-import { uploadFile } from "../../utls/_helper";
-import config from "../../utls/config";
+import DriverModel from "../../../data-base/models/driver";
+import { clearSearch, getAdminFilter } from "../../../utls/_helper";
+import { uploadFile } from "../../../utls/_helper";
+import config from "../../../utls/config";
 
 export default class Service {
 

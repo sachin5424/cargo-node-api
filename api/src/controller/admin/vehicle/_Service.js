@@ -1,10 +1,10 @@
-import VehicleTypeModel from "../../data-base/models/vehicleType";
-import VehicleModelModel from "../../data-base/models/vehicleModel";
-import VehicleModel from "../../data-base/models/vehicle";
-import VehicleOwnerModel from "../../data-base/models/vehicleOwner";
-import { clearSearch } from "../../utls/_helper";
-import { uploadFile } from "../../utls/_helper";
-import config from "../../utls/config";
+import VehicleTypeModel from "../../../data-base/models/vehicleType";
+import VehicleModelModel from "../../../data-base/models/vehicleModel";
+import VehicleModel from "../../../data-base/models/vehicle";
+import VehicleOwnerModel from "../../../data-base/models/vehicleOwner";
+import { clearSearch } from "../../../utls/_helper";
+import { uploadFile } from "../../../utls/_helper";
+import config from "../../../utls/config";
 
 export default class Service {
 

@@ -1,7 +1,7 @@
 import { validationResult } from 'express-validator';
-import { tripCategorieModel } from '../../data-base/index';
-import { createData, listPaginate } from '../../services/test';
-import { slug } from '../../utls/_helper';
+import { tripCategorieModel } from '../../../data-base/index';
+import { createData, listPaginate } from '../../../services/test';
+import { slug } from '../../../utls/_helper';
 
 export default class CategoriesController {
     

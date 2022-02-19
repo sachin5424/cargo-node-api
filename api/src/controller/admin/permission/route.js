@@ -1,7 +1,7 @@
 import { Router } from "express";
 import PermissionController from "./PermissionController";
-import { jwtTokenPermission } from '../../middleware/jwtToken';
-import { addPermission } from '../../validation/model-permission';
+import { jwtTokenPermission } from '../../../middleware/jwtToken';
+import { addPermission } from '../../../validation/model-permission';
 
 const router = Router({ mergeParams: true });
 

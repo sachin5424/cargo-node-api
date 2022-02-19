@@ -1,7 +1,7 @@
 import { Router } from "express";
 import CategoriesController from "./CategoriesController";
-import { jwtTokenPermission } from "../../settings/import";
-import { vehicalCategorieValidation, updatedVehicalCategorieValidation } from "../../validation";
+import { jwtTokenPermission } from "../../../settings/import";
+import { vehicalCategorieValidation, updatedVehicalCategorieValidation } from "../../../validation";
 
 const router = Router({ mergeParams: true });
 

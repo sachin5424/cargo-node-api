@@ -5,8 +5,8 @@ import ModelController from "./ModelController";
 import VehicleController from "./VehicleController";
 import OwnerConteroller from "./OwnerConteroller";
 import { typeValidation, modelValidation, vehicleValidation, vehicleOwnerValidation} from "./_Validations";
-import { vehicalCategorieValidation, updatedVehicalCategorieValidation } from "../../validation";
-import { jwtTokenPermission } from "../../settings/import";
+import { vehicalCategorieValidation, updatedVehicalCategorieValidation } from "../../../validation";
+import { jwtTokenPermission } from "../../../settings/import";
 
 const router = Router({ mergeParams: true });
 

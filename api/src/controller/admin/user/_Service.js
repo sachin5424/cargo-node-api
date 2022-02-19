@@ -1,7 +1,7 @@
-import { UserModel } from "../../data-base";
-import { clearSearch } from "../../utls/_helper";
-import { uploadFile } from "../../utls/_helper";
-import config from "../../utls/config";
+import { UserModel } from "../../../data-base";
+import { clearSearch } from "../../../utls/_helper";
+import { uploadFile } from "../../../utls/_helper";
+import config from "../../../utls/config";
 
 export default class Service {
 
