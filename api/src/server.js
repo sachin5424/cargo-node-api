@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { databaseConnect, autuGenratePermission } from './data-base/index';
-import router from './controller';
+import router from './modules';
 
 export default class App {
     constructor(port) {
