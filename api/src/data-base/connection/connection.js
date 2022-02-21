@@ -7,7 +7,7 @@ dotenv.config();
 let databaseConnect = () => {
     // const connectionString = `mongodb://localhost:27017/cargo`;
     const connectionString = `mongodb+srv://${ config.database.user}:${config.database.password}@cluster0.oiold.mongodb.net/${config.database.name}?retryWrites=${config.database.retryWrites}&w=majority`;
-    
+    console.log('connectionString', connectionString);
     mongoose.connect(connectionString);
     mongoose.connection.on('connected', function () {
         Logger.info("Database Connected");

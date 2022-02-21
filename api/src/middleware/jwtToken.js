@@ -2,65 +2,81 @@ import jwt from 'jsonwebtoken';
 import * as dotenv from "dotenv";
 import { UserModel } from '../data-base';
 import Logger from "../utls/Logger";
-// import VehicleOwnerModel from "../data-base/models/vehicleOwner";
+import VehicleOwnerModel from "../data-base/models/vehicleOwner";
+import Config from "./../utls/config";
 
 dotenv.config();
 export const jwtTokenPermission = async (req, res, next) => {
-    try {
-        var bearer = req.headers.authorization.split(" ");
-        const token = bearer[1];
-        var decode = jwt.verify(token, process.env.JWT_SECREATE_kEY);
-        req.userId = decode.userId;
+	try {
+		var bearer = req.headers.authorization.split(" ");
+		const token = bearer[1];
+		var decode = jwt.verify(token, Config.jwt.secretKey);
+		req.userId = decode.userId;
 
-        try{
-            const cuser = await UserModel.findById(decode.userId);
-            req.__cuser = cuser;
-        } catch(e){
-            throw new Error('User does not exist')
-        }
+		try {
+			const cuser = await UserModel.findById(decode.userId);
+			req.__cuser = cuser;
+		} catch (e) {
+			throw new Error('User does not exist')
+		}
 
-        next();
-    }
-    catch (error) {
-        res.status(401).json({
-            status: 401,
-            message: "Failed to authenticate token."
-        });
-    }
+		next();
+	}
+	catch (error) {
+		res.status(401).json({
+			status: 401,
+			message: "Failed to authenticate token."
+		});
+	}
 };
 
 export const vehicleOwnerValidate = async (req, res, next) => {
-//     try {
-		// if (req.headers.authorization) {
-		// 	const authorization = req.headers.authorization.trim();
-		// 	if (authorization.startsWith('Bearer ')) {
-		// 		const jwtToken = authorization.substring(7);
-		// 		if (jwtToken) {
-		// 			Logger.info('AuthMiddleware of Vehicle Owner: Validating auth token');
-		// 			const authUserId = jwt.verify(jwtToken, Config.JWT_SECRET_KEY)
-					
-		// 			const authUser = await VehicleOwnerModel.findById(authUserId.sub);
-		// 			cUser = authUser;
-		// 			if(!authUser) {
-		// 				throw new Error("Token is expired");
-		// 			}
-		// 			req.authUser = authUser;
-		// 		} else {
-		// 			Logger.error('AuthMiddleware : Empty token');
-		// 			throw new Error("Access token not found");
-		// 		}
-		// 	} else {
-		// 		Logger.error('Invalid authorization value');
-		// 		throw Error("Invalid access token.");
-		// 	}
-		// } else {
-		// 	Logger.error(Message.tokenMissing);
-		// 	throw new Error("Access token not found");
-		// }
-		next();
-	// } catch (e) {
-		// Logger.error('AuthMiddleware Failed : ');
+	const response = { statusCode: 401, message: 'Authorization error', status: false };
+	try {
+		if (req.headers.authorization) {
+			const authorization = req.headers.authorization.trim();
+			if (authorization.startsWith('Bearer ')) {
+				const jwtToken = authorization.substring(7);
+				if (jwtToken) {
+					Logger.info('AuthMiddleware of Vehicle Owner: Validating auth token');
+					const authUserId = jwt.verify(jwtToken, Config.jwt.secretKey);
+					console.log(111111, Config.jwt.secretKey);
+					try {
+						const authUser = await VehicleOwnerModel.findById(authUserId.sub);
+						// cUser = authUser;
+						if (!authUser) {
+							response.message = "Token is expired";
+						} else {
+							req.authUser = authUser;
+							response.status = true;
+							response.message = "Token validated";
+						}
+					} catch (e) {
+						console.log(e.message);
+						response.message = "Authorization failed"
+					}
 
-		// throw new Error("Authorization failed");
-	// }
+				} else {
+					Logger.error('AuthMiddleware : Empty token');
+					response.message = "Access token not found";
+				}
+			} else {
+				Logger.error('Invalid authorization value');
+				response.message = "Invalid access token.";
+			}
+		} else {
+			Logger.error("Access token not found");
+			response.message = "Access token not found";
+		}
+		if (response.status) {
+			next();
+		} else {
+			throw new Error(response.message)
+		}
+	} catch (e) {
+		console.log(e.message);
+		Logger.error('AuthMiddleware for vehicle owner  Failed : ');
+
+		res.status(401).send(response)
+	}
 }

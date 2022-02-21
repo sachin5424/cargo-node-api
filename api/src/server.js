@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import 'dotenv/config';
 import { databaseConnect, autuGenratePermission } from './data-base/index';
 import router from './modules';
 import Logger from './utls/Logger';

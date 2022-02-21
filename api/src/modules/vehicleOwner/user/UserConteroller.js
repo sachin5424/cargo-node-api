@@ -5,9 +5,10 @@ import UserService from "../../../services/user.server";
 import Service from "./_Service";
 import jwtToken from "jsonwebtoken";
 import randtoken from "rand-token";
-import * as dotenv from "dotenv";
+import Config from "../../../utls/config";
+// import * as dotenv from "dotenv";
 
-dotenv.config();
+// dotenv.config();
 export default class UserController {
 
     static async login(req, res) {
@@ -43,7 +44,7 @@ export default class UserController {
                     var user = {
                         'email': email,
                     };
-                    var token = jwtToken.sign(user, process.env.JWT_SECREATE_kEY, { expiresIn: process.env.JWT_TIME });
+                    var token = jwtToken.sign(user, Config.jwt.secretKey, { expiresIn: Config.jwt.expDuration });
                     return res.status(200).json({
                         token: token
                     });
