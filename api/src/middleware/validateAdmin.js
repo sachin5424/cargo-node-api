@@ -27,8 +27,6 @@ export const validateCustomAdmin = async (req, res, next, num) => {
     
     try {
         const cuser = req.__cuser;
-        // console.log('totalPermissions', totalPermissions);
-        // console.log('cuser.type', cuser.type);
         if (totalPermissions?.includes(cuser.type)) {
             next();
         } else {

@@ -39,7 +39,6 @@ export default class UserController extends UserService {
             }
         }
         catch (error) {
-            console.log(error);
             return res.status(500).json({ error });
         }
     }
@@ -100,7 +99,6 @@ export default class UserController extends UserService {
             }
         }
         catch (error) {
-            console.log(error);
             return res.status(500).json({ error });
         }
     }

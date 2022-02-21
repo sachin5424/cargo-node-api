@@ -9,7 +9,6 @@ export default class UserService {
                     reject(err);
                 }
                 else {
-                    console.log(res);
                     resolve(res);
                 }
             });

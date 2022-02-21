@@ -1,11 +1,11 @@
 import { validationResult } from 'express-validator';
 import Service from './_Service';
 
-export default class CustomerController {
+export default class TripController {
     
     static async list(req, res) {
         try {
-			const srvRes = await Service.listCustomer(req?.query, req.__cuser._doc)
+			const srvRes = await Service.listTrip(req?.query, req.__cuser._doc)
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

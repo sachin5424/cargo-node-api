@@ -5,7 +5,6 @@ let createData = async (model, data) => {
                 reject(err);
             }
             else {
-                console.log(res);
                 resolve(res);
             }
         });
@@ -18,7 +17,6 @@ let createToken = async (model, data) => {
                 reject(err);
             }
             else {
-                console.log(res);
                 resolve(res);
             }
         });
@@ -41,7 +39,6 @@ let FindOne = async (model, value) => {
 };
 let listPaginate = async (model, query, options) => {
     return new Promise((resolve, reject) => {
-        console.log(model, options, query);
         model.paginate(query, options, (err, res) => {
             if (err) {
                 reject(err);

@@ -4,7 +4,7 @@ import DriverModel from '../../../data-base/models/driver';
 import CustomerModel from '../../../data-base/models/customer';
 import VehicleModel from '../../../data-base/models/vehicle';
 
-export const customerValidation = [
+export const tripListValidation = [
 
     check('tripCategory')
         .notEmpty().withMessage("Something went wrong. Please try again!")
@@ -59,77 +59,11 @@ export const customerValidation = [
         }),
 
     check('pickupLocation')
-        .notEmpty().withMessage("The 'Last Name' field is required")
-        .isString().withMessage("The 'Last Name' field is not valid"),
-
-    check('password')
-        .notEmpty().withMessage("The 'Password' field is required"),
-
-    check('dob')
-        .notEmpty().withMessage("The 'Date of Birth' field is required")
-        .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Date of Birth' field is not valid"),
-
-    check('photo')
-        .notEmpty().withMessage("Photo is required")
-        .isString().withMessage("Photo is not valid")
-        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Photo is not an image"),
-
-    check('address')
-        .notEmpty().withMessage("The 'Address' field is required")
-        .isString().withMessage("The 'Address' field is not valid"),
-
-];
-
-export const locationSearch = [
-    check('customer')
-        .notEmpty().withMessage("A customer is required")
-        .custom(async (v) => {
-            try {
-                const r = await CustomerModel.findById(v);
-                if (!r) {
-                    throw new Error("Customer is not valid");
-                }
-            } catch (e) {
-                throw new Error("Customer is not valid");
-            }
-        }),
-];
-
-export const locationValidation = [
-
-    check('_id')
-        .optional()
-        .notEmpty().withMessage("Provide / Select a valid data")
-        .custom(async (v) => {
-            try {
-                const r = await CustomerLocationModel.findById(v);
-                if (!r) {
-                    throw new Error("Data not found");
-                }
-            } catch (e) {
-                throw new Error("This data does not exit. Please check or refresh");
-            }
-        }),
-
-    check('customer')
-        .notEmpty().withMessage("Select a customer")
-        .custom(async (v) => {
-            try {
-                const r = await CustomerModel.findById(v);
-                if (!r) {
-                    throw new Error("Customer not found");
-                }
-            } catch (e) {
-                throw new Error("Customer does not exit. Please check or refresh");
-            }
-        }),
-
-    check('name')
-        .notEmpty().withMessage("The 'Name' field is required")
-        .isString().withMessage("The 'Name' field is not valid"),
-
-    check('latlong')
-        .notEmpty().withMessage("The 'Latitude & Longitude' field is required")
-        .isLatLong().withMessage("The 'Latitude & Longitude' field is not valid"),
+        .notEmpty().withMessage("Go back and fill pickup location")
+        .matches(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/).withMessage("Pickup location is not valid. Please go back refill pickup location"),
+    
+    check('destinationLocation')
+        .notEmpty().withMessage("Go back and fill destination location")
+        .matches(/^-?([1-8]?[1-9]|[1-9]0)\.{1}\d{1,6}/).withMessage("Destination location is not valid. Please go back refill destination location"),
 
 ];

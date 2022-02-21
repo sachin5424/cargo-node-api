@@ -1,4 +1,16 @@
 const config = {
+    IsLocal: process.env.NODE_ENV === 'local',
+    IsProd: process.env.NODE_ENV === 'prod',
+  
+    port: parseInt(process.env.PORT, 10) || 3003,
+
+    database: {
+        name: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        retryWrites: process.env.DB_RETRYWRITES,
+    },
+  
     uploadPaths: {
         driver: {
             photo: process.env.DRIVER_PHOTO_UPLOAD_PATH || "/uploads/driver/photo/",
@@ -19,7 +31,13 @@ const config = {
         customer: {
             photo: process.env.CUSTOMER_PHOTO_UPLOAD_PATH || "/uploads/customer/photo/",
         }
-    }
+    },
+
+    logs: {
+        level: process.env.LOG_LEVEL || 'info',
+    },
+
+    logDir: process.env.LOG_DIR || 'logs',
 }
 
 export default config;

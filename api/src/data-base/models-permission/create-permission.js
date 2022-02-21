@@ -13,7 +13,6 @@ var autuGenratePermission = async () => {
         mongoose.connection.db.listCollections().toArray(async function (err, collectionName) {
             for (var i = 0; i < collectionName.length; i++) {
                 console.log(collectionName[i].name); // [{ name: 'dbname.myCollection' }]
-                // console.log();
                 /*
                 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                                           create add permission

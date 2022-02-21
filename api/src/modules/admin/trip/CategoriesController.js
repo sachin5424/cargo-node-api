@@ -17,7 +17,6 @@ export default class CategoriesController {
             else {
                 const payload = req.body;
                 const userRequest = req;
-                console.log(userRequest.userId, "kj");
                 let logData = {
                     name: payload.name,
                     icon: payload.icon,
@@ -43,7 +42,6 @@ export default class CategoriesController {
             }
         }
         catch (error) {
-            console.log(error);
             return res.status(200).json({ error });
         }
     }
@@ -69,7 +67,6 @@ export default class CategoriesController {
             return res.status(200).json({ data });
         }
         catch (error) {
-            console.log(error);
             return res.status(500).json({ error });
         }
     }
@@ -80,7 +77,6 @@ export default class CategoriesController {
             return res.status(200).json({ data });
         }
         catch (error) {
-            console.log(error);
             return res.status(500).json({ error });
         }
     }
@@ -98,10 +94,8 @@ export default class CategoriesController {
                 const payload = req.body;
                 if (payload) {
                     const test_select = Object.keys(payload);
-                    console.log(test_select);
                     const chech_data = await tripCategorieModel.findOne({ _id }).select(test_select);
                     const userRequest = req;
-                    console.log(userRequest.userId);
                     let update = [
                         {
                             userId: userRequest.userId,
@@ -117,7 +111,6 @@ export default class CategoriesController {
             }
         }
         catch (error) {
-            console.log(error);
             return res.status(500).json({ error });
         }
     }
@@ -126,7 +119,6 @@ export default class CategoriesController {
             const _id = req.params.id;
             const payload = req.body;
             const userRequest = req;
-            console.log(userRequest.userId, "kj");
             let update = [
                 {
                     userId: userRequest.userId,
@@ -139,7 +131,6 @@ export default class CategoriesController {
             return res.status(200).json({ message: "delete data" });
         }
         catch (error) {
-            console.log(error);
             return res.status(500).json({ error });
         }
     }

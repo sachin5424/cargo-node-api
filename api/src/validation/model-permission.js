@@ -12,7 +12,6 @@ let addPermission = [
 let addMultiPermission = [
     check('permissionList.*.userId').notEmpty().withMessage('This field is required'),
     check('permissionList.*.permissionId').notEmpty().withMessage('This field is required').custom(async (value, { req }) => {
-        console.log(value, "?????????????");
         var value = [];
         var check_permissionId = [];
         var permissionList = req.body.permissionList;

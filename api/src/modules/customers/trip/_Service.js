@@ -6,7 +6,7 @@ import config from "../../../utls/config";
 
 export default class Service {
 
-    static async listCustomer(query, cuser) {
+    static async listTrip(query, cuser) {
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -46,7 +46,7 @@ export default class Service {
         }
     }
 
-    static async saveCustomer(data) {
+    static async saveTrip(data) {
         const _id = data._id;
         const response = { statusCode: 400, message: 'Error!', status: false };
 

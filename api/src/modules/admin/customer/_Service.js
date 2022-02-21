@@ -110,7 +110,6 @@ export default class Service {
 
         try {
             const search = { _id: query._id, isDeleted: false, customer};
-            console.log('search', search);
             clearSearch(search);
 
             response.data.docs = await CustomerLocationModel.find(search)
