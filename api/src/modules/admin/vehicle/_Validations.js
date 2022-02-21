@@ -226,10 +226,43 @@ export const vehicleOwnerValidation = [
     check('lastName')
         .notEmpty().withMessage("The 'Last Name' field is required")
         .isString().withMessage("The 'Last Name' field is not valid"),
+
+    check('phoneNo')
+        .notEmpty().withMessage("The 'Phone Number' field is required")
+        .matches(/^[3-9]{1}[0-9]{9}$/).withMessage("The 'Phone Number' field is not valid")
+        .custom(async (value, { req }) => {
+            const body = req.body;
+            const result = await VehicleOwnerModel.findOne({ phoneNo: value });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A owner already exist with this phone number");
+                    }
+                } else {
+                    throw new Error("A owner already exist with this phone number");
+                }
+            }
+        }),
     
     check('email')
-        .notEmpty().withMessage("The 'Email' is required")
-        .isEmail().withMessage("The 'Email' is not valid"),
+        .notEmpty().withMessage("The 'Email' field is required")
+        .isEmail().withMessage("The 'Email' field is not valid")
+        .custom(async (value, { req }) => {
+            const body = req.body;
+            const result = await VehicleOwnerModel.findOne({ email: value });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A owner already exist with this email");
+                    }
+                } else {
+                    throw new Error("A owner already exist with this email");
+                }
+            }
+        }),
+
+    check('password')
+        .notEmpty().withMessage("The 'Password' field is required"),
 
     check('photo')
         .notEmpty().withMessage("The 'photo' is required")

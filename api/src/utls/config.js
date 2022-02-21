@@ -8,7 +8,12 @@ const config = {
         name: process.env.DB_NAME,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
-        retryWrites: process.env.DB_RETRYWRITES,
+        retryWrites: process.env.DB_RETRYWRITES || true,
+    },
+
+    jwt: {
+        expDuration: process.env.JWT_TIME,
+        secretKey: process.env.JWT_SECREATE_kEY
     },
   
     uploadPaths: {

@@ -7,6 +7,8 @@ import routerDriver from './admin/driver/route';
 import routerCommon from './admin/common/route';
 import routerCustomer from './admin/customer/route';
 
+import routerVOCustomer from './vehicleOwner/user/route';
+
 
 const api = (app) => {
     app.use('*', (req, res, next) => {
@@ -41,6 +43,9 @@ const api = (app) => {
     app.use('/admin/driver', jwtTokenPermission, routerDriver);
     app.use('/admin/common', routerCommon);
     app.use('/admin/customer', routerCustomer);
+
+
+    app.use('/vehicle-owner/user', routerVOCustomer);
 };
 
 export default api;

@@ -5,6 +5,7 @@ const vehicleOwnerSchema = new Schema({
 
     firstName: String,
     lastName: String,
+    phoneNo: String,
     email: String,
     emailVerfied: { 
         type: Boolean, 
