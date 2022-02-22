@@ -24,6 +24,10 @@ const DriverSchema = new Schema({
     badgeNo: String,
     badgeImage: String,
     address: String,
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "owner",
+    },
     state: {
         type: Schema.Types.ObjectId,
         ref: "state",

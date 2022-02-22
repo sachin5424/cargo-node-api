@@ -45,7 +45,7 @@ export const vehicleOwnerValidate = async (req, res, next) => {
 						if (!authUser) {
 							response.message = "Token is expired";
 						} else {
-							req.__cuser = authUser;
+							req.__cuser = {...authUser._doc, type: 'vehicleOwner'};
 							response.status = true;
 							response.message = "Token validated";
 						}

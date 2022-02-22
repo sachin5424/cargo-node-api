@@ -6,9 +6,11 @@ import routerTrip from './admin/trip/route';
 import routerDriver from './admin/driver/route';
 import routerCommon from './admin/common/route';
 import routerCustomer from './admin/customer/route';
-import routerVOVehicle from './vehicleOwner/vehicle/route';
 
+
+import routerVOVehicle from './vehicleOwner/vehicle/route';
 import routerVOCustomer from './vehicleOwner/user/route';
+import routerVODriver from './vehicleOwner/driver/route';
 
 
 const api = (app) => {
@@ -48,6 +50,7 @@ const api = (app) => {
 
     app.use('/vehicle-owner/user', routerVOCustomer);
     app.use('/vehicle-owner/vehicle', vehicleOwnerValidate, routerVOVehicle);
+    app.use('/vehicle-owner/driver', vehicleOwnerValidate, routerVODriver);
 };
 
 export default api;

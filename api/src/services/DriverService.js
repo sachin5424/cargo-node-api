@@ -19,11 +19,9 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false, ...getAdminFilter(cuser) };
+            const permissionFilter = cuser.type == 'vehicleOwner' ? {owner: cuser._id} : {...getAdminFilter(cuser)};
+            const search = { _id: query._id, isDeleted: false, ...permissionFilter };
             clearSearch(search);
-
-            response.data = search;
-            return response;
 
             response.data.docs = await DriverModel.find(search)
                 .select('  -__v')
@@ -73,6 +71,7 @@ export default class Service {
             tplData.badgeNo = data.badgeNo;
             tplData.badgeImage = await uploadFile(data.badgeImage, config.uploadPaths.driver.badge, DriverModel, 'badgeImage', _id);
             tplData.address = data.address;
+            tplData.owner = data.owner;
             tplData.state = data.state;
             tplData.district = data.district;
             tplData.taluk = data.taluk;

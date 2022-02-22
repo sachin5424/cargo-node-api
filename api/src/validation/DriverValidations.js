@@ -3,6 +3,7 @@ import DriverModel from '../data-base/models/driver';
 import StateModel from '../data-base/models/state';
 import DistrictModel from '../data-base/models/district';
 import TalukModel from '../data-base/models/taluk';
+import VehicleOwnerModel from '../data-base/models/vehicleOwner';
 
 export const driverValidation = [
 
@@ -195,6 +196,20 @@ export const driverValidation = [
     check('address')
         .notEmpty().withMessage("The 'Address' field is required")
         .isString().withMessage("The 'Address' field is not valid"),
+
+    check('owner')
+        .notEmpty().withMessage("The 'Owner' field is required")
+        .isString().withMessage("The 'Owner' field is not valid")
+        .custom(async (value) => {
+            try {
+                const result = await VehicleOwnerModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("Owner is not valid");
+            }
+        }),
 
     check('state')
         .notEmpty().withMessage("The 'State' field is required")
