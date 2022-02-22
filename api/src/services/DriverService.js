@@ -91,11 +91,12 @@ export default class Service {
             throw new Error(e)
         }
     }
-    static async deleteDriver(id) {
+    static async deleteDriver(_id, cond) {
+        cond = !cond ? {} : cond;
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await DriverModel.findById(id).update({isDeleted: true});
+            await DriverModel.updateOne({_id, ...cond},{isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;

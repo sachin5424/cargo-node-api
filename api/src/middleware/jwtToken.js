@@ -39,7 +39,6 @@ export const vehicleOwnerValidate = async (req, res, next) => {
 				if (jwtToken) {
 					Logger.info('AuthMiddleware of Vehicle Owner: Validating auth token');
 					const authUserId = jwt.verify(jwtToken, Config.jwt.secretKey);
-					console.log(111111, Config.jwt.secretKey);
 					try {
 						const authUser = await VehicleOwnerModel.findById(authUserId.sub);
 						// cUser = authUser;

@@ -1,4 +1,4 @@
-import { jwtTokenPermission } from '../middleware/jwtToken';
+import { jwtTokenPermission, vehicleOwnerValidate } from '../middleware/jwtToken';
 import routerVehicle from './admin/vehicle/route';
 import routerUser from './admin/user/route';
 import routerPermission from './admin/permission/route';
@@ -6,6 +6,7 @@ import routerTrip from './admin/trip/route';
 import routerDriver from './admin/driver/route';
 import routerCommon from './admin/common/route';
 import routerCustomer from './admin/customer/route';
+import routerVOVehicle from './vehicleOwner/vehicle/route';
 
 import routerVOCustomer from './vehicleOwner/user/route';
 
@@ -46,6 +47,7 @@ const api = (app) => {
 
 
     app.use('/vehicle-owner/user', routerVOCustomer);
+    app.use('/vehicle-owner/vehicle', vehicleOwnerValidate, routerVOVehicle);
 };
 
 export default api;

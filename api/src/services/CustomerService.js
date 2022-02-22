@@ -79,11 +79,12 @@ export default class Service {
             throw new Error(e)
         }
     }
-    static async deleteCustomer(id) {
+    static async deleteCustomer(_id, cond) {
+        cond = !cond ? {} : cond;
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await CustomerModel.findById(id).update({isDeleted: true});
+            await CustomerModel.updateOne({_id, ...cond}, {isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -158,11 +159,12 @@ export default class Service {
             throw new Error(e)
         }
     }
-    static async deleteLocation(id) {
+    static async deleteLocation(_id, cond) {
+        cond = !cond ? {} : cond;
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await CustomerLocationModel.findById(id).update({isDeleted: true});
+            await CustomerLocationModel.updateOne({_id, ...cond}, {isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;

@@ -128,11 +128,12 @@ export default class Service {
             throw new Error(e)
         }
     }
-    static async deleteVehicleOwner(id) {
+    static async deleteVehicleOwner(_id, cond) {
+        cond = !cond ? {} : cond;
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleOwnerModel.findById(id).update({isDeleted: true});
+            await VehicleOwnerModel.updateOne({_id, ...cond},{isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -159,7 +160,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false };
+            const search = { _id: query._id, isDeleted: false, owner: query.owner };
             clearSearch(search);
 
             response.data.docs = await VehicleModel.find(search)
@@ -228,11 +229,12 @@ export default class Service {
             throw new Error(e)
         }
     }
-    static async deleteVehicle(id) {
+    static async deleteVehicle(_id, cond) {
+        cond = !cond ? {} : cond;
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleModel.findById(id).update({isDeleted: true});
+            await VehicleModel.updateOne({_id, ...cond},{isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -322,11 +324,12 @@ export default class Service {
             throw new Error(e)
         }
     }
-    static async deleteType(id) {
+    static async deleteType(_id, cond) {
+        cond = !cond ? {} : cond;
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleTypeModel.findById(id).update({isDeleted: true});
+            await VehicleTypeModel.updateOne({_id, ...cond},{isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -335,6 +338,7 @@ export default class Service {
             return response;
 
         } catch (e) {
+            console.log(e.message);
             throw new Error("Can not delete. Something went wrong.")
         }
     }
@@ -411,11 +415,12 @@ export default class Service {
             throw new Error(e)
         }
     }
-    static async deleteModel(id) {
+    static async deleteModel(_id, cond) {
+        cond = !cond ? {} : cond;
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleModelModel.findById(id).update({isDeleted: true});
+            await VehicleModelModel.updateOne({_id, ...cond},{isDeleted: true});
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
