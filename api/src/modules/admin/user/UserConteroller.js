@@ -82,8 +82,8 @@ export default class UserController extends UserService {
                         isAdmin: user.isAdmin,
                         isStaf: user.isStaf
                     };
-                    // const accessToken = jwt.sign({ sub: owner._id.toString(), exp: Math.floor(Date.now() / 1000) + ((JWT_EXP_DUR) * 60), }, Config.jwt.secretKey);
-                    var token = jwtToken.sign(userDetails, Config.jwt.secretKey, { expiresIn: Config.jwt.expDuration });
+                    const token = jwtToken.sign({ sub: userDetails.userId.toString(), exp: Math.floor(Date.now() / 1000) + ((Config.jwt.expDuration) * 60), }, Config.jwt.secretKey);
+                    // var token = jwtToken.sign(userDetails, Config.jwt.secretKey, { expiresIn: Config.jwt.expDuration });
                     var refreshToken = randtoken.uid(256);
                     const check_token = await UserTokenModel.findOne({ email: email });
                     if (check_token) {

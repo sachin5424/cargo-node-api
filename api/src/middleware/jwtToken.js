@@ -1,21 +1,20 @@
 import jwt from 'jsonwebtoken';
-import * as dotenv from "dotenv";
 import { UserModel } from '../data-base';
 import Logger from "../utls/Logger";
 import VehicleOwnerModel from "../data-base/models/vehicleOwner";
 import Config from "./../utls/config";
 
-dotenv.config();
 export const jwtTokenPermission = async (req, res, next) => {
 	try {
 		var bearer = req.headers.authorization.split(" ");
 		const token = bearer[1];
 		var decode = jwt.verify(token, Config.jwt.secretKey);
-		req.userId = decode.userId;
+		req.userId = decode.sub;
 
 		try {
-			const cuser = await UserModel.findById(decode.userId);
+			const cuser = await UserModel.findById(decode.sub);
 			req.__cuser = cuser;
+
 		} catch (e) {
 			throw new Error('User does not exist')
 		}
