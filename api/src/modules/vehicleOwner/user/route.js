@@ -1,6 +1,6 @@
 import { Router } from "express";
 import UserController from "./UserConteroller";
-import { customerLoginValidation } from "./_Validations";
+import { customerLoginValidation } from "../../../validation/CustomerValidations";
 import {vehicleOwnerValidate} from "../../../middleware/jwtToken";
 
 const router = Router({ mergeParams: true });
