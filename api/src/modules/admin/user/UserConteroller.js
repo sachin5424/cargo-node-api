@@ -2,7 +2,7 @@ import { UserModel, UserTokenModel } from "../../../data-base/index";
 import { createData, createToken } from "../../../services/test";
 import {validationResult} from "../../../settings/import";
 import UserService from "../../../services/user.server";
-import Service from "./_Service";
+import Service from "../../../services/UserService";
 import jwtToken from "jsonwebtoken";
 import randtoken from "rand-token";
 import Config from "../../../utls/config";

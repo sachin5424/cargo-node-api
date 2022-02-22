@@ -1,8 +1,8 @@
-import CustomerModel from "../../../data-base/models/customer";
-import CustomerLocationModel from "../../../data-base/models/customerLocation";
-import { clearSearch, getAdminFilter } from "../../../utls/_helper";
-import { uploadFile } from "../../../utls/_helper";
-import config from "../../../utls/config";
+import CustomerModel from "../data-base/models/customer";
+import CustomerLocationModel from "../data-base/models/customerLocation";
+import { clearSearch, getAdminFilter } from "../utls/_helper";
+import { uploadFile } from "../utls/_helper";
+import config from "../utls/config";
 
 export default class Service {
 

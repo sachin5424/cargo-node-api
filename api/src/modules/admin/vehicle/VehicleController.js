@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator';
-import Service from './_Service';
+import Service from '../../../services/VehicleService';
 
 export default class VehicleController {
     
