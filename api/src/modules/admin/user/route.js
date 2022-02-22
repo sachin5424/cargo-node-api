@@ -3,7 +3,7 @@ import UserController from "./UserConteroller";
 import { userRegisterValidation, userLoginValidation, userRefreshTokenValidation, check_params } from "../../../validation/user.validation";
 import { jwtTokenPermission } from "../../../middleware/jwtToken";
 import { validateSuperAdmin, validateAnyOneAdmin } from "../../../middleware/validateAdmin";
-import { userValidation } from "./_Validations";
+import { userValidation } from "../../../validation/UserValidations";
 
 const router = Router({ mergeParams: true });
 

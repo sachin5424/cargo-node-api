@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validateAnyOneAdmin } from "../../../middleware/validateAdmin";
 import DriverController from "./DriverController";
-import { driverValidation } from "./_Validations";
+import { driverValidation } from "../../../validation/DriverValidations";
 
 const router = Router({ mergeParams: true });
 

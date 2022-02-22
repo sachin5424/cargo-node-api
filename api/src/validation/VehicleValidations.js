@@ -1,11 +1,11 @@
-import { check } from '../../../settings/import';
-import { tripCategorieModel, VehicalCategorieModel} from '../../../data-base';
-import VehicleTypeModel from '../../../data-base/models/vehicleType';
-import VehicleModelModel from '../../../data-base/models/vehicleModel';
-import VehicleModel from '../../../data-base/models/vehicle';
-import DriverModel from '../../../data-base/models/driver';
-import VehicleOwnerModel from '../../../data-base/models/vehicleOwner';
-import { UserModel } from '../../../data-base';
+import { check } from '../settings/import';
+import { tripCategorieModel, VehicalCategorieModel} from '../data-base';
+import VehicleTypeModel from '../data-base/models/vehicleType';
+import VehicleModelModel from '../data-base/models/vehicleModel';
+import VehicleModel from '../data-base/models/vehicle';
+import DriverModel from '../data-base/models/driver';
+import VehicleOwnerModel from '../data-base/models/vehicleOwner';
+import { UserModel } from '../data-base';
 
 export const typeValidation = [
 

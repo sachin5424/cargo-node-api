@@ -1,8 +1,8 @@
-import { check } from '../../../settings/import';
-import { UserModel } from '../../../data-base';
-import StateModel from '../../../data-base/models/state';
-import DistrictModel from '../../../data-base/models/district';
-import TalukModel from '../../../data-base/models/taluk';
+import { check } from '../settings/import';
+import { UserModel } from '../data-base';
+import StateModel from '../data-base/models/state';
+import DistrictModel from '../data-base/models/district';
+import TalukModel from '../data-base/models/taluk';
 
 export const userValidation = [
 
