@@ -5,9 +5,7 @@ export default class VehicleController {
     
     static async list(req, res) {
         try {
-            const query = {...req?.query, owner: req.__cuser._id}
-			const srvRes = await Service.listVehicle(query);
-
+			const srvRes = await Service.listVehicle(req.query);
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
@@ -23,9 +21,7 @@ export default class VehicleController {
                     errors: errors.errors
                 });
             }
-            const body = {...req.body, owner: req.__cuser._id};
-			const srvRes = await Service.saveVehicle(body);
-
+			const srvRes = await Service.saveVehicle(req.body);
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
