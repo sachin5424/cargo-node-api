@@ -79,14 +79,11 @@ export async function validateDriverOwnership(req, res, next) {
             throw new Error();
         }
         const tpl = await DriverModel.findById(req.body.driver);
-        console.log('tpl.owner.toString() !== req.__cuser._id.toString()', tpl.owner.toString(), req.__cuser._id.toString(), tpl.owner.toString() !== req.__cuser._id.toString());
         if (tpl.owner.toString() !== req.__cuser._id.toString()) {
             throw new Error();
         }
         response.status = true;
-    } catch (e) { 
-        console.log(e.message);
-    } finally {
+    } catch (e) { } finally {
         if (!response.status) {
             res.status(response.statusCode).send(response)
         } else {
