@@ -5,6 +5,31 @@ import config from "../utls/config";
 
 export default class Service {
 
+    static async verifyEmail(email) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            const owner = await DriverModel.findOne({ email: email, isDeleted: false });
+            if(owner){
+                if(owner.emailVerified){
+                    response.message = "Email is already verified";
+                } else{
+                    owner.emailVerified = true;
+                    await owner.save();
+                    response.message = "Email is verified";
+                }
+                response.statusCode = 200;
+                response.status = true;
+            } else{
+                throw new Error("Invalid path");
+            }
+        } catch (e) {
+            throw new Error(e.message);
+        }
+
+        return response;
+    }
+
     static async listDriver(query, cuser) {
         const response = {
             statusCode: 400,
@@ -105,5 +130,8 @@ export default class Service {
         } catch (e) {
             throw new Error("Can not delete. Something went wrong.")
         }
+    }
+    static async deleteDriverPermanent(cond) {
+        await DriverModel.deleteOne({ ...cond });
     }
 }

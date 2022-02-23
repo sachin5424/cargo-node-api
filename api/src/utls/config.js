@@ -64,7 +64,12 @@ const config = {
         customerEmailVerification:
             process.env.NODE_ENV == 'prod'
                 ? process.env.APPLICATION_BASE_URL + '/customer/user/email-verify'
-                : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/customer/user/email-verify`
+                : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/customer/user/email-verify`,
+
+        driverEmailVerification:
+            process.env.NODE_ENV == 'prod'
+                ? process.env.APPLICATION_BASE_URL + '/driver/user/email-verify'
+                : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/driver/user/email-verify`
     }
 }
 
