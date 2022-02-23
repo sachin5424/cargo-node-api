@@ -1,7 +1,7 @@
 const config = {
-    IsLocal: process.env.NODE_ENV === 'local',
-    IsProd: process.env.NODE_ENV === 'prod',
-  
+    IsLocal: process.env.NODE_ENV != 'prod',
+    IsProd: process.env.NODE_ENV == 'prod',
+
     port: parseInt(process.env.PORT, 10) || 3003,
 
     database: {
@@ -15,7 +15,7 @@ const config = {
         expDuration: process.env.JWT_TIME,
         secretKey: process.env.JWT_SECREATE_kEY
     },
-  
+
     uploadPaths: {
         driver: {
             photo: process.env.DRIVER_PHOTO_UPLOAD_PATH || "/uploads/driver/photo/",
@@ -42,7 +42,30 @@ const config = {
         level: process.env.LOG_LEVEL || 'info',
     },
 
+    email: {
+        id: process.env.MAILID,
+        password: process.env.MAILPASSWORD
+    },
+
+    crypto: {
+        algorithm: 'aes-256-ctr',
+        encryptionKey: Buffer.from('FoCKvdLslUuB2x3EZlKate7XGottHski1LmyqJHvUht=', 'base64'),
+        ivLength: 16
+    },
+
     logDir: process.env.LOG_DIR || 'logs',
+
+    baseurls: {
+        vehicleOwnerEmailVerification:
+            process.env.NODE_ENV == 'prod'
+                ? process.env.APPLICATION_BASE_URL + '/vehicle-owner/user/email-verify'
+                : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/vehicle-owner/user/email-verify`,
+
+        customerEmailVerification:
+            process.env.NODE_ENV == 'prod'
+                ? process.env.APPLICATION_BASE_URL + '/customer/user/email-verify'
+                : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/customer/user/email-verify`
+    }
 }
 
 export default config;

@@ -7,6 +7,7 @@ const router = Router({ mergeParams: true });
 
 
 router.post("/login", customerLoginValidation, UserController.login);
+router.get("/email-verify/:email", UserController.verifyEmail);
 router.get("/test", vehicleOwnerValidate, (req, res)=> {res.send("success")});
 
 

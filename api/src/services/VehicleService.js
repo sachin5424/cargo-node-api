@@ -45,6 +45,31 @@ export default class Service {
         return response;
     }
 
+    static async verifyEmail(email) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            const owner = await VehicleOwnerModel.findOne({ email: email, isDeleted: false });
+            if(owner){
+                if(owner.emailVerfied){
+                    response.message = "Email is already verified";
+                } else{
+                    owner.emailVerfied = true;
+                    await owner.save();
+                    response.message = "Email is verified";
+                }
+                response.statusCode = 200;
+                response.status = true;
+            } else{
+                throw new Error("Invalid path");
+            }
+        } catch (e) {
+            throw new Error(e.message);
+        }
+
+        return response;
+    }
+
 
     static async listVehicleOwner(query) {
         const response = {
@@ -144,6 +169,10 @@ export default class Service {
         } catch (e) {
             throw new Error("Can not delete. Something went wrong.")
         }
+    }
+
+    static async deleteVehicleOwnerPermanent(cond) {
+        await VehicleOwnerModel.deleteOne({ ...cond });
     }
 
     static async listVehicle(query) {

@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator';
 import Service from '../../../services/CustomerService';
+import { sendSignupMail } from '../../../thrirdParty/emailServices/customer/sendEmail';
 
 export default class CustomerController {
     
@@ -23,6 +24,16 @@ export default class CustomerController {
             }
             
 			const srvRes = await Service.saveCustomer(req.body)
+
+            if(!req.body._id){
+                try{
+                    await sendSignupMail(req.body);
+                    srvRes.message = "A confirmation email is sent to the email. Please verify!"
+                } catch(e){
+                    Service.deleteCustomerPermanent({email: req.body.email});
+                    throw new Error("Error while sending confirmation email. Please try again!");
+                }
+            }
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

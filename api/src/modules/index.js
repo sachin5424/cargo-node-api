@@ -13,6 +13,9 @@ import routerVOCustomer from './vehicleOwner/user/route';
 import routerVODriver from './vehicleOwner/driver/route';
 
 
+import routerCUser from './customers/user/route';
+
+
 const api = (app) => {
     app.use('*', (req, res, next) => {
         res.set({
@@ -51,6 +54,8 @@ const api = (app) => {
     app.use('/vehicle-owner/user', routerVOCustomer);
     app.use('/vehicle-owner/vehicle', vehicleOwnerValidate, routerVOVehicle);
     app.use('/vehicle-owner/driver', vehicleOwnerValidate, routerVODriver);
+
+    app.use('/customer/user', routerCUser);
 };
 
 export default api;

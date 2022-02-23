@@ -1,6 +1,8 @@
+import crypto from "crypto";
 import { UserModel } from "../data-base/index";
 import mime from "mime";
 import fs from "fs";
+import Config from "./config";
 
 let matchPassword = (email, password) => {
     return new Promise((resolve, reject) => {
@@ -110,6 +112,24 @@ export async function uploadFile(dataBase64, path, model, key, _id) {
     catch (err) {
         throw new Error(err)
     }
+}
+
+export function encryptData(text) {
+    let iv = crypto.randomBytes(Config.crypto.ivLength);
+    let cipher = crypto.createCipheriv(Config.crypto.algorithm, Buffer.from(Config.crypto.encryptionKey, 'hex'), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+}
+
+export function decryptData(text) {
+    let textParts = text.split(':');
+    let iv = Buffer.from(textParts.shift(), 'hex');
+    let encryptedText = Buffer.from(textParts.join(':'), 'hex');
+    let decipher = crypto.createDecipheriv(Config.crypto.algorithm, Buffer.from(Config.crypto.encryptionKey, 'hex'), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
 }
 
 export { matchPassword, slug };

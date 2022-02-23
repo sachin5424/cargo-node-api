@@ -37,7 +37,7 @@ export default class Logger {
 		}
 
 		if (_.isEmpty(transports)) {
-			if (Config.IsLocal) {
+			if (false && Config.IsLocal) {
 				transports.push(
 					new winston.transports.Console({
 						format: winston.format.combine(winston.format.cli(), winston.format.simple()),
