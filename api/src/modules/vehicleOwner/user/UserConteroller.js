@@ -58,7 +58,6 @@ export default class UserController {
             const html = await renderVehicleOwnerResetPasswordForm({originalUrl, callbackUrl, callbackUrlText});
             res.setHeader('Content-Type', 'text/html').send(html)
         } catch (e) {
-            console.log(e.message);
 			return res.status(400).send({message: 'Error try again!'});
 		}
     }

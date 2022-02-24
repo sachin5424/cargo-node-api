@@ -50,7 +50,6 @@ export const vehicleOwnerValidate = async (req, res, next) => {
 							response.message = "Token validated";
 						}
 					} catch (e) {
-						console.log(e.message);
 						response.message = "Authorization failed"
 					}
 
@@ -72,9 +71,7 @@ export const vehicleOwnerValidate = async (req, res, next) => {
 			throw new Error(response.message)
 		}
 	} catch (e) {
-		console.log(e.message);
 		Logger.error('AuthMiddleware for vehicle owner  Failed : ');
-
 		res.status(401).send(response)
 	}
 }

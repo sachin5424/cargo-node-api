@@ -6,6 +6,23 @@ import config from "../../../utls/config";
 
 export default class UserController {
 
+    static async login(req, res) {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                    message: errors.msg,
+                    errors: errors.errors
+                });
+            }
+            
+			const srvRes = await Service.ownerLogin(req.body)
+            return res.status(srvRes.statusCode).json({ srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
     static async verifyEmail(req, res) {
         try {
             let email = '';
@@ -41,7 +58,6 @@ export default class UserController {
             const html = await renderCustomerResetPasswordForm({originalUrl, callbackUrl, callbackUrlText});
             res.setHeader('Content-Type', 'text/html').send(html)
         } catch (e) {
-            console.log(e.message);
 			return res.status(400).send({message: 'Error try again!'});
 		}
     }
