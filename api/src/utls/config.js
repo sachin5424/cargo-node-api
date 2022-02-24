@@ -57,38 +57,45 @@ const config = {
 
     forgetPassExpTime: process.env.FORGET_PASS_EXP_TIME || 30, 
 
+    applicationBaseUrl: process.env.APPLICATION_BASE_URL,
+
+    applicationApiBaseUrl: 
+        process.env.NODE_ENV == 'prod'
+        ? process.env.APPLICATION_BASE_URL 
+        : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}`,
+
     baseurls: {
         emailVerification: {
             vehicleOwner: 
                 process.env.NODE_ENV == 'prod'
-                    ? process.env.APPLICATION_BASE_URL + '/vehicle-owner/user/email-verify'
+                    ? process.env.APPLICATION_API_BASE_URL + '/vehicle-owner/user/email-verify'
                     : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/vehicle-owner/user/email-verify`,
 
             customer: 
                 process.env.NODE_ENV == 'prod'
-                    ? process.env.APPLICATION_BASE_URL + '/customer/user/email-verify'
+                    ? process.env.APPLICATION_API_BASE_URL + '/customer/user/email-verify'
                     : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/customer/user/email-verify`,
 
             driver: 
                 process.env.NODE_ENV == 'prod'
-                    ? process.env.APPLICATION_BASE_URL + '/driver/user/email-verify'
+                    ? process.env.APPLICATION_API_BASE_URL + '/driver/user/email-verify'
                     : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/driver/user/email-verify`
         }, 
 
         resetPassword: {
             vehicleOwner: 
                 process.env.NODE_ENV == 'prod'
-                    ? process.env.APPLICATION_BASE_URL + '/vehicle-owner/user/reset-password'
+                    ? process.env.APPLICATION_API_BASE_URL + '/vehicle-owner/user/reset-password'
                     : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/vehicle-owner/user/reset-password`,
 
             customer: 
                 process.env.NODE_ENV == 'prod'
-                    ? process.env.APPLICATION_BASE_URL + '/customer/user/reset-password'
+                    ? process.env.APPLICATION_API_BASE_URL + '/customer/user/reset-password'
                     : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/customer/user/reset-password`,
 
             driver: 
                 process.env.NODE_ENV == 'prod'
-                    ? process.env.APPLICATION_BASE_URL + '/driver/user/reset-password'
+                    ? process.env.APPLICATION_API_BASE_URL + '/driver/user/reset-password'
                     : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/driver/user/reset-password`
         }, 
     }

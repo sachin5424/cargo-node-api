@@ -7,6 +7,7 @@ const router = Router({ mergeParams: true });
 
 router.get("/email-verify/:email", UserController.verifyEmail);
 router.get("/forget-pasword/:email", UserController.genForgetPasswordUrl);
+router.get("/reset-password/:key", UserController.resetPasswordForm);
 router.post("/reset-password/:key", driverResetPasswordValidation, UserController.resetPAssword);
 
 

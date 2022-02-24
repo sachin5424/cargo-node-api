@@ -1,6 +1,8 @@
 import { validationResult } from "express-validator";
 import Service from "../../../services/DriverService";
 import { decryptData } from "../../../utls/_helper";
+import { renderDriverResetPasswordForm } from "../../../views/resetPassword/renderFile";
+import config from "../../../utls/config";
 
 export default class UserController {
 
@@ -27,6 +29,20 @@ export default class UserController {
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async resetPasswordForm(req, res) {
+        try {
+            const originalUrl = req.originalUrl;
+            const callbackUrl = config.applicationBaseUrl;
+            const callbackUrlText = 'Login Here';
+
+            const html = await renderDriverResetPasswordForm({originalUrl, callbackUrl, callbackUrlText});
+            res.setHeader('Content-Type', 'text/html').send(html)
+        } catch (e) {
+            console.log(e.message);
+			return res.status(400).send({message: 'Error try again!'});
 		}
     }
 
