@@ -1,7 +1,8 @@
 import DriverModel from "../data-base/models/driver";
-import { clearSearch, getAdminFilter } from "../utls/_helper";
+import { clearSearch, getAdminFilter, encryptData, decryptData} from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
+import { sendResetPasswordMail } from "../thrirdParty/emailServices/driver/sendEmail";
 
 export default class Service {
 
@@ -10,17 +11,17 @@ export default class Service {
 
         try {
             const owner = await DriverModel.findOne({ email: email, isDeleted: false });
-            if(owner){
-                if(owner.emailVerified){
+            if (owner) {
+                if (owner.emailVerified) {
                     response.message = "Email is already verified";
-                } else{
+                } else {
                     owner.emailVerified = true;
                     await owner.save();
                     response.message = "Email is verified";
                 }
                 response.statusCode = 200;
                 response.status = true;
-            } else{
+            } else {
                 throw new Error("Invalid path");
             }
         } catch (e) {
@@ -28,6 +29,62 @@ export default class Service {
         }
 
         return response;
+    }
+
+    static async genForgetPasswordUrl(email) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+        try {
+            const tplData = await DriverModel.findOne({ email: email, isDeleted: false });
+            if (tplData) {
+                console.log('new Date().getTime()', new Date().getTime(), new Date().getTime() + config.forgetPassExpTime * 1000);
+
+                const timeStamp = new Date().getTime() + config.forgetPassExpTime * 60 * 1000;
+                const encKey = encryptData(encryptData(timeStamp + '-----' + email));
+                await sendResetPasswordMail({ key: encKey, email: email, validFor: config.forgetPassExpTime });
+                response.message = "A reset password link has been sent to your email. Please check and reset your password.";
+                response.statusCode = 200;
+                response.status = true;
+            } else {
+                throw new Error("This email is not registered with any account");
+            }
+        } catch (e) {
+            throw new Error(e.message);
+        }
+
+        return response;
+    }
+
+    static async resetPAssword(key, data) {
+
+
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            const decKey = decryptData(decryptData(key));
+            const timeStamp = decKey.split('-----')[0];
+            const email = decKey.split('-----')[1];
+            const cTimeStamp = new Date().getTime();
+
+            const tplData = await DriverModel.findOne({ email, isDeleted: false });
+
+            console.log(timeStamp >= cTimeStamp, timeStamp, cTimeStamp);
+            if (timeStamp >= cTimeStamp) {
+                if (tplData) {
+                    tplData.password = data.password;
+                    await tplData.save();
+                    response.message = "Password is updated. Try login aganin";
+                    response.statusCode = 200;
+                    response.status = true;
+                }
+            } else{
+                response.message = "Time expired";
+            }
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
     }
 
     static async listDriver(query, cuser) {
@@ -44,7 +101,7 @@ export default class Service {
         };
 
         try {
-            const permissionFilter = cuser.type == 'vehicleOwner' ? {owner: cuser._id} : {...getAdminFilter(cuser)};
+            const permissionFilter = cuser.type == 'vehicleOwner' ? { owner: cuser._id } : { ...getAdminFilter(cuser) };
             const search = { _id: query._id, isDeleted: false, ...permissionFilter };
             clearSearch(search);
 
@@ -120,7 +177,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await DriverModel.updateOne({_id, ...cond},{isDeleted: true});
+            await DriverModel.updateOne({ _id, ...cond }, { isDeleted: true });
 
             response.message = "Deleted successfully";
             response.statusCode = 200;

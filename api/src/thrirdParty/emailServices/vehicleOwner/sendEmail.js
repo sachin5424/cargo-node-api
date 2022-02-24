@@ -8,7 +8,7 @@ import Config from "../../../utls/config";
 export async function sendSignupMail(data) {
     try{
         const encEmail = encryptData(data.email);
-        const url = Config.baseurls.vehicleOwnerEmailVerification + "/" + encEmail;
+        const url = Config.baseurls.emailVerification.vehicleOwner + "/" + encEmail;
         data = {...data, confirmURL: url};
         const html = await ejs.renderFile(path.join(__dirname, 'signup.html'), {...data});
         return EmailService(data.email, "Account Verification Mail", html);
