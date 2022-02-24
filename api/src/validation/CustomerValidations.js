@@ -206,3 +206,19 @@ export const locationValidation = [
         .isLatLong().withMessage("The 'Latitude & Longitude' field is not valid"),
 
 ];
+
+
+export const customerResetPasswordValidation = [
+    check('password')
+        .notEmpty().withMessage("Fill the password"),
+    check('confirmPassword')
+        .notEmpty().withMessage("Fill the confirm password")
+        .custom(async (value, { req }) => {
+            const password = req.body.password;
+            const confirmPassword = req.body.confirmPassword;
+
+            if(password !== confirmPassword){
+                throw new Error("Both password does not match");
+            }
+        }),
+];

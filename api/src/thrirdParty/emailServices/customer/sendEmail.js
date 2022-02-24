@@ -28,7 +28,7 @@ export async function sendResetPasswordMail(data) {
         const resetPasswordURL = Config.baseurls.resetPassword.customer + "/" + data.key;
         data = {...data, resetPasswordURL: resetPasswordURL};
         const html = await ejs.renderFile(path.join(__dirname, 'resetPassword.html'), {...data});
-        return EmailService(data.email, "Account Verification Mail", html);
+        return EmailService(data.email, "Reset Your Password", html);
     } catch(e){
         Logger.error(
             `

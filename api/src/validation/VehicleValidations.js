@@ -273,3 +273,18 @@ export const vehicleOwnerValidation = [
         .notEmpty().withMessage("The 'active' field is required")
         .toBoolean(1 ? true : false),
 ];
+
+export const vehicleOwnerResetPasswordValidation = [
+    check('password')
+        .notEmpty().withMessage("Fill the password"),
+    check('confirmPassword')
+        .notEmpty().withMessage("Fill the confirm password")
+        .custom(async (value, { req }) => {
+            const password = req.body.password;
+            const confirmPassword = req.body.confirmPassword;
+
+            if(password !== confirmPassword){
+                throw new Error("Both password does not match");
+            }
+        }),
+];

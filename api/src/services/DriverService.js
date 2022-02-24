@@ -36,8 +36,6 @@ export default class Service {
         try {
             const tplData = await DriverModel.findOne({ email: email, isDeleted: false });
             if (tplData) {
-                console.log('new Date().getTime()', new Date().getTime(), new Date().getTime() + config.forgetPassExpTime * 1000);
-
                 const timeStamp = new Date().getTime() + config.forgetPassExpTime * 60 * 1000;
                 const encKey = encryptData(encryptData(timeStamp + '-----' + email));
                 await sendResetPasswordMail({ key: encKey, email: email, validFor: config.forgetPassExpTime });
@@ -67,7 +65,6 @@ export default class Service {
 
             const tplData = await DriverModel.findOne({ email, isDeleted: false });
 
-            console.log(timeStamp >= cTimeStamp, timeStamp, cTimeStamp);
             if (timeStamp >= cTimeStamp) {
                 if (tplData) {
                     tplData.password = data.password;

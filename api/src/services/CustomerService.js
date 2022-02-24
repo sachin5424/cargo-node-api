@@ -1,8 +1,9 @@
 import CustomerModel from "../data-base/models/customer";
 import CustomerLocationModel from "../data-base/models/customerLocation";
-import { clearSearch, getAdminFilter } from "../utls/_helper";
+import { clearSearch, getAdminFilter, encryptData, decryptData } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
+import { sendResetPasswordMail } from "../thrirdParty/emailServices/customer/sendEmail";
 
 export default class Service {
 
@@ -29,6 +30,53 @@ export default class Service {
         }
 
         return response;
+    }
+
+    static async genForgetPasswordUrl(email) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+        try {
+            const tplData = await CustomerModel.findOne({ email: email, isDeleted: false });
+            if (tplData) {
+                const timeStamp = new Date().getTime() + config.forgetPassExpTime * 60 * 1000;
+                const encKey = encryptData(encryptData(timeStamp + '-----' + email));
+                await sendResetPasswordMail({ key: encKey, email: email, validFor: config.forgetPassExpTime });
+                response.message = "A reset password link has been sent to your email. Please check and reset your password.";
+                response.statusCode = 200;
+                response.status = true;
+            } else {
+                throw new Error("This email is not registered with any account");
+            }
+        } catch (e) {
+            throw new Error(e.message);
+        }
+        return response;
+    }
+
+    static async resetPAssword(key, data) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+        try {
+            const decKey = decryptData(decryptData(key));
+            const timeStamp = decKey.split('-----')[0];
+            const email = decKey.split('-----')[1];
+            const cTimeStamp = new Date().getTime();
+
+            const tplData = await CustomerModel.findOne({ email, isDeleted: false });
+
+            if (timeStamp >= cTimeStamp) {
+                if (tplData) {
+                    tplData.password = data.password;
+                    await tplData.save();
+                    response.message = "Password is updated. Try login aganin";
+                    response.statusCode = 200;
+                    response.status = true;
+                }
+            } else{
+                response.message = "Time expired";
+            }
+            return response;
+        } catch (e) {
+            throw new Error(e)
+        }
     }
 
     static async listCustomer(query, cuser) {
