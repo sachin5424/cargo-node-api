@@ -16,7 +16,7 @@ export default class UserController {
                 });
             }
             
-			const srvRes = await Service.ownerLogin(req.body)
+			const srvRes = await Service.customerLogin(req.body)
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

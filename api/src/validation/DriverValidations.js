@@ -12,7 +12,7 @@ export const driverLoginValidation = [
         .isEmail().withMessage("Provide a valid email")
         .custom(async (v) => {
             try {
-                const r = await VehicleOwnerModel.findOne({email: v, isDeleted: false});
+                const r = await DriverModel.findOne({email: v, isDeleted: false});
                 if (!r) {
                     throw new Error("Data not found");
                 }
