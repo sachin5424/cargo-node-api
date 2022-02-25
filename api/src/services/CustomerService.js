@@ -117,7 +117,7 @@ export default class Service {
         }
     }
 
-    static async listCustomer(query, cuser) {
+    static async listCustomer(query, params) {
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -131,7 +131,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false, ...getAdminFilter(cuser) };
+            const search = { _id: query._id, isDeleted: false, state: params.state, district: params.district, taluk: params.taluk };
             clearSearch(search);
 
             response.data.docs = await CustomerModel.find(search)
@@ -191,7 +191,7 @@ export default class Service {
         }
     }
     static async deleteCustomer(_id, cond) {
-        cond = !cond ? {} : cond;
+        clearSearch({cond});
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {

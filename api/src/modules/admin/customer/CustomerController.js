@@ -6,7 +6,7 @@ export default class CustomerController {
     
     static async list(req, res) {
         try {
-			const srvRes = await Service.listCustomer(req?.query, req.__cuser._doc)
+			const srvRes = await Service.listCustomer(req?.query, req.params)
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
@@ -42,7 +42,7 @@ export default class CustomerController {
 
     static async delete(req, res) {
         try {
-			const srvRes = await Service.deleteCustomer(req.params.id);
+			const srvRes = await Service.deleteCustomer(req.params.id, {state: req.params.state, district: req.params.district, taluk: req.params.taluk});
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

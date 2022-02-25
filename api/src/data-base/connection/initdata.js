@@ -1,8 +1,12 @@
 import StateModel from "../models/state";
 import DistrictModel from "../models/district";
 import TalukModel from "../models/taluk";
+import ServiceTypeeModel from "../models/serviceType";
+import UserTypePermissionModel from "../models/userTypePermission";
 
 import states from "../initdata/statesDistrictsAndTaluks";
+import serviceTypes from "../initdata/serviceTypes";
+import userTypePermission from "../initdata/userTypePermission";
 
 export default async function initdata() {
     let resultState = await StateModel.findOne(),
@@ -31,6 +35,29 @@ export default async function initdata() {
                     })
                 }
             });
+        })
+    }
+
+    let resultServiceTypes = await ServiceTypeeModel.findOne();
+
+    if(!resultServiceTypes){
+        serviceTypes?.map(async (st)=>{
+            resultServiceTypes = new ServiceTypeeModel();
+            resultServiceTypes.name = st.name;
+            resultServiceTypes.key = st.key;
+            await resultServiceTypes.save();
+        })
+    }
+
+    let resultUserTypePermission = await UserTypePermissionModel.findOne();
+
+    if(!resultUserTypePermission){
+        userTypePermission?.map(async (utp)=>{
+            resultUserTypePermission = new UserTypePermissionModel();
+            resultUserTypePermission.typeName = utp.typeName;
+            resultUserTypePermission.typeKey = utp.typeKey;
+            resultUserTypePermission.grantedModules = utp.grantedModules;
+            await resultUserTypePermission.save();
         })
     }
 }

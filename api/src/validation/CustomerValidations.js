@@ -5,6 +5,7 @@ import StateModel from '../data-base/models/state';
 import DistrictModel from '../data-base/models/district';
 import TalukModel from '../data-base/models/taluk';
 import VehicleOwnerModel from '../data-base/models/vehicleOwner';
+import { clearSearch } from '../utls/_helper';
 
 
 export const customerLoginValidation = [
@@ -13,7 +14,7 @@ export const customerLoginValidation = [
         .isEmail().withMessage("Provide a valid email")
         .custom(async (v) => {
             try {
-                const r = await CustomerModel.findOne({email: v, isDeleted: false});
+                const r = await CustomerModel.findOne({ email: v, isDeleted: false });
                 if (!r) {
                     throw new Error("Data not found");
                 }
@@ -32,9 +33,11 @@ export const customerValidation = [
     check('_id')
         .optional()
         .notEmpty().withMessage("Provide / Select a valid data")
-        .custom(async (v) => {
+        .custom(async (v, {req}) => {
             try {
-                const r = await CustomerModel.findById(v);
+                const search = { _id: v, isDeleted: false, state: req.params.state, district: req.params.district, taluk: req.params.taluk };
+                clearSearch(search);
+                const r = await CustomerModel.findOne(search);
                 if (!r) {
                     throw new Error("Data not found");
                 }
@@ -103,7 +106,7 @@ export const customerValidation = [
 
     check('state')
         .notEmpty().withMessage("The 'State' field is required")
-        .isString().withMessage("The 'State' field is not valid")
+        // .isString().withMessage("The 'State' field is not valid")
         .custom(async (value) => {
             try {
                 const result = await StateModel.findById(value);
@@ -217,7 +220,7 @@ export const customerResetPasswordValidation = [
             const password = req.body.password;
             const confirmPassword = req.body.confirmPassword;
 
-            if(password !== confirmPassword){
+            if (password !== confirmPassword) {
                 throw new Error("Both password does not match");
             }
         }),

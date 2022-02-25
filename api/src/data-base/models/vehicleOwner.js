@@ -3,6 +3,10 @@ import bcrypt from "bcryptjs";
 
 const vehicleOwnerSchema = new Schema({
 
+    serviceType: {
+        type: Schema.Types.ObjectId,
+        ref: "serviceType",
+    },
     firstName: String,
     lastName: String,
     phoneNo: String,

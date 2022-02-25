@@ -1,6 +1,10 @@
 import { Schema, model } from 'mongoose';
 
 const VehicleSchema = new Schema({
+    serviceType: {
+        type: Schema.Types.ObjectId,
+        ref: "serviceType",
+    },
     name: String,
     photo: String,
     vehicleNumber: String,

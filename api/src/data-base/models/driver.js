@@ -2,6 +2,10 @@ import { Schema, model } from 'mongoose';
 import bcrypt from "bcryptjs";
 
 const DriverSchema = new Schema({
+    serviceType: {
+        type: Schema.Types.ObjectId,
+        ref: "serviceType",
+    },
     firstName: String,
     lastName: String,
     // driverId: String,

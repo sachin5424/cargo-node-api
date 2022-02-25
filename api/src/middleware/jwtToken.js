@@ -14,6 +14,18 @@ export const jwtTokenPermission = async (req, res, next) => {
 		try {
 			const cuser = await UserModel.findById(decode.sub);
 			req.__cuser = cuser;
+			if(cuser.type==='stateAdmin'){
+				req.params.state = cuser.state;
+			}
+			if(cuser.type==='districtAdmin'){
+				req.params.state = cuser.state;
+				req.params.district = cuser.district;
+			}
+			if(cuser.type==='talukAdmin'){
+				req.params.state = cuser.state;
+				req.params.district = cuser.district;
+				req.params.taluk = cuser.taluk;
+			}
 
 		} catch (e) {
 			throw new Error('User does not exist')
