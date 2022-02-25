@@ -35,7 +35,7 @@ export const customerValidation = [
         .notEmpty().withMessage("Provide / Select a valid data")
         .custom(async (v, {req}) => {
             try {
-                const search = { _id: v, isDeleted: false, state: req.params.state, district: req.params.district, taluk: req.params.taluk };
+                const search = { _id: v, isDeleted: false, state: global.state, district: global.district, taluk: global.taluk };
                 clearSearch(search);
                 const r = await CustomerModel.findOne(search);
                 if (!r) {
@@ -59,7 +59,7 @@ export const customerValidation = [
         .matches(/^[3-9]{1}[0-9]{9}$/).withMessage("The 'Phone Number' field is not valid")
         .custom(async (value, { req }) => {
             const body = req.body;
-            const result = await CustomerModel.findOne({ phoneNo: value });
+            const result = await CustomerModel.findOne({ isDeleted: false, phoneNo: value });
             if (result) {
                 if (body._id) {
                     if (result._id != body._id) {
@@ -76,7 +76,7 @@ export const customerValidation = [
         .isEmail().withMessage("The 'Email' field is not valid")
         .custom(async (value, { req }) => {
             const body = req.body;
-            const result = await CustomerModel.findOne({ email: value });
+            const result = await CustomerModel.findOne({ isDeleted: false, email: value });
             if (result) {
                 if (body._id) {
                     if (result._id != body._id) {

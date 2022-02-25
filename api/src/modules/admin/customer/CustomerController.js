@@ -42,7 +42,7 @@ export default class CustomerController {
 
     static async delete(req, res) {
         try {
-			const srvRes = await Service.deleteCustomer(req.params.id, {state: req.params.state, district: req.params.district, taluk: req.params.taluk});
+			const srvRes = await Service.deleteCustomer(req.params.id, {state: global.state, district: global.district, taluk: global.taluk});
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
