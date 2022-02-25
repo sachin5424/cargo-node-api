@@ -131,7 +131,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false, state: global.state, district: global.district, taluk: global.taluk };
+            const search = { _id: query._id, isDeleted: false, ...getAdminFilter() };
             clearSearch(search);
 
             response.data.docs = await CustomerModel.find(search)

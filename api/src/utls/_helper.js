@@ -58,7 +58,8 @@ export function getAdminFilter(...keys) {
     search[keys[0] ? keys[0] : 'state'] = global.state;
     search[keys[1] ? keys[1] : 'district'] = global.district;
     search[keys[2] ? keys[2] : 'taluk'] = global.taluk;
-    return clearSearch(search);
+    clearSearch(search);
+    return search;
 }
 
 
