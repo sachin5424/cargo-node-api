@@ -11,8 +11,6 @@ router.get('/list', jwtTokenPermission, checkCustomerListAccess, CustomerControl
 router.post('/save', jwtTokenPermission, checkCustomerSaveAccess, customerValidation, CustomerController.save);
 router.delete("/delete/:id", jwtTokenPermission, CheckCustomerDeleteAccess, CustomerController.delete);
 
-router.post('/register', (req, res, next)=>{ req.body.isActive = false; next(); }, customerValidation, CustomerController.save)
-
 router.get('/location/list', jwtTokenPermission, checkCustomerListAccess, locationSearch, LocationController.list);
 router.post('/location/save', jwtTokenPermission, checkCustomerSaveAccess, locationValidation, LocationController.save);
 router.delete("/location/delete/:id", jwtTokenPermission, CheckCustomerDeleteAccess, LocationController.delete);
