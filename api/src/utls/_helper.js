@@ -53,18 +53,12 @@ export function clearSearch(obj) {
     }
 }
 
-export function getAdminFilter(cuser, ...keys) {
+export function getAdminFilter(...keys) {
     let search = {};
-    if (cuser.type === "superAdmin") {
-        search = search;
-    } else if (cuser.type === "stateAdmin") {
-        search[keys[0] ? keys[0] : 'state'] = cuser.state;
-    } else if (cuser.type === "districtAdmin") {
-        search[keys[1] ? keys[1] : 'district'] = cuser.district;
-    } else if (cuser.type === "talukAdmin") {
-        search[keys[2] ? keys[2] : 'taluk'] = cuser.taluk;
-    }
-    return search;
+    search[keys[0] ? keys[0] : 'state'] = global.state;
+    search[keys[1] ? keys[1] : 'district'] = global.district;
+    search[keys[2] ? keys[2] : 'taluk'] = global.taluk;
+    return clearSearch(search);
 }
 
 

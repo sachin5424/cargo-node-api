@@ -20,7 +20,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false, ...getAdminFilter(cuser) };
+            const search = { _id: query._id, isDeleted: false, /* ...getAdminFilter(cuser)  */};
             clearSearch(search);
 
             response.data.docs = await CustomerModel.find(search)

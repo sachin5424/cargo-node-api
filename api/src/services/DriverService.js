@@ -135,7 +135,7 @@ export default class Service {
         };
 
         try {
-            const permissionFilter = cuser.type == 'vehicleOwner' ? { owner: cuser._id } : { ...getAdminFilter(cuser) };
+            const permissionFilter = cuser.type == 'vehicleOwner' ? { owner: cuser._id } : { /* ...getAdminFilter(cuser) */ };
             const search = { _id: query._id, isDeleted: false, ...permissionFilter };
             clearSearch(search);
 
