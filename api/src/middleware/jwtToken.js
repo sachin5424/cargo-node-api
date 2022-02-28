@@ -17,17 +17,18 @@ export const jwtTokenPermission = async (req, res, next) => {
 			global.cuser = cuser;
 			if(cuser.type==='stateAdmin'){
 				global.state = cuser.state;
-			}
-			if(cuser.type==='districtAdmin'){
+			} else if(cuser.type==='districtAdmin'){
 				global.state = cuser.state;
 				global.district = cuser.district;
-			}
-			if(cuser.type==='talukAdmin'){
+			} else if(cuser.type==='talukAdmin'){
+				global.state = cuser.state;
+				global.district = cuser.district;
+				global.taluk = cuser.taluk;
+			} else if(cuser.type==='vehicleOwner'){
 				global.state = cuser.state;
 				global.district = cuser.district;
 				global.taluk = cuser.taluk;
 			}
-
 		} catch (e) {
 			throw new Error('User does not exist')
 		}

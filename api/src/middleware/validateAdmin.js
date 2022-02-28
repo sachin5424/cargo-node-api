@@ -58,12 +58,14 @@ export const checkAdminPermission = async (req, res, next, model, fillSDTValues 
                         const cuser = req.__cuser;
                         if(cuser.type === 'stateAdmin'){
                             req.body[idKeys[0]] = cuser.state.toString();
-                        }
-                        if(cuser.type === 'districtAdmin'){
+                        } else if(cuser.type === 'districtAdmin'){
                             req.body[idKeys[0]] = cuser.state;
                             req.body[idKeys[1]] = cuser.district;
-                        }
-                        if(cuser.type === 'talukAdmin'){
+                        } else if(cuser.type === 'talukAdmin'){
+                            req.body[idKeys[0]] = cuser.state;
+                            req.body[idKeys[1]] = cuser.district;
+                            req.body[idKeys[2]] = cuser.taluk;
+                        } else if(cuser.type === 'vehicleOwner'){
                             req.body[idKeys[0]] = cuser.state;
                             req.body[idKeys[1]] = cuser.district;
                             req.body[idKeys[2]] = cuser.taluk;

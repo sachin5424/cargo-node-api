@@ -4,6 +4,7 @@ import StateModel from '../data-base/models/state';
 import DistrictModel from '../data-base/models/district';
 import TalukModel from '../data-base/models/taluk';
 import VehicleOwnerModel from '../data-base/models/vehicleOwner';
+import { getAdminFilter, clearSearch } from '../utls/_helper';
 
 
 export const driverLoginValidation = [
@@ -32,9 +33,13 @@ export const driverValidation = [
     check('_id')
         .optional()
         .notEmpty().withMessage("Provide / Select a valid data")
-        .custom(async (v) => {
+        .custom(async (v, {req}) => {
             try {
-                const r = await DriverModel.findById(v);
+                const permissionFilter = cuser.type == 'vehicleOwner' ? { owner: cuser._id } : { ...getAdminFilter() };
+                const search = { _id: v, isDeleted: false, ...permissionFilter };
+                clearSearch(search);
+
+                const r = await DriverModel.findOne(search);
                 if (!r) {
                     throw new Error("Data not found");
                 }

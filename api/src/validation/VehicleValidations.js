@@ -173,20 +173,20 @@ export const vehicleValidation = [
         .notEmpty().withMessage("The 'Available Seats' field is required")
         .isNumeric().withMessage("The 'Available Seats' field is must be a number"),
 
-    check('owner')
-        .notEmpty().withMessage("The 'owner' field is required")
-        .custom(async (value) =>{
+    // check('owner')
+    //     .notEmpty().withMessage("The 'owner' field is required")
+    //     .custom(async (value) =>{
 
-            try{
-                const result = await VehicleOwnerModel.findById(value);
-                if (!result) {
-                    throw new Error("Data not found");
-                }
-            } catch(e){
-                throw new Error("Owner is not valid");
-            }
+    //         try{
+    //             const result = await VehicleOwnerModel.findById(value);
+    //             if (!result) {
+    //                 throw new Error("Data not found");
+    //             }
+    //         } catch(e){
+    //             throw new Error("Owner is not valid");
+    //         }
 
-        }),
+    //     }),
 
     check('driver')
         .notEmpty().withMessage("The 'driver' field is required")

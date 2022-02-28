@@ -4,7 +4,7 @@ import VehicleTypeModel from "../data-base/models/vehicleType";
 import VehicleModelModel from "../data-base/models/vehicleModel";
 import VehicleModel from "../data-base/models/vehicle";
 import VehicleOwnerModel from "../data-base/models/vehicleOwner";
-import { clearSearch, encryptData, decryptData } from "../utls/_helper";
+import { clearSearch, encryptData, decryptData, getAdminFilter } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
 import { sendResetPasswordMail } from "../thrirdParty/emailServices/vehicleOwner/sendEmail";
@@ -22,13 +22,13 @@ export default class Service {
             if (!isPasswordMatched) {
                 throw new Error("Invalid Credentials");
             } else {
-                const JWT_EXP_DUR= config.jwt.expDuration;
+                const JWT_EXP_DUR = config.jwt.expDuration;
                 const accessToken = jwt.sign({ sub: owner._id.toString(), exp: Math.floor(Date.now() / 1000) + ((JWT_EXP_DUR) * 60), }, config.jwt.secretKey);
 
                 if (!owner.emailVerfied) {
                     response.statusCode = 401;
                     response.message = "Email is not verified. Please verify from the link sent to your email!!";
-                } else if(!owner.isActive){
+                } else if (!owner.isActive) {
                     response.statusCode = 401;
                     response.message = "Your acount is blocked. Please contact admin";
                 } else {
@@ -51,17 +51,17 @@ export default class Service {
 
         try {
             const owner = await VehicleOwnerModel.findOne({ email: email, isDeleted: false });
-            if(owner){
-                if(owner.emailVerfied){
+            if (owner) {
+                if (owner.emailVerfied) {
                     response.message = "Email is already verified";
-                } else{
+                } else {
                     owner.emailVerfied = true;
                     await owner.save();
                     response.message = "Email is verified";
                 }
                 response.statusCode = 200;
                 response.status = true;
-            } else{
+            } else {
                 throw new Error("Invalid path");
             }
         } catch (e) {
@@ -109,7 +109,7 @@ export default class Service {
                     response.statusCode = 200;
                     response.status = true;
                 }
-            } else{
+            } else {
                 response.message = "Time expired";
             }
             return response;
@@ -133,7 +133,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false };
+            const search = { _id: query._id, isDeleted: false, ...getAdminFilter() };
             clearSearch(search);
 
             response.data.docs = await VehicleOwnerModel.find(search)
@@ -206,7 +206,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleOwnerModel.updateOne({_id, ...cond},{isDeleted: true});
+            await VehicleOwnerModel.updateOne({ _id, ...cond }, { isDeleted: true });
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -237,31 +237,53 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false, owner: query.owner };
+            const search = { _id: query._id, isDeleted: false};
             clearSearch(search);
+            const driverFilter ={isDeleted: false, ...getAdminFilter()};
+            clearSearch(driverFilter);
 
-            response.data.docs = await VehicleModel.find(search)
-                .populate(
-                    [
-                        {
-                            path: 'owner',
-                            select: 'firstName lastName email',
-                        },
-                        {
-                            path: 'driver',
-                            select: 'firstName lastName',
-                        },
-                        {
-                            path: 'vehicleType',
-                            select: 'name icon',
-                        },
-                    ]
-                )
-                .select('  -__v')
-                .limit(response.data.limit)
-                .skip(response.data.limit * (response.data.page - 1))
+            const $aggregate = [
+                {
+                    $match: search
+                },
+                {
+                    $lookup: {
+                        from: 'drivers',
+                        localField: 'driver',
+                        foreignField: '_id',
+                        as: 'driver',
+                        pipeline: [
+                            {
+                                $match: driverFilter
+                            },
+                        ],
+                    }
+                },
+                {
+                    $unwind: "$driver"
+                },
+                {
+                    $addFields: {
+                        "driverFirstName": "$driver.firstName", "driverLastName": "$driver.lastName", "driverState": "$driver.state"
+                    }
+                },
+                {
+                    "$project": {
+                        "driver": 0,
+                    }
+                },
+            ];
+
+
+
+            response.data.docs = await VehicleModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.data.limit + response.data.limit * (response.data.page - 1) },
+                    { $skip: response.data.limit * (response.data.page - 1) }
+                ])
                 .then(async function (data) {
-                    await VehicleModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await VehicleModel.aggregate([...$aggregate, { $count: "totalDocs" }]).then(count => { response.data.totalDocs = count[0].totalDocs }).catch(err => { response.data.totalDocs = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
@@ -289,7 +311,7 @@ export default class Service {
             tplData.photo = await uploadFile(data.photo, config.uploadPaths.vehicle.photo, VehicleModel, 'photo', _id);
             tplData.vehicleNumber = data.vehicleNumber;
             tplData.availableSeats = data.availableSeats;
-            tplData.owner = data.owner;
+            // tplData.owner = data.owner;
             tplData.driver = data.driver;
             tplData.vehicleType = data.vehicleType;
             tplData.isActive = data.isActive;
@@ -311,7 +333,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleModel.updateOne({_id, ...cond},{isDeleted: true});
+            await VehicleModel.updateOne({ _id, ...cond }, { isDeleted: true });
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -406,7 +428,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleTypeModel.updateOne({_id, ...cond},{isDeleted: true});
+            await VehicleTypeModel.updateOne({ _id, ...cond }, { isDeleted: true });
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -496,7 +518,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await VehicleModelModel.updateOne({_id, ...cond},{isDeleted: true});
+            await VehicleModelModel.updateOne({ _id, ...cond }, { isDeleted: true });
 
             response.message = "Deleted successfully";
             response.statusCode = 200;

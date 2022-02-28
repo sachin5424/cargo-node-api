@@ -7,6 +7,7 @@ import OwnerConteroller from "./OwnerConteroller";
 import { typeValidation, modelValidation, vehicleValidation, vehicleOwnerValidation} from "../../../validation/VehicleValidations";
 import { vehicalCategorieValidation, updatedVehicalCategorieValidation } from "../../../validation";
 import { jwtTokenPermission } from "../../../settings/import";
+import { checkAdminPermission } from "../../../middleware/validateAdmin";
 
 const router = Router({ mergeParams: true });
 
@@ -28,8 +29,13 @@ router.post('/model/save', jwtTokenPermission,  modelValidation, ModelController
 router.delete("/model/delete/:id", jwtTokenPermission, ModelController.delete);
 
 
-router.get('/list', VehicleController.list);
-router.post('/save', jwtTokenPermission,  vehicleValidation, VehicleController.save);
-router.delete("/delete/:id", jwtTokenPermission, VehicleController.delete);
+router.get('/list', jwtTokenPermission, checkVehicleListAccess, VehicleController.list);
+router.post('/save', jwtTokenPermission, checkVehicleSaveAccess,  vehicleValidation, VehicleController.save);
+router.delete("/delete/:id", jwtTokenPermission, CheckVehicleDeleteAccess, VehicleController.delete);
+
+async function checkVehicleListAccess (req, res, next) { checkAdminPermission(req, res, next, 'view_vehicles'); };
+async function checkVehicleSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'change_vehicles' : 'add_vehicles', true); };
+async function CheckVehicleDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'delete_vehicles'); };
+
 
 export default router;

@@ -10,10 +10,10 @@ const VehicleSchema = new Schema({
     vehicleNumber: String,
     availableSeats: Number,
 
-    owner: {
-        type: Schema.Types.ObjectId,
-        ref: 'vehicleOwner',
-    },
+    // owner: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'vehicleOwner',
+    // },
     driver: {
         type: Schema.Types.ObjectId,
         ref: 'driver',
@@ -21,6 +21,18 @@ const VehicleSchema = new Schema({
     vehicleType: {
         type: Schema.Types.ObjectId,
         ref: 'vehicleType',
+    },
+    state: {
+        type: Schema.Types.ObjectId,
+        ref: "state",
+    },
+    district: {
+        type: Schema.Types.ObjectId,
+        ref: "district",
+    },
+    taluk: {
+        type: Schema.Types.ObjectId,
+        ref: "taluk",
     },
     isDeleted: {
         type: Boolean,
