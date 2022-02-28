@@ -7,7 +7,7 @@ export default class CustomerController {
     static async list(req, res) {
         try {
 			const srvRes = await Service.listCustomer(req?.query, req.params)
-            return res.status(srvRes.statusCode).json({ srvRes });
+            return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
 		}

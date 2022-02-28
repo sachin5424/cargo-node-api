@@ -121,30 +121,68 @@ export default class Service {
         const response = {
             statusCode: 400,
             message: 'Data not found!',
-            data: {
-                docs: [],
+            result: {
+                data: [],
                 page: query.page * 1 > 0 ? query.page * 1 : 1,
                 limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
-                totalDocs: 0,
+                total: 0,
             },
             status: false
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false, ...getAdminFilter() };
+            const search = { _id: query._id, isDeleted: false, ...getAdminFilter()};
             clearSearch(search);
+            // const driverFilter ={isDeleted: false, ...getAdminFilter()};
+            // clearSearch(driverFilter);
 
-            response.data.docs = await CustomerModel.find(search)
-                .select('  -__v')
-                .limit(response.data.limit)
-                .skip(response.data.limit * (response.data.page - 1))
+            const $aggregate = [
+                {
+                    $match: search
+                },
+                // {
+                //     $lookup: {
+                //         from: 'drivers',
+                //         localField: 'driver',
+                //         foreignField: '_id',
+                //         as: 'driver',
+                //         pipeline: [
+                //             {
+                //                 $match: driverFilter
+                //             },
+                //         ],
+                //     }
+                // },
+                // {
+                //     $unwind: "$driver"
+                // },
+                {
+                    $addFields: {
+                        "image": "$photo",
+                    }
+                },
+                // {
+                //     "$project": {
+                //         "driver": 0,
+                //     }
+                // },
+            ];
+
+
+
+            response.result.data = await CustomerModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ])
                 .then(async function (data) {
-                    await CustomerModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await CustomerModel.aggregate([...$aggregate, { $count: "total" }]).then(count => { response.result.total = count[0].total }).catch(err => { response.result.total = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
 
-            if (response.data.docs.length) {
+            if (response.result.data.length) {
                 response.message = "Data fetched";
             }
             response.statusCode = 200;

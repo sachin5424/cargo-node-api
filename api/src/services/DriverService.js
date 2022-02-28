@@ -139,8 +139,6 @@ export default class Service {
             const search = { _id: query._id, isDeleted: false, ...permissionFilter };
             clearSearch(search);
 
-            console.log('search', search);
-
             response.data.docs = await DriverModel.find(search)
                 .select('  -__v')
                 .limit(response.data.limit)

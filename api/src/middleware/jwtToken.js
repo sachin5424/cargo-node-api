@@ -38,7 +38,7 @@ export const jwtTokenPermission = async (req, res, next) => {
 	catch (error) {
 		res.status(401).json({
 			status: 401,
-			message: "Failed to authenticate token."
+			message: "Failed to authenticate. Try login again!"
 		});
 	}
 };
