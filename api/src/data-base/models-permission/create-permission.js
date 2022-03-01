@@ -18,6 +18,7 @@ var autuGenratePermission = async () => {
                                           create add permission
                 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                 */
+                console.log(collectionName[i]);
                 var add_permission = {
                     title: "add_" + collectionName[i].name,
                     model_name: collectionName[i].name,

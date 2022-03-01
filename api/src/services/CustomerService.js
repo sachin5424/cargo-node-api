@@ -20,13 +20,13 @@ export default class Service {
             if (!isPasswordMatched) {
                 throw new Error("Invalid Credentials");
             } else {
-                const JWT_EXP_DUR= config.jwt.expDuration;
+                const JWT_EXP_DUR = config.jwt.expDuration;
                 const accessToken = jwt.sign({ sub: owner._id.toString(), exp: Math.floor(Date.now() / 1000) + ((JWT_EXP_DUR) * 60), }, config.jwt.secretKey);
 
                 if (!owner.emailVerified) {
                     response.statusCode = 401;
                     response.message = "Email is not verified. Please verify from the link sent to your email!!";
-                } else if(!owner.isActive){
+                } else if (!owner.isActive) {
                     response.statusCode = 401;
                     response.message = "Your acount is blocked. Please contact admin";
                 } else {
@@ -50,17 +50,17 @@ export default class Service {
 
         try {
             const owner = await CustomerModel.findOne({ email: email, isDeleted: false });
-            if(owner){
-                if(owner.emailVerified){
+            if (owner) {
+                if (owner.emailVerified) {
                     response.message = "Email is already verified";
-                } else{
+                } else {
                     owner.emailVerified = true;
                     await owner.save();
                     response.message = "Email is verified";
                 }
                 response.statusCode = 200;
                 response.status = true;
-            } else{
+            } else {
                 throw new Error("Invalid path");
             }
         } catch (e) {
@@ -108,7 +108,7 @@ export default class Service {
                     response.statusCode = 200;
                     response.status = true;
                 }
-            } else{
+            } else {
                 response.message = "Time expired";
             }
             return response;
@@ -131,41 +131,46 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false, ...getAdminFilter()};
+            const search = {
+                _id: query._id,
+                isDeleted: false,
+                $or: [
+                    {
+                        firstName: { $regex: '.*' + query?.key + '.*' }
+                    },
+                    {
+                        lastName: { $regex: '.*' + query?.key + '.*' }
+                    },
+                ],
+
+                ...getAdminFilter()
+            };
             clearSearch(search);
             // const driverFilter ={isDeleted: false, ...getAdminFilter()};
             // clearSearch(driverFilter);
 
             const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
                 {
-                    $match: search
-                },
-                // {
-                //     $lookup: {
-                //         from: 'drivers',
-                //         localField: 'driver',
-                //         foreignField: '_id',
-                //         as: 'driver',
-                //         pipeline: [
-                //             {
-                //                 $match: driverFilter
-                //             },
-                //         ],
-                //     }
-                // },
-                // {
-                //     $unwind: "$driver"
-                // },
-                {
-                    $addFields: {
-                        "image": "$photo",
+                    "$project": {
+                        firstName: 1,
+                        lastName: 1,
+                        phoneNo: 1,
+                        email: 1,
+                        dob: 1,
+                        address: 1,
+                        state: 1,
+                        district: 1,
+                        taluk: 1,
+                        zipcode: 1,
+                        isActive: 1,
+                        image: {
+                            url: { $concat: [config.applicationFileUrl + 'customer/photo/', "$photo"] },
+                            name: "$photo"
+                        }
                     }
                 },
-                // {
-                //     "$project": {
-                //         "driver": 0,
-                //     }
-                // },
             ];
 
 
@@ -206,7 +211,7 @@ export default class Service {
             tplData.lastName = data.lastName;
             tplData.phoneNo = data.phoneNo;
             tplData.email = data.email;
-            tplData.password = data.password;
+            (!data.password || (tplData.password = data.password));
             tplData.dob = data.dob;
             tplData.photo = await uploadFile(data.photo, config.uploadPaths.customer.photo, CustomerModel, 'photo', _id);
             tplData.address = data.address;
@@ -229,11 +234,11 @@ export default class Service {
         }
     }
     static async deleteCustomer(_id, cond) {
-        clearSearch({cond});
+        clearSearch({ cond });
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await CustomerModel.updateOne({_id, ...cond}, {isDeleted: true});
+            await CustomerModel.updateOne({ _id, ...cond }, { isDeleted: true });
 
             response.message = "Deleted successfully";
             response.statusCode = 200;
@@ -247,7 +252,7 @@ export default class Service {
     static async deleteCustomerPermanent(cond) {
         await CustomerModel.deleteOne({ ...cond });
     }
-    
+
 
     static async listLocation(query, customer) {
         const response = {
@@ -263,7 +268,7 @@ export default class Service {
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false, customer};
+            const search = { _id: query._id, isDeleted: false, customer };
             clearSearch(search);
 
             response.data.docs = await CustomerLocationModel.find(search)
@@ -317,7 +322,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            await CustomerLocationModel.updateOne({_id, ...cond}, {isDeleted: true});
+            await CustomerLocationModel.updateOne({ _id, ...cond }, { isDeleted: true });
 
             response.message = "Deleted successfully";
             response.statusCode = 200;

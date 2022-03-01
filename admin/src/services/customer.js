@@ -1,6 +1,6 @@
 import axios from "../utils/axios";
 
-export default class bank {
+export default class customer {
 
     static baseURL = 'customer';
 

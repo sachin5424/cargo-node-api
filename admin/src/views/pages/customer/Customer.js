@@ -7,11 +7,16 @@ import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant
 import service from "../../../services/customer";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
+import sdtService from "../../../services/sdt";
+import { AntdDatepicker } from "../../../utils/Antd";
+import util from "../../../utils/util";
 
 export default function Customer() {
 
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true)
+    const [sdt, setSdt] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
@@ -61,8 +66,8 @@ export default function Customer() {
                     <Button type="danger" size="small">
                         <span className="d-flex">
                             <Popconfirm
-                                title="Are you sure to delete this bank?"
-                                onConfirm={() => deleteConfirm(row.id)}
+                                title="Are you sure to delete this customer?"
+                                onConfirm={() => deleteConfirm(row._id)}
                                 okText="Yes"
                                 cancelText="No"
                             >
@@ -103,27 +108,29 @@ export default function Customer() {
 
     useEffect(() => {
         list();
+        sdtService.listSdt().then(res => { setSdt(res.result.data || []) })
     }, []);
 
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Bank List</span>
+                <span>Customer List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name' }} />
             </div>
-            <AddForm ref={formRef} {...{ list }} />
+            <AddForm ref={formRef} {...{ list, sdt }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list } = props;
+    const { list, sdt } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false)
     const [visible, setVisible] = useState(false)
     const [data, setData] = useState({});
-    const [changeForm, setChangeForm] = useState(false);
+    const [districts, setDistricts] = useState([]);
+    const [taluks, setTaluks] = useState([]);
     const imgRef = useRef();
 
     const handleVisible = (val) => {
@@ -133,24 +140,17 @@ const AddForm = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         openForm(dt) {
             imgRef.current = {};
-            setData(dt ? { ...dt, } : { status: '1' });
+            setData(dt ? { ...dt, } : { isActive: true });
             handleVisible(true);
         }
     }));
 
-    const handleChange = (v, k) => {
-        // if (changeForm) {
-            setData({ ...data, [k]: v });
-        // }
-    }
+    const handleChange = (v, k) => { setData({ ...data, [k]: v }); }
 
     const save = () => {
         setAjxRequesting(true);
-        let fd = new FormData();
-        for (const [key, value] of Object.entries(data)) {
-            fd.append(key, value);
-        }
-        service.save(fd).then((res) => {
+        data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
+        service.save(data).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -166,6 +166,32 @@ const AddForm = forwardRef((props, ref) => {
         })
 
     }
+
+    const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district)
+
+    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v=> v._id)?.includes(data.taluk)
+
+    useEffect(() => {
+        const newDistricts = sdt.find(v => v._id === data.state)?.districts || [];
+        setDistricts(newDistricts?.map(v => ({ value: v._id, label: v.name, taluks: v.taluks })) || [])
+    }, [data.state])
+
+    useEffect(() => {
+        const newTaluks = districts?.find(v => v.value === data.district)?.taluks || [];
+        setTaluks(newTaluks?.map(v => { return { value: v._id, label: v.name } }))
+    }, [data.district, districts])
+
+    useEffect(() => {
+        if (!checkDistrictExist()) {
+            handleChange('', 'district');
+        }
+    }, [data.state])
+
+    useEffect(()=>{
+        if (!checkTalukExist()) {
+            handleChange('', 'taluk');
+        }
+    }, [data.district, districts])
 
     return (
         <>
@@ -186,11 +212,11 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset>
                             <div className="row mingap">
-                                <div className="col-md-3 form-group">
+                                <div className="col-md-6 form-group">
                                     <label className="req">First Name</label>
                                     <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />
                                 </div>
-                                <div className="col-md-3 form-group">
+                                <div className="col-md-6 form-group">
                                     <label className="req">Last Name</label>
                                     <Input value={data.lastName || ''} onChange={e => handleChange(e.target.value, 'lastName')} />
                                 </div>
@@ -200,28 +226,52 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Phone No.</label>
-                                    <Input value={data.phoneNo || ''} onChange={e => handleChange(e.target.value, 'phoneNo')} />
+                                    <Input value={data.phoneNo || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'phoneNo')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className={data._id ? "" : "req"}>{data._id ? "Update" : "Set"} Password</label>
+                                    <Input value={data.password || ''} onChange={e => handleChange(e.target.value, 'password')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">DOB</label>
+                                    <AntdDatepicker format="MMMM D, YYYY" value={data.dob || new Date()} onChange={value => { handleChange(value, 'dob') }} />
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">State</label>
-                                    <Input value={data.state || ''} onChange={e => handleChange(e.target.value, 'state')} />
+                                    <AntdSelect
+                                        options={sdt.map(v => ({ value: v._id, label: v.name }))}
+                                        value={data.state}
+                                        onChange={v => { handleChange(v, 'state') }}
+                                    />
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">District</label>
-                                    <Input value={data.district || ''} onChange={e => handleChange(e.target.value, 'district')} />
+                                    <AntdSelect
+                                        options={districts || []}
+                                        value={data.district}
+                                        onChange={v => { handleChange(v, 'district') }}
+                                    />
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Taluk</label>
-                                    <Input value={data.taluk || ''} onChange={e => handleChange(e.target.value, 'taluk')} />
+                                    <AntdSelect
+                                        options={taluks || []}
+                                        value={data.taluk}
+                                        onChange={v => { handleChange(v, 'taluk') }}
+                                    />
                                 </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Zip Code</label>
+                                    <Input value={data.zipcode || ''} onChange={e => { handleChange(e.target.value, 'zipcode') }} />
+                                </div>
+ 
                                 <div className="col-md-12 form-group">
                                     <label className="req">Address</label>
-                                    <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
+                                    <Input.TextArea value={data.address || ''} onChange={e => { handleChange(e.target.value, 'address') }} />
                                 </div>
                                 <div className="col-md-12 form-group">
-                                    <button type="button" onClick={()=>{
-                                        console.log(imgRef.current)
-                                    }}>CCC</button>
+                                    <label className="req">Image</label>
+                                    <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
                                 </div>
                                 <div></div>
                                 <div className="col-md-3 form-group">

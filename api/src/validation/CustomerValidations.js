@@ -32,7 +32,7 @@ export const customerValidation = [
     check('_id')
         .optional()
         .notEmpty().withMessage("Provide / Select a valid data")
-        .custom(async (v, {req}) => {
+        .custom(async (v, { req }) => {
             try {
                 const search = { _id: v, isDeleted: false, state: global.state, district: global.district, taluk: global.taluk };
                 clearSearch(search);
@@ -88,15 +88,29 @@ export const customerValidation = [
         }),
 
     check('password')
-        .notEmpty().withMessage("The 'Password' field is required"),
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.password) {
+                    throw new Error("The 'Password' field is required");
+                }
+            }
+            return true;
+        }),
 
     check('dob')
         .notEmpty().withMessage("The 'Date of Birth' field is required")
         .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Date of Birth' field is not valid"),
 
     check('photo')
-        .notEmpty().withMessage("Photo is required")
-        .isString().withMessage("Photo is not valid")
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.photo) {
+                    throw new Error("The 'Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
         .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Photo is not an image"),
 
     check('address')

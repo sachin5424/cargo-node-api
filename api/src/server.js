@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import { databaseConnect, autuGenratePermission } from './data-base/index';
+import createModules from './data-base/models-permission/createModules';
 import router from './modules';
 import Logger from './utls/Logger';
 import Config from './utls/config';
@@ -13,6 +14,8 @@ export default class App {
         this.port = port;
         databaseConnect();
         // autuGenratePermission();
+        createModules();
+        this.app.use('/files', express.static('uploads'));
         this.app.use(cors());
         router(this.app);
 

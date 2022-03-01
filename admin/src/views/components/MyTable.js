@@ -8,7 +8,7 @@ import { If } from '../../utils/controls';
 
 
 export default function MyTable(props) {
-    let { columns, data, parentSData, loading, formRef, list, filters, addAccess } = props;
+    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder } = props;
     let [sdata, setSData] = useState({ ...parentSData });
     const handleSData = (v, k) => {
         if (k === 'key') {
@@ -38,7 +38,7 @@ export default function MyTable(props) {
         bordered: true,
         loading,
         size: 'small',
-        title: () => <><Search {...{ sdata, handleSData, formRef, list, filters }} /></>,
+        title: () => <><Search {...{ sdata, handleSData, formRef, list, filters, searchPlaceholder }} /></>,
         showHeader: true,
         footer: () => <MyPagination {...{ sdata, handleSData, setSData }} />,
         scroll: undefined,
@@ -75,11 +75,11 @@ export default function MyTable(props) {
 }
 
 
-const Search = ({ sdata, handleSData, formRef, list, filters }) => {
+const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder }) => {
     return <>
         <div className="d-flex">
             <If cond={typeof sdata.key !== 'undefined'}>
-                <Input className="w200 mx-1" allowClear placeholder="Search" value={sdata.key || ''} onChange={(e) => { handleSData(e.target.value, 'key') }} />
+                <Input className="w200 mx-1" allowClear placeholder={searchPlaceholder || "Search"} value={sdata.key || ''} onChange={(e) => { handleSData(e.target.value, 'key') }} />
                 <Button type="primary" onClick={() => { list(sdata) }} >Search</Button>
             </If>
             {/* <If cond={typeof filters !== 'undefined'}>

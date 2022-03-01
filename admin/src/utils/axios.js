@@ -28,6 +28,9 @@ axiosInstance.interceptors.response.use(
             if (!response?.message) {
                 response.message = error.message
             }
+            if (response.errors && Array.isArray(response.errors)){
+                response.message = response.errors[0].msg;
+            }
         } else {
             response.message = error.message
         }

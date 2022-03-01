@@ -34,7 +34,7 @@ export default class CustomerController {
                     throw new Error("Error while sending confirmation email. Please try again!");
                 }
             }
-            return res.status(srvRes.statusCode).json({ srvRes });
+            return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
 		}

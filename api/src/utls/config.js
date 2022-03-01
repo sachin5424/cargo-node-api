@@ -64,6 +64,11 @@ const config = {
         ? process.env.APPLICATION_BASE_URL 
         : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}`,
 
+    applicationFileUrl: 
+        process.env.NODE_ENV == 'prod'
+        ? process.env.APPLICATION_API_BASE_URL + '/files/' 
+        : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/files/`,
+
     baseurls: {
         emailVerification: {
             vehicleOwner: 
