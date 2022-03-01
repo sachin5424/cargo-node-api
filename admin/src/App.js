@@ -22,7 +22,7 @@ function App() {
 
 	return (
 		<>
-			<BrowserRouter basename="/rupiloan/admin">
+			<BrowserRouter basename="/cargo/admin">
 				<If cond={isLoggedin}>
 					<Layout />
 				</If>

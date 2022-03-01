@@ -1,8 +1,9 @@
-import { DashboardOutlined, AppstoreOutlined, DribbbleOutlined, BankOutlined } from '@ant-design/icons';
+import { DashboardOutlined, TeamOutlined, DribbbleOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import Dashboard from './views/pages/Dashboard';
 import Profile from './views/pages/user/Profile';
 import Customer from './views/pages/customer/Customer';
+import AssignPermission from './views/pages/roleAndPermissions/AssignPermission';
 
 let routes = {
     leftNav: [
@@ -17,7 +18,8 @@ let routes = {
         //         { name: 'Master Users', url: '', /* module: masterUserModules.view,  */component: MasterUser },
         //     ]
         // },
-        { name: 'Customers', url: '/customers/', icon: () => <DribbbleOutlined />, component: Customer },
+        { name: 'Customers', url: '/customers/', icon: () => <TeamOutlined />, component: Customer },
+        { name: 'Assign Permission', url: '/assign-permission/', icon: () => <DribbbleOutlined />, component: AssignPermission },
     ],
 
     topNav: [

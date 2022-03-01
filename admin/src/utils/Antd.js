@@ -27,7 +27,7 @@ export function AntdSelect(props) {
         value = defaultValue;
     }
 
-    if (value && typeof value !== "object" || typeof value === 'boolean') {
+    if ((value && typeof value !== "object") || typeof value === 'boolean') {
         value = value + '';
     }
 
