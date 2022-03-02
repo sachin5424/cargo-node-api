@@ -64,14 +64,14 @@ export default class AdminService {
             result: {
                 data: [],
                 page: query.page * 1 > 0 ? query.page * 1 : 1,
-                limit: query.limit * 1 > 0 ? query.limit * 1 : 4,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
                 total: 0,
             },
             status: false
         };
 
         try {
-            const search = { typeKey: { $ne: 'superAdmin' } };
+            const search = { typeName: { $regex: '.*' + query?.key + '.*' }, typeKey: { $ne: 'superAdmin' } };
             clearSearch(search);
 
             const $aggregate = [
@@ -127,4 +127,24 @@ export default class AdminService {
         }
     }
 
+    static async saveAdminModules(data) {
+        const typeKey = data.typeKey;
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            const tplData = await AdminModulesModel.findOne({typeKey});
+            tplData.grantedModules = data.grantedModules;
+
+            await tplData.save();
+
+            response.message = "User permission is updated";
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
 }

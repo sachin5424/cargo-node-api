@@ -4,8 +4,8 @@ export default class customer {
 
     static baseURL = 'customer';
 
-    static list(data, module) {
-        return axios.get(this.baseURL + '/list', { params: data, module });
+    static list(data) {
+        return axios.get(this.baseURL + '/list', { params: data });
     }
     static listAll() {
         return axios.get(this.baseURL + "/list/all");

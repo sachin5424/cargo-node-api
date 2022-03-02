@@ -4,9 +4,9 @@ import MyTable from "../../components/MyTable";
 import { Button, Modal, Tag, Spin } from "antd";
 import { MultiChechBox } from "../../../utils/Antd";
 import { EditOutlined, LoadingOutlined } from "@ant-design/icons";
-import service from "../../../services/customer";
 import { AntdMsg } from "../../../utils/Antd";
 import admService from "../../../services/onlyAdmin";
+import config from "../../../rdx";
 
 
 export default function AssignPermission() {
@@ -61,7 +61,7 @@ export default function AssignPermission() {
             data = sdata;
         }
         setLoading(true);
-        admService.listAdminModules().then(res => {
+        admService.listAdminModules(data).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -76,6 +76,7 @@ export default function AssignPermission() {
     useEffect(() => {
         list();
         admService.listModules().then(res => { setModules(res.result.data || []) });
+        console.log('config---', config);
     }, []);
 
     return (
@@ -84,7 +85,7 @@ export default function AssignPermission() {
                 <span>Customer List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name' }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: false }} />
             </div>
             <AddForm ref={formRef} {...{ list, modules }} />
         </>
@@ -132,7 +133,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Customer'}
+                title={'Add / Remove Modules'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -150,7 +151,12 @@ const AddForm = forwardRef((props, ref) => {
                             <div className="row mingap">
                                 <div>
                                     <div className="col-md-12 form-group">
-                                        <label className="req">All Modules</label>
+                                        <div className="d-flex mb-2">
+                                            <Button size="small" danger className="ml-auto mx-2" onClick={() => { handleChange([], 'grantedModules') }}> Uncheck All Modules</Button>
+                                            <Button size="small" type="primary" onClick={() => { handleChange(modules?.map(v=>v?._id), 'grantedModules') }}> Check All Modules</Button>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-12 form-group">
                                         <MultiChechBox options={modules} value={data.grantedModules} onChange={v => { (!v?.length || handleChange(v, 'grantedModules')) }} />
                                     </div>
                                 </div>
