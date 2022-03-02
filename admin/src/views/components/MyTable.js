@@ -8,7 +8,7 @@ import { If } from '../../utils/controls';
 
 
 export default function MyTable(props) {
-    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder } = props;
+    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder, addNew = true } = props;
     let [sdata, setSData] = useState({ ...parentSData });
     const handleSData = (v, k) => {
         if (k === 'key') {
@@ -38,7 +38,7 @@ export default function MyTable(props) {
         bordered: true,
         loading,
         size: 'small',
-        title: () => <><Search {...{ sdata, handleSData, formRef, list, filters, searchPlaceholder }} /></>,
+        title: () => <><Search {...{ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew }} /></>,
         showHeader: true,
         footer: () => <MyPagination {...{ sdata, handleSData, setSData }} />,
         scroll: undefined,
@@ -75,7 +75,7 @@ export default function MyTable(props) {
 }
 
 
-const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder }) => {
+const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew }) => {
     return <>
         <div className="d-flex">
             <If cond={typeof sdata.key !== 'undefined'}>
@@ -91,12 +91,17 @@ const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder 
                     </React.Fragment>
                 ))}
             </If> */}
-            <Button type="primary" className="ml-auto">
-                <span className="d-flex" onClick={() => { formRef.current.openForm() }}>
-                    <PlusOutlined className="my-auto mx-1" />
-                    Add New
-                </span>
-            </Button>
+            {
+                addNew
+                    ? <Button type="primary" className="ml-auto">
+                        <span className="d-flex" onClick={() => { formRef.current.openForm() }}>
+                            <PlusOutlined className="my-auto mx-1" />
+                            Add New
+                        </span>
+                    </Button>
+                    : null
+            }
+
         </div>
     </>
 }

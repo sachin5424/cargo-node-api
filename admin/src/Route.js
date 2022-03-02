@@ -18,8 +18,8 @@ let routes = {
         //         { name: 'Master Users', url: '', /* module: masterUserModules.view,  */component: MasterUser },
         //     ]
         // },
-        { name: 'Customers', url: '/customers/', icon: () => <TeamOutlined />, component: Customer },
-        { name: 'Assign Permission', url: '/assign-permission/', icon: () => <DribbbleOutlined />, component: AssignPermission },
+        { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer },
+        { name: 'Assign Permission', url: '/assign-permission', icon: () => <DribbbleOutlined />, component: AssignPermission },
     ],
 
     topNav: [

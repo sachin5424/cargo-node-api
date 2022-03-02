@@ -12,7 +12,7 @@ import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
 import config from "../../../rdx";
 
-export default function Customer() {
+export default function Admin() {
 
     const [data, setData] = useState([]);
     const [sdt, setSdt] = useState([]);
