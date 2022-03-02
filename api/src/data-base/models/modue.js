@@ -4,5 +4,5 @@ const Schema = new mongoose.Schema({
     key: String,
 }, { timestamps: false });
 
-const moduleModel = mongoose.model('module', Schema);
-export default moduleModel;
+const ModuleModel = mongoose.model('module', Schema);
+export default ModuleModel;

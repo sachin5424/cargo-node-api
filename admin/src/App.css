@@ -71,7 +71,7 @@
 .form-group .ant-input.mb-0, .form-group .ant-select.mb-0 {
   margin-bottom: 0px!important;
 }
-.form
+
 .app-modal-body-overflow .ant-modal-body, .app-modal-without-footer-body-overflow .ant-modal-body {
   max-height: calc(100vh - 200px)!important;
   display: flex;

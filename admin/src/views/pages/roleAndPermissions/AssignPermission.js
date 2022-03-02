@@ -1,78 +1,54 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Popconfirm, Input, Modal, Tag, Spin } from "antd";
-import { AntdSelect } from "../../../utils/Antd";
-import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
+import { Button, Modal, Tag, Spin } from "antd";
+import { MultiChechBox } from "../../../utils/Antd";
+import { EditOutlined, LoadingOutlined } from "@ant-design/icons";
 import service from "../../../services/customer";
 import { AntdMsg } from "../../../utils/Antd";
-import UploadImage from "../../components/UploadImage";
-import sdtService from "../../../services/sdt";
-import { AntdDatepicker } from "../../../utils/Antd";
-import util from "../../../utils/util";
+import admService from "../../../services/onlyAdmin";
+
 
 export default function AssignPermission() {
 
     const [data, setData] = useState([]);
-    const [sdt, setSdt] = useState([]);
+    const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
-            title: 'Name',
-            dataIndex: 'firstName',
-            render: (id, row) => row.firstName + ' ' + row.lastName,
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
+            title: 'User Type',
+            dataIndex: 'typeName',
             width: 150,
         },
         {
-            title: 'Phone No',
-            dataIndex: 'phoneNo',
-            width: 100,
-        },
-        {
-            title: 'Status',
-            dataIndex: 'isActive',
-            width: 80,
-            render: isActive => {
-                if (isActive) {
-                    return <Tag color='green'>Active</Tag>
-                } else {
-                    return <Tag color='red'>Inactive</Tag>
-                }
-            },
+            title: 'Granted Modules',
+            dataIndex: 'grantedModuleTitles',
+            render: (data, row) => (
+                data.map((v, i) => {
+                    return <Tag color={
+                        i % 4 === 0
+                            ? 'blue'
+                            : i % 4 === 1
+                                ? 'gold'
+                                : i % 4 === 2
+                                    ? 'cyan'
+                                    : 'pink'
+                    } key={row.grantedModules[i]}>{v.title}</Tag>
+                })
+            )
         },
         {
             title: 'Action',
             key: 'action',
-            width: 150,
+            width: 60,
             render: (text, row) => (
                 <>
                     <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
                         <span className="d-flex">
                             <EditOutlined />
-                        </span>
-                    </Button>
-                    <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
-                        <span className="d-flex">
-                            <EyeOutlined />
-                        </span>
-                    </Button>
-                    <Button type="danger" size="small">
-                        <span className="d-flex">
-                            <Popconfirm
-                                title="Are you sure to delete this customer?"
-                                onConfirm={() => deleteConfirm(row._id)}
-                                okText="Yes"
-                                cancelText="No"
-                            >
-                                <DeleteOutlined />
-                            </Popconfirm>
                         </span>
                     </Button>
                 </>
@@ -85,7 +61,7 @@ export default function AssignPermission() {
             data = sdata;
         }
         setLoading(true);
-        service.list(data).then(res => {
+        admService.listAdminModules().then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -97,18 +73,9 @@ export default function AssignPermission() {
         })
     }
 
-    const deleteConfirm = (id) => {
-        service.delete(id).then(res => {
-            AntdMsg(res.message);
-            list();
-        }).catch(err => {
-            AntdMsg(err.message, 'error');
-        })
-    }
-
     useEffect(() => {
         list();
-        sdtService.listSdt().then(res => { setSdt(res.result.data || []) })
+        admService.listModules().then(res => { setModules(res.result.data || []) });
     }, []);
 
     return (
@@ -119,19 +86,16 @@ export default function AssignPermission() {
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name' }} />
             </div>
-            <AddForm ref={formRef} {...{ list, sdt }} />
+            <AddForm ref={formRef} {...{ list, modules }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, sdt } = props;
+    const { list, modules } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false)
     const [visible, setVisible] = useState(false)
     const [data, setData] = useState({});
-    const [districts, setDistricts] = useState([]);
-    const [taluks, setTaluks] = useState([]);
-    const imgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -139,8 +103,7 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            imgRef.current = {};
-            setData(dt ? { ...dt, } : { isActive: true });
+            setData({ ...dt });
             handleVisible(true);
         }
     }));
@@ -149,8 +112,7 @@ const AddForm = forwardRef((props, ref) => {
 
     const save = () => {
         setAjxRequesting(true);
-        data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
-        service.save(data).then((res) => {
+        admService.saveAdminModules(data).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -166,32 +128,6 @@ const AddForm = forwardRef((props, ref) => {
         })
 
     }
-
-    const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district)
-
-    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v=> v._id)?.includes(data.taluk)
-
-    useEffect(() => {
-        const newDistricts = sdt.find(v => v._id === data.state)?.districts || [];
-        setDistricts(newDistricts?.map(v => ({ value: v._id, label: v.name, taluks: v.taluks })) || [])
-    }, [data.state])
-
-    useEffect(() => {
-        const newTaluks = districts?.find(v => v.value === data.district)?.taluks || [];
-        setTaluks(newTaluks?.map(v => { return { value: v._id, label: v.name } }))
-    }, [data.district, districts])
-
-    useEffect(() => {
-        if (!checkDistrictExist()) {
-            handleChange('', 'district');
-        }
-    }, [data.state])
-
-    useEffect(()=>{
-        if (!checkTalukExist()) {
-            handleChange('', 'taluk');
-        }
-    }, [data.district, districts])
 
     return (
         <>
@@ -212,75 +148,11 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset>
                             <div className="row mingap">
-                                <div className="col-md-6 form-group">
-                                    <label className="req">First Name</label>
-                                    <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />
-                                </div>
-                                <div className="col-md-6 form-group">
-                                    <label className="req">Last Name</label>
-                                    <Input value={data.lastName || ''} onChange={e => handleChange(e.target.value, 'lastName')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Email</label>
-                                    <Input value={data.email || ''} onChange={e => handleChange(e.target.value, 'email')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Phone No.</label>
-                                    <Input value={data.phoneNo || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'phoneNo')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className={data._id ? "" : "req"}>{data._id ? "Update" : "Set"} Password</label>
-                                    <Input value={data.password || ''} onChange={e => handleChange(e.target.value, 'password')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">DOB</label>
-                                    <AntdDatepicker format="MMMM D, YYYY" value={data.dob || new Date()} onChange={value => { handleChange(value, 'dob') }} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">State</label>
-                                    <AntdSelect
-                                        options={sdt.map(v => ({ value: v._id, label: v.name }))}
-                                        value={data.state}
-                                        onChange={v => { handleChange(v, 'state') }}
-                                    />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">District</label>
-                                    <AntdSelect
-                                        options={districts || []}
-                                        value={data.district}
-                                        onChange={v => { handleChange(v, 'district') }}
-                                    />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Taluk</label>
-                                    <AntdSelect
-                                        options={taluks || []}
-                                        value={data.taluk}
-                                        onChange={v => { handleChange(v, 'taluk') }}
-                                    />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Zip Code</label>
-                                    <Input value={data.zipcode || ''} onChange={e => { handleChange(e.target.value, 'zipcode') }} />
-                                </div>
- 
-                                <div className="col-md-12 form-group">
-                                    <label className="req">Address</label>
-                                    <Input.TextArea value={data.address || ''} onChange={e => { handleChange(e.target.value, 'address') }} />
-                                </div>
-                                <div className="col-md-12 form-group">
-                                    <label className="req">Image</label>
-                                    <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
-                                </div>
-                                <div></div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Status</label>
-                                    <AntdSelect
-                                        options={[{ value: true, label: "Active" }, { value: false, label: "Inactive" }]}
-                                        value={data.isActive}
-                                        onChange={v => { handleChange(v, 'isActive') }}
-                                    />
+                                <div>
+                                    <div className="col-md-12 form-group">
+                                        <label className="req">All Modules</label>
+                                        <MultiChechBox options={modules} value={data.grantedModules} onChange={v => { (!v?.length || handleChange(v, 'grantedModules')) }} />
+                                    </div>
                                 </div>
                             </div>
                         </fieldset>

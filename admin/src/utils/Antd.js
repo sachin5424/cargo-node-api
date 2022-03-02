@@ -181,12 +181,13 @@ export function MultiChechBox(props) {
     let [options, setOptions] = useState([]);
 
     const handleChange = (e) => {
+        const val = typeof e.target.value * 1 !== 'NaN' ? e.target.value + '' : e.target.value * 1;
         if (e.target.checked) {
-            values.push(e.target.value * 1)
+            values.push(val)
             setValues([...values]);
         } else {
-            if (values.indexOf(e.target.value) > -1) {
-                values.splice(values.indexOf(e.target.value), 1);
+            if (values.indexOf(val) > -1) {
+                values.splice(values.indexOf(val), 1);
                 setValues([...values])
             }
         }
@@ -202,12 +203,13 @@ export function MultiChechBox(props) {
     }, [props.value]);
 
     useEffect(() => {
-        let opts = props.options.map(v=>{
+        let opts = props.options.map((v, i)=>{
             if (v.value) {
                 return { value: v.value * 1, label: v.label }
-            }
-            if (v.id) {
+            } else if (v.id) {
                 return { value: v.id * 1, label: v.name || v.title || v.label }
+            } else if (v._id) {
+                return { value: v._id + '' , label: v.name || v.title || v.label }
             }
             return null;
         });
@@ -229,8 +231,8 @@ export function MultiChechBox(props) {
                     <div className="col-md-3 mb-2 form-group" key={i}>
                         <div className="border p-1">
                             <Checkbox
-                                value={v.value * 1}
-                                checked={values?.includes(v.value * 1)}
+                                value={typeof v.value * 1 !== 'NaN' ? v.value + '' : v.value * 1}
+                                checked={values?.includes(typeof v.value * 1 !== 'NaN' ? v.value + '' : v.value * 1)}
                                 onChange={handleChange}
                                 className="mx-0 mr15"
                             >

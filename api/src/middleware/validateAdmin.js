@@ -1,4 +1,4 @@
-import UserTypePermissionModel from "../data-base/models/userTypePermission";
+import AdminModulesModel from "../data-base/models/adminModules";
 export const validateSuperAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 8); }
 export const validateStateAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 4); }
 export const validateDistrictAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 2); }
@@ -27,7 +27,7 @@ export const validateCustomAdmin = async (req, res, next, num) => {
 
 
     try {
-        const cuser = req.__cuser;
+        const cuser = global.cuser;
         if (totalPermissions?.includes(cuser.type)) {
             next();
         } else {
@@ -46,11 +46,11 @@ export const checkAdminPermission = async (req, res, next, model, fillSDTValues 
 
     try {
         const userType = req.__cuser.type;
-        const userTypePermissions = await UserTypePermissionModel.find();
+        const userTypePermissions = await AdminModulesModel.find();
 
         userTypePermissions.map(async (utp) => {
             if (utp.typeKey === userType) {
-                if (utp.grantedModules.includes('ALL') || utp.grantedModules.includes(model)) {
+                if (global.cuser.type === 'superAdmin' || utp.grantedModules.includes(model)) {
                     response.status = true;
                     response.statusCode = 200;
 

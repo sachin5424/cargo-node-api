@@ -2,11 +2,11 @@ import StateModel from "../models/state";
 import DistrictModel from "../models/district";
 import TalukModel from "../models/taluk";
 import ServiceTypeeModel from "../models/serviceType";
-import UserTypePermissionModel from "../models/userTypePermission";
+import AdminModulesModel from "../models/adminModules";
 
 import states from "../initdata/statesDistrictsAndTaluks";
 import serviceTypes from "../initdata/serviceTypes";
-import userTypePermission from "../initdata/userTypePermission";
+import userTypePermission from "../initdata/adminModules";
 
 export default async function initdata() {
     let resultState = await StateModel.findOne(),
@@ -49,11 +49,11 @@ export default async function initdata() {
         })
     }
 
-    let resultUserTypePermission = await UserTypePermissionModel.findOne();
+    let resultUserTypePermission = await AdminModulesModel.findOne();
 
     if(!resultUserTypePermission){
         userTypePermission?.map(async (utp)=>{
-            resultUserTypePermission = new UserTypePermissionModel();
+            resultUserTypePermission = new AdminModulesModel();
             resultUserTypePermission.typeName = utp.typeName;
             resultUserTypePermission.typeKey = utp.typeKey;
             resultUserTypePermission.grantedModules = utp.grantedModules;
