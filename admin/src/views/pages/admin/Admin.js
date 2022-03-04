@@ -4,7 +4,7 @@ import MyTable from "../../components/MyTable";
 import { Button, Popconfirm, Input, Modal, Tag, Spin } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
-import service from "../../../services/customer";
+import service from "../../../services/admin";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
@@ -67,7 +67,7 @@ export default function Admin() {
                     <Button type="danger" size="small">
                         <span className="d-flex">
                             <Popconfirm
-                                title="Are you sure to delete this customer?"
+                                title="Are you sure to delete this admin?"
                                 onConfirm={() => deleteConfirm(row._id)}
                                 okText="Yes"
                                 cancelText="No"

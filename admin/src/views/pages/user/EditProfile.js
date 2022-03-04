@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button, Input, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import service from "../../../services/profile";
+import service from "../../../services/admin";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage, { AntdSelect, AntdDatepicker } from "../../../utils/Antd";
 

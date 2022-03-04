@@ -13,8 +13,8 @@ export default class customer {
     static listAllIgnoreStatus(module) {
         return axios.get(this.baseURL + "/all/ignore-status", { module });
     }
-    static save(data, module) {
-        return axios.post(this.baseURL + "/save", data, { module });
+    static save(data) {
+        return axios.post(this.baseURL + "/save", data);
     }
     static delete(id, module) {
         return axios.delete(`${this.baseURL}/delete/${id}`, { module });

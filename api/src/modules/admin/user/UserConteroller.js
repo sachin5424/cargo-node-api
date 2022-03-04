@@ -158,8 +158,8 @@ export default class UserController extends UserService {
     static async list(req, res) {
 
         try {
-			const srvRes = await Service.listUsers(req?.query, req.__cuser)
-            return res.status(srvRes.statusCode).json({ srvRes });
+			const srvRes = await Service.listUser(req?.query, req.__cuser)
+            return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
 		}
@@ -175,7 +175,7 @@ export default class UserController extends UserService {
                 });
             }
 			const srvRes = await Service.saveUser(req.body);
-            return res.status(srvRes.statusCode).json({ srvRes });
+            return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
 		}

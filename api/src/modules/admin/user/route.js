@@ -8,6 +8,7 @@ import { userValidation } from "../../../validation/UserValidations";
 const router = Router({ mergeParams: true });
 
 
+router.post("/validate-token", jwtTokenPermission, (req, res)=>{res.send('ok')});
 router.post("/resgister", userRegisterValidation, UserController.userRegister);
 // router.get("/list",  UserController.userList);
 router.get("/profile/:id", check_params, UserController.userProfile);
@@ -16,8 +17,6 @@ router.post('/refresh-token', userRefreshTokenValidation, UserController.userRef
 router.post('/delete-refresh-token', userRefreshTokenValidation, UserController.userTokenDelete);
 
 router.get('/list', jwtTokenPermission, validateSuperAdmin, UserController.list);
-
 router.post("/save", jwtTokenPermission, (req, res, next)=>{validateAnyOneAdmin(req, res, next, 14)}, userValidation, UserController.save );
-router.post("/validate-token", jwtTokenPermission, (req, res)=>{res.send('ok')});
 
 export default router;

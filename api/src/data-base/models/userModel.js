@@ -25,6 +25,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ['superAdmin', 'stateAdmin', 'districtAdmin', 'talukAdmin'],
     },
+    address: String,
     state: {
         type: Schema.Types.ObjectId,
         ref: "state",
@@ -37,6 +38,7 @@ const UserSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "taluk",
     },
+    zipcode: String,
     isActive: {
         type: Boolean,
         default: false

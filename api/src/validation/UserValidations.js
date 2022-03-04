@@ -63,33 +63,34 @@ export const userValidation = [
         }),
 
     check('password')
-        .notEmpty().withMessage("The 'Password' field is required"),
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.password) {
+                    throw new Error("The 'Password' field is required");
+                }
+            }
+            return true;
+        }),
 
     check('dob')
         .notEmpty().withMessage("The 'Date of Birth' field is required")
         .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Date of Birth' field is not valid"),
 
     check('photo')
-        .notEmpty().withMessage("Photo is required")
-        .isString().withMessage("Photo is not valid")
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.photo) {
+                    throw new Error("The 'Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
         .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Photo is not an image"),
 
     check('type')
         .notEmpty().withMessage("The 'User Type' field is required")
-        .isIn(['superAdmin', 'stateAdmin', 'districtAdmin', 'talukAdmin']).withMessage("The 'User Type' field is not valid")
-        .custom(async (value, {req}) => {
-
-            if(value === "stateAdmin"){
-                req.body.state = req.body.state || "";
-            }
-            if(value === "districtAdmin"){
-                req.body.district = req.body.district || "";
-            }
-            if(value === "talukAdmin"){
-                req.body.taluk = req.body.taluk || "";
-            }
-
-        }),
+        .isIn(['superAdmin', 'stateAdmin', 'districtAdmin', 'talukAdmin']).withMessage("The 'User Type' field is not valid"),
 
     check('state')
         .optional()

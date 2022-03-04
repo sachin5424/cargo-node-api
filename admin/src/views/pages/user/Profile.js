@@ -1,6 +1,6 @@
 import { Image, Divider, Button, Drawer, Space, Spin } from "antd";
 import { forwardRef, useImperativeHandle, useRef, useState, useEffect } from 'react';
-import service from "../../../services/profile";
+import service from "../../../services/admin";
 import EditProfile from "./EditProfile";
 import { AntdMsg } from "../../../utils/Antd";
 import { LoadingOutlined } from "@ant-design/icons";

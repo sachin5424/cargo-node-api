@@ -1,38 +1,85 @@
 import { UserModel } from "../data-base";
 import { clearSearch } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
+import { getAdminFilter } from "../utls/_helper";
+
 import config from "../utls/config";
 
 export default class Service {
 
-    static async listUsers(query, cuser) {
+    static async listUser(query, params) {
         const response = {
             statusCode: 400,
             message: 'Data not found!',
-            data: {
-                docs: [],
+            result: {
+                data: [],
                 page: query.page * 1 > 0 ? query.page * 1 : 1,
                 limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
-                totalDocs: 0,
+                total: 0,
             },
             status: false
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false };
-            clearSearch(search);
+            const search = {
+                _id: query._id,
+                isDeleted: false,
+                // $or: [
+                //     {
+                //         firstName: { $regex: '.*' + query?.key + '.*' }
+                //     },
+                //     {
+                //         lastName: { $regex: '.*' + query?.key + '.*' }
+                //     },
+                // ],
 
-            response.data.docs = await UserModel.find(search)
-                .select('-password   -__v')
-                .limit(response.data.limit)
-                .skip(response.data.limit * (response.data.page - 1))
+                ...getAdminFilter()
+            };
+            clearSearch(search);
+            // const driverFilter ={isDeleted: false, ...getAdminFilter()};
+            // clearSearch(driverFilter);
+            const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
+                {
+                    "$project": {
+                        // serviceType: 1,
+                        firstName: 1,
+                        lastName: 1,
+                        phoneNo: 1,
+                        email: 1,
+                        emailVerified: 1,
+                        dob: 1,
+                        type: 1,
+                        address: 1,
+                        state: 1,
+                        district: 1,
+                        taluk: 1,
+                        zipcode: 1,
+                        isActive: 1,
+                        image: {
+                            url: { $concat: [config.applicationFileUrl + 'customer/photo/', "$photo"] },
+                            name: "$photo"
+                        }
+                    }
+                },
+            ];
+
+
+
+            response.result.data = await UserModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ])
                 .then(async function (data) {
-                    await UserModel.count(search).then(count => { response.data.totalDocs = count }).catch(err => { response.data.totalDocs = 0 })
+                    await UserModel.aggregate([...$aggregate, { $count: "total" }]).then(count => { response.result.total = count[0].total }).catch(err => { response.result.total = 0 })
                     return data;
                 })
                 .catch(err => { throw new Error(err.message) })
 
-            if (response.data.docs.length) {
+            if (response.result.data.length) {
                 response.message = "Data fetched";
             }
             response.statusCode = 200;
@@ -44,7 +91,6 @@ export default class Service {
             throw new Error(e)
         }
     }
-
     static async saveUser(data) {
         const _id = data._id;
         const response = { statusCode: 400, message: 'Error!', status: false };
@@ -56,18 +102,19 @@ export default class Service {
             tplData.lastName = data.lastName;
             tplData.phoneNo = data.phoneNo;
             tplData.email = data.email;
-            tplData.password = data.password;
+            (!data.password || (tplData.password = data.password));
             tplData.dob = data.dob;
-            tplData.photo = await uploadFile(data.photo, config.uploadPaths.user.photo, UserModel, 'photo', _id);
-            tplData.type = data.type;
+            // tplData.photo = await uploadFile(data.photo, config.uploadPaths.customer.photo, UserModel, 'photo', _id);
+            tplData.address = data.address;
             tplData.state = data.state;
             tplData.district = data.district;
             tplData.taluk = data.taluk;
+            tplData.zipcode = data.zipcode;
             tplData.isActive = data.isActive;
 
             await tplData.save();
 
-            response.message = _id ? "User is Updated" : "A new user is created";
+            response.message = _id ? "Admin is Updated" : "A new admin is created";
             response.statusCode = 200;
             response.status = true;
 
@@ -77,4 +124,21 @@ export default class Service {
             throw new Error(e)
         }
     }
+    static async deleteUser(_id, cond) {
+        clearSearch({ cond });
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            await UserModel.updateOne({ _id, ...cond }, { isDeleted: true });
+
+            response.message = "Deleted successfully";
+            response.statusCode = 200;
+            response.status = true;
+            return response;
+
+        } catch (e) {
+            throw new Error("Can not delete. Something went wrong.")
+        }
+    }
+
 }
