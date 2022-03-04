@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator';
-import Service from '../../../services/AdminService';
+import Service from '../../../services/OnlyAdminService';
 
 export default class CustomerController {
     

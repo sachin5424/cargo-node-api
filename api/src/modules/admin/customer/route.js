@@ -18,6 +18,6 @@ router.delete("/location/delete/:id", jwtTokenPermission, CheckCustomerDeleteAcc
 export default router;
 
 
-async function checkCustomerListAccess (req, res, next) { checkAdminPermission(req, res, next, 'view_customers'); };
-async function checkCustomerSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'change_customers' : 'add_customers', true); };
-async function CheckCustomerDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'delete_customers'); };
+async function checkCustomerListAccess (req, res, next) { checkAdminPermission(req, res, next, 'viewCustomer'); };
+async function checkCustomerSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'editCustomer' : 'addCustomer', true); };
+async function CheckCustomerDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'deleteCustomer'); };

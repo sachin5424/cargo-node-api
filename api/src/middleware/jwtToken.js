@@ -15,16 +15,15 @@ export const jwtTokenPermission = async (req, res, next) => {
 			const cuser = await UserModel.findById(decode.sub);
 			req.__cuser = cuser;
 			global.cuser = cuser;
+			global.state = undefined;
+			global.district = undefined;
+			global.taluk = undefined;
 			if(cuser.type==='stateAdmin'){
 				global.state = cuser.state;
 			} else if(cuser.type==='districtAdmin'){
 				global.state = cuser.state;
 				global.district = cuser.district;
 			} else if(cuser.type==='talukAdmin'){
-				global.state = cuser.state;
-				global.district = cuser.district;
-				global.taluk = cuser.taluk;
-			} else if(cuser.type==='vehicleOwner'){
 				global.state = cuser.state;
 				global.district = cuser.district;
 				global.taluk = cuser.taluk;

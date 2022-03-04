@@ -1,4 +1,5 @@
 import AdminModulesModel from "../data-base/models/adminModules";
+import ModuleModel from "../data-base/models/modue";
 export const validateSuperAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 8); }
 export const validateStateAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 4); }
 export const validateDistrictAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 2); }
@@ -38,43 +39,46 @@ export const validateCustomAdmin = async (req, res, next, num) => {
     }
 };
 
-export const checkAdminPermission = async (req, res, next, model, fillSDTValues = false, ...idKeys ) => {
+export const checkAdminPermission = async (req, res, next, module, fillSDTValues = false, ...idKeys) => {
     const response = { statusCode: 401, message: "Unauthorized", status: false };
     if (!idKeys.length) {
         idKeys = ['state', 'district', 'taluk']
     }
 
     try {
-        const userType = req.__cuser.type;
-        const userTypePermissions = await AdminModulesModel.find();
+        const userType = global.cuser.type;
 
-        userTypePermissions.map(async (utp) => {
-            if (utp.typeKey === userType) {
-                if (global.cuser.type === 'superAdmin' || utp.grantedModules.includes(model)) {
-                    response.status = true;
-                    response.statusCode = 200;
+        if (userType === 'superAdmin') {
+            response.status = true;
+            response.statusCode = 200;
+        } else if (userType === 'stateAdmin' || userType === 'districtAdmin' || userType === 'talukAdmin') {
+            const moduleData = await ModuleModel.findOne({key: module}).select('_id');
+            const moduleId = moduleData._id;
+            const adminModules = await AdminModulesModel.findOne({ typeKey: userType });
 
-                    if(fillSDTValues){
-                        const cuser = req.__cuser;
-                        if(cuser.type === 'stateAdmin'){
-                            req.body[idKeys[0]] = cuser.state.toString();
-                        } else if(cuser.type === 'districtAdmin'){
-                            req.body[idKeys[0]] = cuser.state;
-                            req.body[idKeys[1]] = cuser.district;
-                        } else if(cuser.type === 'talukAdmin'){
-                            req.body[idKeys[0]] = cuser.state;
-                            req.body[idKeys[1]] = cuser.district;
-                            req.body[idKeys[2]] = cuser.taluk;
-                        } else if(cuser.type === 'vehicleOwner'){
-                            req.body[idKeys[0]] = cuser.state;
-                            req.body[idKeys[1]] = cuser.district;
-                            req.body[idKeys[2]] = cuser.taluk;
-                        }
+            if (adminModules && adminModules.grantedModules.includes(moduleId)) {
+                response.status = true;
+                response.statusCode = 200;
 
+                if (fillSDTValues) {
+                    const cuser = global.cuser;
+                    if (cuser.type === 'stateAdmin') {
+                        req.body[idKeys[0]] = cuser.state.toString();
+                    } else if (cuser.type === 'districtAdmin') {
+                        req.body[idKeys[0]] = cuser.state;
+                        req.body[idKeys[1]] = cuser.district;
+                    } else if (cuser.type === 'talukAdmin') {
+                        req.body[idKeys[0]] = cuser.state;
+                        req.body[idKeys[1]] = cuser.district;
+                        req.body[idKeys[2]] = cuser.taluk;
+                    } else if (cuser.type === 'vehicleOwner') {
+                        req.body[idKeys[0]] = cuser.state;
+                        req.body[idKeys[1]] = cuser.district;
+                        req.body[idKeys[2]] = cuser.taluk;
                     }
                 }
             }
-        })
+        }
     } catch (e) { } finally {
         if (response.status) {
             next();
