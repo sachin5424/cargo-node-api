@@ -5,6 +5,7 @@ import Profile from './views/pages/user/Profile';
 import Customer from './views/pages/customer/Customer';
 import AssignPermission from './views/pages/roleAndPermissions/AssignPermission';
 import Admin from './views/pages/admin/Admin';
+import Tabs from './views/pages/tabs/Tabs';
 
 let routes = {
     leftNav: [
@@ -19,6 +20,7 @@ let routes = {
         //         { name: 'Master Users', url: '', /* module: masterUserModules.view,  */component: MasterUser },
         //     ]
         // },
+        { name: 'Tabs', url: '/tabs', icon: () => <TeamOutlined />, component: Tabs },
         { name: 'Admins', url: '/admins', icon: () => <TeamOutlined />, component: Admin },
         { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer },
         { name: 'Assign Permission', url: '/assign-permission', icon: () => <DribbbleOutlined />, component: AssignPermission },
