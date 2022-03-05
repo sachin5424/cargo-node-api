@@ -10,7 +10,6 @@ import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
-import config from "../../../rdx";
 
 export default function Customer() {
 

@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { forwardRef, useState, useEffect } from "react";
 import { Tabs } from "antd";
-import SdtForm from "../../components/StdForm";
 
 export default function Tabstest() {
 
@@ -32,9 +31,7 @@ const Detail = forwardRef(() => {
                 <TabPane tab="Provided Loan Types" key="provided-loan-types">
                     {
                         activeTab === 'provided-loan-types'
-                            ? <>
-                                <SdtForm {...{}} />
-                            </>
+                            ? <></>
                             : null
                     }
                 </TabPane>

@@ -6,8 +6,6 @@ import { MultiChechBox } from "../../../utils/Antd";
 import { EditOutlined, LoadingOutlined } from "@ant-design/icons";
 import { AntdMsg } from "../../../utils/Antd";
 import admService from "../../../services/onlyAdmin";
-import config from "../../../rdx";
-
 
 export default function AssignPermission() {
 

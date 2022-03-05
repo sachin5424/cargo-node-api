@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, Fragment, useEffect } from 'react';
 import { Menu, Image } from 'antd';
 import routes from '../../Route';

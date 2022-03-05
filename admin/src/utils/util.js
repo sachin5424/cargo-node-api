@@ -2,7 +2,6 @@
 
 class util {
     setUserData = (data) => {
-        console.log(data);
         window.localStorage.setItem('authorization', data.accessToken);
         window.localStorage.setItem('refreshToken', data.refreshToken);
     }
