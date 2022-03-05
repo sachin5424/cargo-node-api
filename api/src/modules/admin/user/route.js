@@ -18,5 +18,7 @@ router.post('/delete-refresh-token', userRefreshTokenValidation, UserController.
 
 router.get('/list', jwtTokenPermission, validateSuperAdmin, UserController.list);
 router.post("/save", jwtTokenPermission, (req, res, next)=>{validateAnyOneAdmin(req, res, next, 14)}, userValidation, UserController.save );
+router.delete("/delete/:id", jwtTokenPermission, UserController.delete);
+
 
 export default router;

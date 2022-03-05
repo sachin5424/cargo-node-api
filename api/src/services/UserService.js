@@ -1,7 +1,5 @@
 import { UserModel } from "../data-base";
-import { clearSearch } from "../utls/_helper";
-import { uploadFile } from "../utls/_helper";
-import { getAdminFilter } from "../utls/_helper";
+import { clearSearch, uploadFile, getAdminFilter } from "../utls/_helper";
 
 import config from "../utls/config";
 
@@ -24,6 +22,7 @@ export default class Service {
             const search = {
                 _id: query._id,
                 isDeleted: false,
+                type: { $ne: 'superAdmin' },
                 // $or: [
                 //     {
                 //         firstName: { $regex: '.*' + query?.key + '.*' }
@@ -58,7 +57,7 @@ export default class Service {
                         zipcode: 1,
                         isActive: 1,
                         image: {
-                            url: { $concat: [config.applicationFileUrl + 'customer/photo/', "$photo"] },
+                            url: { $concat: [config.applicationFileUrl + 'user/photo/', "$photo"] },
                             name: "$photo"
                         }
                     }
@@ -98,13 +97,15 @@ export default class Service {
         try {
             const tplData = _id ? await UserModel.findById(_id) : new UserModel();
 
+            tplData.type = data.type;
             tplData.firstName = data.firstName;
             tplData.lastName = data.lastName;
             tplData.phoneNo = data.phoneNo;
             tplData.email = data.email;
+            tplData.emailVerified = true;
             (!data.password || (tplData.password = data.password));
             tplData.dob = data.dob;
-            // tplData.photo = await uploadFile(data.photo, config.uploadPaths.customer.photo, UserModel, 'photo', _id);
+            tplData.photo = await uploadFile(data.photo, config.uploadPaths.user.photo, UserModel, 'photo', _id);
             tplData.address = data.address;
             tplData.state = data.state;
             tplData.district = data.district;

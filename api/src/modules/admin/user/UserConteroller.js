@@ -181,5 +181,14 @@ export default class UserController extends UserService {
 		}
     }
 
+    static async delete(req, res) {
+        try {
+			const srvRes = await Service.deleteUser(req.params.id);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
 
 }

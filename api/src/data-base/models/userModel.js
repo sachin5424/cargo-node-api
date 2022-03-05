@@ -8,6 +8,10 @@ const UserSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "serviceType",
     },
+    type: {
+        type: String,
+        enum: ['superAdmin', 'stateAdmin', 'districtAdmin', 'talukAdmin'],
+    },
     firstName: String,
     lastName: String,
     phoneNo: String,
@@ -21,10 +25,6 @@ const UserSchema = new mongoose.Schema({
     dob: Date,
     photo: String,
 
-    type: {
-        type: String,
-        enum: ['superAdmin', 'stateAdmin', 'districtAdmin', 'talukAdmin'],
-    },
     address: String,
     state: {
         type: Schema.Types.ObjectId,
@@ -51,9 +51,9 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    joiningDate: {
-        type: Date,
-        default: moment().format('YYYY-MM-DD')
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 UserSchema.pre('save', function (next) {

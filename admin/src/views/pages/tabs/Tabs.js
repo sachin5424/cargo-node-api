@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { forwardRef, useState, useEffect } from "react";
 import { Tabs } from "antd";
+import SdtForm from "../../components/StdForm";
 
 export default function Tabstest() {
 
@@ -32,128 +33,12 @@ const Detail = forwardRef(() => {
                     {
                         activeTab === 'provided-loan-types'
                             ? <>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
-                            <h1>Tab</h1>
+                                <SdtForm {...{}} />
                             </>
                             : null
                     }
                 </TabPane>
                 <TabPane tab="Product Details" key="others">
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
-                    <h1>Others</h1>
                 </TabPane>
             </Tabs>
         </>

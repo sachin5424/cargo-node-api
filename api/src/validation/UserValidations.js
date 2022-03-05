@@ -3,6 +3,7 @@ import { UserModel } from '../data-base';
 import StateModel from '../data-base/models/state';
 import DistrictModel from '../data-base/models/district';
 import TalukModel from '../data-base/models/taluk';
+import { getAdminFilter } from '../utls/_helper';
 
 export const userValidation = [
 
@@ -11,7 +12,7 @@ export const userValidation = [
         .notEmpty().withMessage("Provide / Select a valid data")
         .custom(async (v) => {
             try {
-                const r = await UserModel.findById(v);
+                const r = await UserModel.findOne({_id: v, isDeleted: false, ...getAdminFilter()});
                 if (!r) {
                     throw new Error("Data not found");
                 }
@@ -33,7 +34,7 @@ export const userValidation = [
         .matches(/^[3-9]{1}[0-9]{9}$/).withMessage("The 'Phone Number' field is not valid")
         .custom(async (value, { req }) => {
             const body = req.body;
-            const result = await UserModel.findOne({ phoneNo: value });
+            const result = await UserModel.findOne({ isDeleted: false, phoneNo: value });
             if (result) {
                 if (body._id) {
                     if (result._id != body._id) {
@@ -50,7 +51,7 @@ export const userValidation = [
         .isEmail().withMessage("The 'Email' field is not valid")
         .custom(async (value, { req }) => {
             const body = req.body;
-            const result = await UserModel.findOne({ email: value });
+            const result = await UserModel.findOne({ isDeleted: false, email: value });
             if (result) {
                 if (body._id) {
                     if (result._id != body._id) {
@@ -90,7 +91,11 @@ export const userValidation = [
 
     check('type')
         .notEmpty().withMessage("The 'User Type' field is required")
-        .isIn(['superAdmin', 'stateAdmin', 'districtAdmin', 'talukAdmin']).withMessage("The 'User Type' field is not valid"),
+        .isIn(['stateAdmin', 'districtAdmin', 'talukAdmin']).withMessage("The 'User Type' field is not valid"),
+
+    check('address')
+        .notEmpty().withMessage("The 'Address' field is required")
+        .isString().withMessage("The 'Address' field is not valid"),
 
     check('state')
         .optional()
@@ -138,6 +143,10 @@ export const userValidation = [
                 throw new Error("'Taluk' field is not valid");
             }
         }),
+
+    check('zipcode')
+        .notEmpty().withMessage("The 'Zipcode' field is required")
+        .matches(/^[1-9]{1}[0-9]{5}$/).withMessage("The 'Zipcode' field is not valid"),
 
     check('isActive').
         notEmpty().withMessage("The 'active' field is required")

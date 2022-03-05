@@ -13,5 +13,9 @@ export default class profile{
     static save(data) {
         return axios.post(this.baseURL + "save", data);
     }
+
+    static delete(id) {
+        return axios.delete(`${this.baseURL}/delete/${id}`);
+    }
     
 }

@@ -27,9 +27,33 @@ export default function Admin() {
             render: (id, row) => row.firstName + ' ' + row.lastName,
         },
         {
+            title: 'User Type',
+            dataIndex: 'type',
+            width: 150,
+            render: (text) =>
+                <Tag
+                    color={text === 'stateAdmin'
+                        ? 'geekblue'
+                        : text === 'districtAdmin'
+                            ? 'magenta'
+                            : text === 'talukAdmin'
+                                ? 'orange'
+                                : ''}
+                >
+                    {text === 'stateAdmin'
+                        ? 'State Admin'
+                        : text === 'districtAdmin'
+                            ? 'District Admin'
+                            : text === 'talukAdmin'
+                                ? 'Taluk Admin'
+                                : ''}
+                </Tag>
+
+        },
+        {
             title: 'Email',
             dataIndex: 'email',
-            width: 150,
+            width: 200,
         },
         {
             title: 'Phone No',
@@ -116,7 +140,7 @@ export default function Admin() {
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Customer List</span>
+                <span>Admin List</span>
             </div>
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name' }} />
@@ -171,7 +195,7 @@ const AddForm = forwardRef((props, ref) => {
 
     const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district)
 
-    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v=> v._id)?.includes(data.taluk)
+    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v => v._id)?.includes(data.taluk)
 
     useEffect(() => {
         const newDistricts = sdt.find(v => v._id === data.state)?.districts || [];
@@ -189,7 +213,7 @@ const AddForm = forwardRef((props, ref) => {
         }
     }, [data.state])
 
-    useEffect(()=>{
+    useEffect(() => {
         if (!checkTalukExist()) {
             handleChange('', 'taluk');
         }
@@ -214,6 +238,15 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset>
                             <div className="row mingap">
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Type</label>
+                                    <AntdSelect
+                                        options={[{ value: 'stateAdmin', label: "State Admin" }, { value: 'districtAdmin', label: "District Admin" }, { value: 'talukAdmin', label: "Taluk Admin" }]}
+                                        value={data.type}
+                                        onChange={v => { handleChange(v, 'type') }}
+                                    />
+                                </div>
+                                <div></div>
                                 <div className="col-md-6 form-group">
                                     <label className="req">First Name</label>
                                     <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />
@@ -266,7 +299,7 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Zip Code</label>
                                     <Input value={data.zipcode || ''} onChange={e => { handleChange(e.target.value, 'zipcode') }} />
                                 </div>
- 
+
                                 <div className="col-md-12 form-group">
                                     <label className="req">Address</label>
                                     <Input.TextArea value={data.address || ''} onChange={e => { handleChange(e.target.value, 'address') }} />
