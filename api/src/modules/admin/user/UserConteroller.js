@@ -72,39 +72,55 @@ export default class UserController extends UserService {
                     errors: errors.errors
                 });
             }
-            else {
-                const { email, password } = req.body;
-                if (email) {
-                    const user = await UserModel.findOne({ email: email });
-                    const userDetails = {
-                        userId: user._id,
-                        email: user.email,
-                        isAdmin: user.isAdmin,
-                        isStaf: user.isStaf
-                    };
-                    const token = jwtToken.sign({ sub: userDetails.userId.toString(), exp: Math.floor(Date.now() / 1000) + ((Config.jwt.expDuration) * 60), }, Config.jwt.secretKey);
-                    // var token = jwtToken.sign(userDetails, Config.jwt.secretKey, { expiresIn: Config.jwt.expDuration });
-                    var refreshToken = randtoken.uid(256);
-                    const check_token = await UserTokenModel.findOne({ email: email });
-                    if (check_token) {
-                        await UserTokenModel.findOneAndUpdate({ email: email }, { refreshToken });
-                    }
-                    else {
-                        await createToken(UserTokenModel, { email: email, refreshToken });
-                    }
-                    return res.status(200).json({
-                        accessToken: token,
-                        refreshToken: refreshToken
-                    });
-                }
-                // const data = await createData(UserModel, payload)
-                return res.status(400).json({ message: "try agin" });
-            }
-        }
-        catch (error) {
-            return res.status(500).json({ error });
-        }
+            
+			const srvRes = await Service.userLogin(req.body);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
     }
+    // static async userLogin(req, res) {
+    //     try {
+    //         const errors = validationResult(req);
+    //         if (!errors.isEmpty()) {
+    //             return res.status(422).json({
+    //                 message: errors.msg,
+    //                 errors: errors.errors
+    //             });
+    //         }
+    //         else {
+    //             const { email, password } = req.body;
+    //             if (email) {
+    //                 const user = await UserModel.findOne({ email: email });
+    //                 const userDetails = {
+    //                     userId: user._id,
+    //                     email: user.email,
+    //                     isAdmin: user.isAdmin,
+    //                     isStaf: user.isStaf
+    //                 };
+    //                 const token = jwtToken.sign({ sub: userDetails.userId.toString(), exp: Math.floor(Date.now() / 1000) + ((Config.jwt.expDuration) * 60), }, Config.jwt.secretKey);
+    //                 // var token = jwtToken.sign(userDetails, Config.jwt.secretKey, { expiresIn: Config.jwt.expDuration });
+    //                 var refreshToken = randtoken.uid(256);
+    //                 const check_token = await UserTokenModel.findOne({ email: email });
+    //                 if (check_token) {
+    //                     await UserTokenModel.findOneAndUpdate({ email: email }, { refreshToken });
+    //                 }
+    //                 else {
+    //                     await createToken(UserTokenModel, { email: email, refreshToken });
+    //                 }
+    //                 return res.status(200).json({
+    //                     accessToken: token,
+    //                     refreshToken: refreshToken
+    //                 });
+    //             }
+    //             // const data = await createData(UserModel, payload)
+    //             return res.status(400).json({ message: "try agin" });
+    //         }
+    //     }
+    //     catch (error) {
+    //         return res.status(500).json({ error });
+    //     }
+    // }
     static async userRefreshToken(req, res) {
         try {
             const errors = validationResult(req);

@@ -15,7 +15,7 @@ export default function Login() {
 
         auth.login({ email: userName, password: password }).then(res => {
             AntdMsg(res.message);
-            util.setUserData(res);
+            util.setUserData(res.data);
             window.location.reload();
         }).catch((err) => {
             if(typeof err.message !== 'string'){

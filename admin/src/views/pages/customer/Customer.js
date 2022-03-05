@@ -110,7 +110,6 @@ export default function Customer() {
     useEffect(() => {
         list();
         sdtService.listSdt().then(res => { setSdt(res.result.data || []) });
-        console.log('config---', config);
     }, []);
 
     return (

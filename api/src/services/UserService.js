@@ -1,9 +1,47 @@
 import { UserModel } from "../data-base";
 import { clearSearch, uploadFile, getAdminFilter } from "../utls/_helper";
-
 import config from "../utls/config";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
 
 export default class Service {
+
+    static async userLogin(data) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+        const email = data.email;
+        const password = data.password;
+
+        try {
+            const user = await UserModel.findOne({ email: email, isDeleted: false });
+            let isPasswordMatched = await bcrypt.compare(password, user.password);
+            if (!isPasswordMatched) {
+                throw new Error("Invalid Credentials");
+            } else {
+                const JWT_EXP_DUR = config.jwt.expDuration;
+                const accessToken = jwt.sign({ sub: user._id.toString(), exp: Math.floor(Date.now() / 1000) + ((JWT_EXP_DUR) * 60), }, config.jwt.secretKey);
+
+                if (!user.emailVerified) {
+                    response.statusCode = 401;
+                    response.message = "Email is not verified. Please verify from the link sent to your email!!";
+                } else if (!user.isActive) {
+                    response.statusCode = 401;
+                    response.message = "Your acount is blocked. Please contact admin";
+                } else {
+                    response.statusCode = 200;
+                    response.status = true;
+                    response.message = "Loggedin successfully";
+
+                    response.data = { accessToken };
+                }
+            }
+        } catch (e) {
+            throw new Error(e.message);
+        }
+
+        return response;
+    }
+
 
     static async listUser(query, params) {
         const isAll = params.isAll === 'ALL';

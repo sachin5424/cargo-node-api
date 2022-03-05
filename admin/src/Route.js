@@ -1,4 +1,4 @@
-import { DashboardOutlined, TeamOutlined, DribbbleOutlined } from '@ant-design/icons';
+import { DashboardOutlined, TeamOutlined, KeyOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import Dashboard from './views/pages/Dashboard';
 import Profile from './views/pages/user/Profile';
@@ -23,7 +23,7 @@ let routes = {
         { name: 'Tabs', url: '/tabs', icon: () => <TeamOutlined />, component: Tabs },
         { name: 'Users', url: '/users', icon: () => <TeamOutlined />, component: User },
         { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer },
-        { name: 'Assign Permission', url: '/assign-permission', icon: () => <DribbbleOutlined />, component: AssignPermission },
+        { name: 'User Permissions', url: '/user-permissions', icon: () => <KeyOutlined />, component: AssignPermission },
     ],
 
     topNav: [

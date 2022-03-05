@@ -76,7 +76,6 @@ export default function AssignPermission() {
     useEffect(() => {
         list();
         admService.listModules().then(res => { setModules(res.result.data || []) });
-        console.log('config---', config);
     }, []);
 
     return (
