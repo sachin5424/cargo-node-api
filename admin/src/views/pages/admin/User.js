@@ -10,7 +10,6 @@ import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
-import config from "../../../rdx";
 
 export default function Admin() {
 
@@ -134,7 +133,6 @@ export default function Admin() {
     useEffect(() => {
         list();
         sdtService.listSdt().then(res => { setSdt(res.result.data || []) });
-        console.log('config---', config);
     }, []);
 
     return (
@@ -324,4 +322,4 @@ const AddForm = forwardRef((props, ref) => {
             </Modal>
         </>
     );
-})
+});

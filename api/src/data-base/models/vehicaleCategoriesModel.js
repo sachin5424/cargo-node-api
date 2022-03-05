@@ -27,7 +27,7 @@ const vehicalCategorieScheam = new mongoose.Schema({
         {
             userId: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "user_auth",
+                ref: "users",
             },
             method: {
                 type: String,

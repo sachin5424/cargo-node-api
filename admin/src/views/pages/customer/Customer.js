@@ -176,24 +176,24 @@ const AddForm = forwardRef((props, ref) => {
     useEffect(() => {
         const newDistricts = sdt.find(v => v._id === data.state)?.districts || [];
         setDistricts(newDistricts?.map(v => ({ value: v._id, label: v.name, taluks: v.taluks })) || [])
-    }, [data.state])
+    }, [data.state]);
 
     useEffect(() => {
         const newTaluks = districts?.find(v => v.value === data.district)?.taluks || [];
         setTaluks(newTaluks?.map(v => { return { value: v._id, label: v.name } }))
-    }, [data.district, districts])
+    }, [data.district, districts]);
 
     useEffect(() => {
         if (!checkDistrictExist()) {
             handleChange('', 'district');
         }
-    }, [data.state])
+    }, [data.state]);
 
     useEffect(()=>{
         if (!checkTalukExist()) {
             handleChange('', 'taluk');
         }
-    }, [data.district, districts])
+    }, [data.district, districts]);
 
     return (
         <>

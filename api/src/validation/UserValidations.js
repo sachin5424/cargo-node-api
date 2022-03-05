@@ -5,6 +5,26 @@ import DistrictModel from '../data-base/models/district';
 import TalukModel from '../data-base/models/taluk';
 import { getAdminFilter } from '../utls/_helper';
 
+export const userLoginValidation = [
+    check('email')
+        .notEmpty().withMessage("Email is required")
+        .isEmail().withMessage("Provide a valid email")
+        .custom(async (v) => {
+            try {
+                const r = await UserModel.findOne({ email: v, isDeleted: false });
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("Email is not registered");
+            }
+        }),
+
+    check('password')
+        .notEmpty().withMessage("Password is required"),
+
+];
+
 export const userValidation = [
 
     check('_id')

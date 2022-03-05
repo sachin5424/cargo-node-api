@@ -7,7 +7,7 @@ export default [
     {
         typeName: "State Admin",
         typeKey: "stateAdmin",
-        grantedModules: ["621e1a9085344c49343e3521"]
+        grantedModules: []
     },
     {
         typeName: "District Admin",

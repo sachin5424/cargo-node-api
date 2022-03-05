@@ -10,6 +10,10 @@ export default class profile{
         return axios.get(this.baseURL + 'list', { params: data });
     }
 
+    static listAll(data) {
+        return axios.get(this.baseURL + 'list/ALL', { params: data });
+    }
+
     static save(data) {
         return axios.post(this.baseURL + "save", data);
     }

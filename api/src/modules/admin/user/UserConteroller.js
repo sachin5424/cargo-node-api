@@ -158,7 +158,7 @@ export default class UserController extends UserService {
     static async list(req, res) {
 
         try {
-			const srvRes = await Service.listUser(req?.query, req.__cuser)
+			const srvRes = await Service.listUser(req?.query, req.params)
             return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

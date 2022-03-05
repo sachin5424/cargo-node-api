@@ -6,6 +6,7 @@ import config from "../utls/config";
 export default class Service {
 
     static async listUser(query, params) {
+        const isAll = params.isAll === 'ALL';
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -23,14 +24,14 @@ export default class Service {
                 _id: query._id,
                 isDeleted: false,
                 type: { $ne: 'superAdmin' },
-                // $or: [
-                //     {
-                //         firstName: { $regex: '.*' + query?.key + '.*' }
-                //     },
-                //     {
-                //         lastName: { $regex: '.*' + query?.key + '.*' }
-                //     },
-                // ],
+                $or: [
+                    {
+                        firstName: { $regex: '.*' + query?.key + '.*' }
+                    },
+                    {
+                        lastName: { $regex: '.*' + query?.key + '.*' }
+                    },
+                ],
 
                 ...getAdminFilter()
             };
@@ -65,18 +66,19 @@ export default class Service {
             ];
 
 
+            const counter = await UserModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if(isAll){
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
 
             response.result.data = await UserModel.aggregate(
                 [
                     ...$aggregate,
                     { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
                     { $skip: response.result.limit * (response.result.page - 1) }
-                ])
-                .then(async function (data) {
-                    await UserModel.aggregate([...$aggregate, { $count: "total" }]).then(count => { response.result.total = count[0].total }).catch(err => { response.result.total = 0 })
-                    return data;
-                })
-                .catch(err => { throw new Error(err.message) })
+                ]);
 
             if (response.result.data.length) {
                 response.message = "Data fetched";
