@@ -8,7 +8,7 @@ import { userValidation, userLoginValidation } from "../../../validation/UserVal
 const router = Router({ mergeParams: true });
 
 
-router.post("/validate-token", jwtTokenPermission, (req, res)=>{res.send('ok')});
+router.post("/validate-token", jwtTokenPermission, (req, res)=>{res.send({serviceType: global.serviceType?.key, type: global.cuser?.type})});
 router.post("/resgister", userRegisterValidation, UserController.userRegister);
 // router.get("/list",  UserController.userList);
 router.get("/profile/:id", check_params, UserController.userProfile);

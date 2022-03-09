@@ -61,6 +61,7 @@ export default class Service {
             const search = {
                 _id: query._id,
                 isDeleted: false,
+                serviceType: global.serviceType._id,
                 type: { $ne: 'superAdmin' },
                 $or: [
                     {
@@ -73,6 +74,12 @@ export default class Service {
 
                 ...getAdminFilter()
             };
+            if(global.cuser.type === 'stateAdmin'){
+                search.type = {$in: ['districtAdmin', 'talukAdmin']};
+            } else if(global.cuser.type === 'districtAdmin'){
+                search.type = {$in: ['talukAdmin']};
+            } 
+            
             clearSearch(search);
             // const driverFilter ={isDeleted: false, ...getAdminFilter()};
             // clearSearch(driverFilter);
@@ -137,6 +144,7 @@ export default class Service {
         try {
             const tplData = _id ? await UserModel.findById(_id) : new UserModel();
 
+            tplData.serviceType = data.serviceType;
             tplData.type = data.type;
             tplData.firstName = data.firstName;
             tplData.lastName = data.lastName;

@@ -5,6 +5,6 @@ const ServiceTypeSchema = new Schema({
     key: String
 }, { timestamps: false });
 
-const ServiceTypeeModel = model('serviceType', ServiceTypeSchema);
+const ServiceTypeModel = model('serviceType', ServiceTypeSchema);
 
-export default ServiceTypeeModel;
+export default ServiceTypeModel;

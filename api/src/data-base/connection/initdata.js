@@ -1,7 +1,7 @@
 import StateModel from "../models/state";
 import DistrictModel from "../models/district";
 import TalukModel from "../models/taluk";
-import ServiceTypeeModel from "../models/serviceType";
+import ServiceTypeModel from "../models/serviceType";
 import AdminModulesModel from "../models/adminModules";
 
 import states from "../initdata/statesDistrictsAndTaluks";
@@ -38,11 +38,11 @@ export default async function initdata() {
         })
     }
 
-    let resultServiceTypes = await ServiceTypeeModel.findOne();
+    let resultServiceTypes = await ServiceTypeModel.findOne();
 
     if(!resultServiceTypes){
         serviceTypes?.map(async (st)=>{
-            resultServiceTypes = new ServiceTypeeModel();
+            resultServiceTypes = new ServiceTypeModel();
             resultServiceTypes.name = st.name;
             resultServiceTypes.key = st.key;
             await resultServiceTypes.save();

@@ -1,5 +1,7 @@
 const config = {
-	serviceType: 'all'
+	serviceType: 'taxi',
+	userType: '',
+	isSupeadmin: false
 }
 
 export default config;

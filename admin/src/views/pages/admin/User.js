@@ -10,6 +10,8 @@ import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
+import config from "../../../rdx";
+import { UserTypeSelect } from "../../components/ProComponent";
 
 export default function Admin() {
 
@@ -150,8 +152,8 @@ export default function Admin() {
 
 const AddForm = forwardRef((props, ref) => {
     const { list, sdt } = props;
-    const [ajxRequesting, setAjxRequesting] = useState(false)
-    const [visible, setVisible] = useState(false)
+    const [ajxRequesting, setAjxRequesting] = useState(false);
+    const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
     const [districts, setDistricts] = useState([]);
     const [taluks, setTaluks] = useState([]);
@@ -164,7 +166,7 @@ const AddForm = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         openForm(dt) {
             imgRef.current = {};
-            setData(dt ? { ...dt, } : { isActive: true });
+            setData(dt ? { ...dt } : { isActive: true });
             handleVisible(true);
         }
     }));
@@ -238,11 +240,7 @@ const AddForm = forwardRef((props, ref) => {
                             <div className="row mingap">
                                 <div className="col-md-3 form-group">
                                     <label className="req">Type</label>
-                                    <AntdSelect
-                                        options={[{ value: 'stateAdmin', label: "State Admin" }, { value: 'districtAdmin', label: "District Admin" }, { value: 'talukAdmin', label: "Taluk Admin" }]}
-                                        value={data.type}
-                                        onChange={v => { handleChange(v, 'type') }}
-                                    />
+                                    <UserTypeSelect {...{data, handleChange}} />
                                 </div>
                                 <div></div>
                                 <div className="col-md-6 form-group">
@@ -295,7 +293,7 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Zip Code</label>
-                                    <Input value={data.zipcode || ''} onChange={e => { handleChange(e.target.value, 'zipcode') }} />
+                                    <Input value={data.zipcode || ''} onChange={e => { handleChange(util.handleInteger(e.target.value, 6), 'zipcode') }} />
                                 </div>
 
                                 <div className="col-md-12 form-group">

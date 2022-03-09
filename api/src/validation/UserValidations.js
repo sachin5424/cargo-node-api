@@ -27,6 +27,9 @@ export const userLoginValidation = [
 
 export const userValidation = [
 
+    check('serviceType')
+        .notEmpty().withMessage("Error!"),
+
     check('_id')
         .optional()
         .notEmpty().withMessage("Provide / Select a valid data")

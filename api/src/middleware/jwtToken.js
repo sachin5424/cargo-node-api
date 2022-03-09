@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { UserModel } from '../data-base';
+import ServiceTypeModel from '../data-base/models/serviceType';
 import Logger from "../utls/Logger";
 import VehicleOwnerModel from "../data-base/models/vehicleOwner";
 import Config from "./../utls/config";
@@ -18,6 +19,16 @@ export const jwtTokenPermission = async (req, res, next) => {
 			global.state = undefined;
 			global.district = undefined;
 			global.taluk = undefined;
+
+			try{
+				const serviceType = await ServiceTypeModel.findOne({$or: [{key: req.query.serviceType}, {_id: cuser.serviceType}]});
+				global.serviceType = serviceType;
+			} catch(e){
+				if(cuser.type !== 'superAdmin'){
+					throw new Error('');
+				}
+			}
+
 			if(cuser.type==='stateAdmin'){
 				global.state = cuser.state;
 			} else if(cuser.type==='districtAdmin'){

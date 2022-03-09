@@ -8,7 +8,6 @@ export const adminModuleValidation = [
         .custom(async (v) => {
             try {
                 const r = await AdminModulesModel.findOne({typeKey: v});
-                console.log('r', r);
                 if (!r) {
                     throw new Error("Data not found");
                 }

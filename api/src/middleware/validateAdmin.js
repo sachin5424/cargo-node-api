@@ -42,13 +42,14 @@ export const validateCustomAdmin = async (req, res, next, num) => {
 export const checkAdminPermission = async (req, res, next, module, fillSDTValues = false, ...idKeys) => {
     const response = { statusCode: 401, message: "Unauthorized", status: false };
     if (!idKeys.length) {
-        idKeys = ['state', 'district', 'taluk']
+        idKeys = ['state', 'district', 'taluk', 'serviceType']
     }
 
     try {
         const userType = global.cuser.type;
 
         if (userType === 'superAdmin') {
+            req.body[idKeys[3]] = global.serviceType._id;
             response.status = true;
             response.statusCode = 200;
         } else if (userType === 'stateAdmin' || userType === 'districtAdmin' || userType === 'talukAdmin') {
@@ -62,6 +63,8 @@ export const checkAdminPermission = async (req, res, next, module, fillSDTValues
 
                 if (fillSDTValues) {
                     const cuser = global.cuser;
+                    req.body[idKeys[3]] = global.serviceType._id;
+
                     if (cuser.type === 'stateAdmin') {
                         req.body[idKeys[0]] = cuser.state.toString();
                     } else if (cuser.type === 'districtAdmin') {
