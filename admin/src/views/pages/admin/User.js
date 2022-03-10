@@ -197,7 +197,7 @@ const AddForm = forwardRef((props, ref) => {
             imgRef.current = {};
             setData(dt ? { ...dt } : { isActive: true });
             handleVisible(true);
-            if (!dt._id && addAccess) {
+            if (!dt?._id && addAccess) {
                 setChangeForm(true);
             } else if (dt._id && editAccess) {
                 setChangeForm(true);
@@ -258,7 +258,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Customer'}
+                title={(!data._id ? 'Add' : 'Edit') + ' User'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
