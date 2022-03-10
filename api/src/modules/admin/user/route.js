@@ -2,7 +2,7 @@ import { Router } from "express";
 import UserController from "./UserConteroller";
 import { userRegisterValidation, userRefreshTokenValidation, check_params } from "../../../validation/user.validation";
 import { jwtTokenPermission } from "../../../middleware/jwtToken";
-import { validateSuperAdmin, validateAnyOneAdmin, checkAdminPermission} from "../../../middleware/validateAdmin";
+import { checkAdminPermission} from "../../../middleware/validateAdmin";
 import { userValidation, userLoginValidation } from "../../../validation/UserValidations";
 
 const router = Router({ mergeParams: true });

@@ -2,12 +2,22 @@ import { DashboardOutlined, TeamOutlined, KeyOutlined } from '@ant-design/icons'
 import { Avatar } from 'antd';
 import Dashboard from './views/pages/Dashboard';
 import Profile from './views/pages/user/Profile';
-import Customer from './views/pages/customer/Customer';
+import Customer, {modules as customerModules} from './views/pages/customer/Customer';
 import AssignPermission from './views/pages/roleAndPermissions/AssignPermission';
-import User from './views/pages/admin/User';
+import User, {modules as userModules} from './views/pages/admin/User';
 import Tabs from './views/pages/tabs/Tabs';
+import util from './utils/util';
 
-let routes = {
+const allModules = util.getModules();
+const isSuperAdmin = util.isSuperAdmin();
+
+Array.prototype.includesAny = function (arr=[]) {
+    return this.some(element => {
+        return arr.includes(element);
+    });
+}
+
+const routes = {
     leftNav: [
         { name: 'Dashboard', icon: () => <DashboardOutlined />, url: '/', component: Dashboard },
         // {
@@ -21,10 +31,10 @@ let routes = {
         //     ]
         // },
         { name: 'Tabs', url: '/tabs', icon: () => <TeamOutlined />, component: Tabs },
-        { name: 'Users', url: '/users', icon: () => <TeamOutlined />, component: User },
-        { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer },
+        { name: 'Users', url: '/users', icon: () => <TeamOutlined />, component: User, modules: [userModules.view] },
+        { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer, modules: [customerModules.view] },
         { name: 'User Permissions', url: '/user-permissions', icon: () => <KeyOutlined />, component: AssignPermission },
-    ],
+    ].filter(v=> isSuperAdmin || v.modules?.includesAny(allModules)),
 
     topNav: [
         {

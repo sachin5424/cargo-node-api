@@ -11,6 +11,19 @@ import sdtService from "../../../services/sdt";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
 
+export const modules = {
+    view: util.getModules('viewCustomer'),
+    add: util.getModules('addCustomer'),
+    edit: util.getModules('editCustomer'),
+    delete: util.getModules('deleteCustomer'),
+};
+
+const viewAccess = modules.view;
+const addAccess = modules.add;
+const editAccess = modules.edit;
+const deleteAccess = modules.delete;
+
+
 export default function Customer() {
 
     const [data, setData] = useState([]);
@@ -49,32 +62,48 @@ export default function Customer() {
         },
         {
             title: 'Action',
-            key: 'action',
-            width: 150,
+            width: 90,
+            hidden: !addAccess && !editAccess && !deleteAccess,
             render: (text, row) => (
                 <>
-                    <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
-                        <span className="d-flex">
-                            <EditOutlined />
-                        </span>
-                    </Button>
-                    <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
-                        <span className="d-flex">
-                            <EyeOutlined />
-                        </span>
-                    </Button>
-                    <Button type="danger" size="small">
-                        <span className="d-flex">
-                            <Popconfirm
-                                title="Are you sure to delete this customer?"
-                                onConfirm={() => deleteConfirm(row._id)}
-                                okText="Yes"
-                                cancelText="No"
-                            >
-                                <DeleteOutlined />
-                            </Popconfirm>
-                        </span>
-                    </Button>
+                    {
+                        editAccess
+                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
+                                <span className="d-flex">
+                                    <EditOutlined />
+                                </span>
+                            </Button>
+                            : null
+                    }
+
+                    {
+                        !editAccess && viewAccess
+                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
+                                <span className="d-flex">
+                                    <EyeOutlined />
+                                </span>
+                            </Button>
+                            : null
+                    }
+
+                    {
+                        deleteAccess
+                            ? <Button type="danger" size="small">
+                                <span className="d-flex">
+                                    <Popconfirm
+                                        title="Are you sure to delete this admin?"
+                                        onConfirm={() => deleteConfirm(row._id)}
+                                        okText="Yes"
+                                        cancelText="No"
+                                    >
+                                        <DeleteOutlined />
+                                    </Popconfirm>
+                                </span>
+                            </Button>
+                            : null
+                    }
+
+
                 </>
             ),
         },
@@ -85,7 +114,7 @@ export default function Customer() {
             data = sdata;
         }
         setLoading(true);
-        service.list(data).then(res => {
+        service.list(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -98,7 +127,7 @@ export default function Customer() {
     }
 
     const deleteConfirm = (id) => {
-        service.delete(id).then(res => {
+        service.delete(id, deleteAccess).then(res => {
             AntdMsg(res.message);
             list();
         }).catch(err => {
@@ -108,7 +137,7 @@ export default function Customer() {
 
     useEffect(() => {
         list();
-        sdtService.listSdt().then(res => { setSdt(res.result.data || []) });
+        sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
     }, []);
 
     return (
@@ -131,6 +160,7 @@ const AddForm = forwardRef((props, ref) => {
     const [data, setData] = useState({});
     const [districts, setDistricts] = useState([]);
     const [taluks, setTaluks] = useState([]);
+    const [changeForm, setChangeForm] = useState(false);
     const imgRef = useRef();
 
     const handleVisible = (val) => {
@@ -142,6 +172,13 @@ const AddForm = forwardRef((props, ref) => {
             imgRef.current = {};
             setData(dt ? { ...dt, } : { isActive: true });
             handleVisible(true);
+            if (!dt._id && addAccess) {
+                setChangeForm(true);
+            } else if (dt._id && editAccess) {
+                setChangeForm(true);
+            } else {
+                setChangeForm(false);
+            }
         }
     }));
 
@@ -150,7 +187,7 @@ const AddForm = forwardRef((props, ref) => {
     const save = () => {
         setAjxRequesting(true);
         data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
-        service.save(data).then((res) => {
+        service.save(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -169,7 +206,7 @@ const AddForm = forwardRef((props, ref) => {
 
     const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district)
 
-    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v=> v._id)?.includes(data.taluk)
+    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v => v._id)?.includes(data.taluk)
 
     useEffect(() => {
         const newDistricts = sdt.find(v => v._id === data.state)?.districts || [];
@@ -187,7 +224,7 @@ const AddForm = forwardRef((props, ref) => {
         }
     }, [data.state]);
 
-    useEffect(()=>{
+    useEffect(() => {
         if (!checkTalukExist()) {
             handleChange('', 'taluk');
         }
@@ -201,7 +238,7 @@ const AddForm = forwardRef((props, ref) => {
                 visible={visible}
                 okText="Save"
                 onOk={save}
-                okButtonProps={{ disabled: ajxRequesting }}
+                okButtonProps={{ disabled: ajxRequesting || (!changeForm), style: { display: !changeForm ? 'none' : 'inline-block' } }}
                 onCancel={() => { handleVisible(false); }}
                 destroyOnClose
                 maskClosable={false}
@@ -210,7 +247,7 @@ const AddForm = forwardRef((props, ref) => {
             >
                 <Spin spinning={ajxRequesting} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
-                        <fieldset>
+                        <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
                                 <div className="col-md-6 form-group">
                                     <label className="req">First Name</label>
@@ -264,7 +301,7 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Zip Code</label>
                                     <Input value={data.zipcode || ''} onChange={e => { handleChange(e.target.value, 'zipcode') }} />
                                 </div>
- 
+
                                 <div className="col-md-12 form-group">
                                     <label className="req">Address</label>
                                     <Input.TextArea value={data.address || ''} onChange={e => { handleChange(e.target.value, 'address') }} />

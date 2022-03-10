@@ -3,7 +3,8 @@ import { clearSearch, uploadFile, getAdminFilter } from "../utls/_helper";
 import config from "../utls/config";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
+import AdminModulesModel from "../data-base/models/adminModules";
+import ModuleModel from "../data-base/models/modue";
 
 export default class Service {
 
@@ -32,7 +33,20 @@ export default class Service {
                     response.status = true;
                     response.message = "Loggedin successfully";
 
-                    response.data = { accessToken };
+                    let modules = await ModuleModel.find();
+                    if(user.type !== 'superAdmin'){
+                        let grantedModules = await AdminModulesModel.findOne({typeKey: user.type}).select({grantedModules: 1});
+                        grantedModules = grantedModules.grantedModules;
+                        modules =  modules.filter((v)=>{
+                            if(grantedModules.includes(v._id) ){
+                                return v.key;
+                            }
+                        });
+                    }
+
+                    modules = modules.map((v)=> v.key);
+
+                    response.data = { accessToken, modules, userType: user.type };
                 }
             }
         } catch (e) {

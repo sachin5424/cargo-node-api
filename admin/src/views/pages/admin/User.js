@@ -10,8 +10,20 @@ import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
-import config from "../../../rdx";
 import { UserTypeSelect } from "../../components/ProComponent";
+
+export const modules = {
+    view: util.getModules('viewUser'),
+    add: util.getModules('addUser'),
+    edit: util.getModules('editUser'),
+    delete: util.getModules('deleteUser'),
+};
+
+const viewAccess = modules.view;
+const addAccess = modules.add;
+const editAccess = modules.edit;
+const deleteAccess = modules.delete;
+
 
 export default function Admin() {
 
@@ -75,32 +87,48 @@ export default function Admin() {
         },
         {
             title: 'Action',
-            key: 'action',
-            width: 150,
+            width: 90,
+            hidden: !addAccess && !editAccess && !deleteAccess && !viewAccess,
             render: (text, row) => (
                 <>
-                    <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
-                        <span className="d-flex">
-                            <EditOutlined />
-                        </span>
-                    </Button>
-                    <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
-                        <span className="d-flex">
-                            <EyeOutlined />
-                        </span>
-                    </Button>
-                    <Button type="danger" size="small">
-                        <span className="d-flex">
-                            <Popconfirm
-                                title="Are you sure to delete this admin?"
-                                onConfirm={() => deleteConfirm(row._id)}
-                                okText="Yes"
-                                cancelText="No"
-                            >
-                                <DeleteOutlined />
-                            </Popconfirm>
-                        </span>
-                    </Button>
+                    {
+                        editAccess
+                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
+                                <span className="d-flex">
+                                    <EditOutlined />
+                                </span>
+                            </Button>
+                            : null
+                    }
+
+                    {
+                        !editAccess && viewAccess
+                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
+                                <span className="d-flex">
+                                    <EyeOutlined />
+                                </span>
+                            </Button>
+                            : null
+                    }
+
+                    {
+                        deleteAccess
+                            ? <Button type="danger" size="small">
+                                <span className="d-flex">
+                                    <Popconfirm
+                                        title="Are you sure to delete this admin?"
+                                        onConfirm={() => deleteConfirm(row._id)}
+                                        okText="Yes"
+                                        cancelText="No"
+                                    >
+                                        <DeleteOutlined />
+                                    </Popconfirm>
+                                </span>
+                            </Button>
+                            : null
+                    }
+
+
                 </>
             ),
         },
@@ -111,7 +139,7 @@ export default function Admin() {
             data = sdata;
         }
         setLoading(true);
-        service.list(data).then(res => {
+        service.list(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -124,7 +152,7 @@ export default function Admin() {
     }
 
     const deleteConfirm = (id) => {
-        service.delete(id).then(res => {
+        service.delete(id, deleteAccess).then(res => {
             AntdMsg(res.message);
             list();
         }).catch(err => {
@@ -134,7 +162,7 @@ export default function Admin() {
 
     useEffect(() => {
         list();
-        sdtService.listSdt().then(res => { setSdt(res.result.data || []) });
+        sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
     }, []);
 
     return (
@@ -143,7 +171,7 @@ export default function Admin() {
                 <span>Admin List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name' }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, sdt }} />
         </>
@@ -157,6 +185,7 @@ const AddForm = forwardRef((props, ref) => {
     const [data, setData] = useState({});
     const [districts, setDistricts] = useState([]);
     const [taluks, setTaluks] = useState([]);
+    const [changeForm, setChangeForm] = useState(false);
     const imgRef = useRef();
 
     const handleVisible = (val) => {
@@ -168,6 +197,13 @@ const AddForm = forwardRef((props, ref) => {
             imgRef.current = {};
             setData(dt ? { ...dt } : { isActive: true });
             handleVisible(true);
+            if (!dt._id && addAccess) {
+                setChangeForm(true);
+            } else if (dt._id && editAccess) {
+                setChangeForm(true);
+            } else {
+                setChangeForm(false);
+            }
         }
     }));
 
@@ -176,7 +212,7 @@ const AddForm = forwardRef((props, ref) => {
     const save = () => {
         setAjxRequesting(true);
         data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
-        service.save(data).then((res) => {
+        service.save(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -227,7 +263,7 @@ const AddForm = forwardRef((props, ref) => {
                 visible={visible}
                 okText="Save"
                 onOk={save}
-                okButtonProps={{ disabled: ajxRequesting }}
+                okButtonProps={{ disabled: ajxRequesting || (!changeForm), style: { display: !changeForm ? 'none' : 'inline-block' } }}
                 onCancel={() => { handleVisible(false); }}
                 destroyOnClose
                 maskClosable={false}
@@ -236,11 +272,11 @@ const AddForm = forwardRef((props, ref) => {
             >
                 <Spin spinning={ajxRequesting} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
-                        <fieldset>
+                        <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
                                 <div className="col-md-3 form-group">
                                     <label className="req">Type</label>
-                                    <UserTypeSelect {...{data, handleChange}} />
+                                    <UserTypeSelect {...{ data, handleChange }} />
                                 </div>
                                 <div></div>
                                 <div className="col-md-6 form-group">

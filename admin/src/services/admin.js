@@ -1,25 +1,26 @@
 import axios from "../utils/axios";
 
-export default class profile{
+export default class profile {
     static baseURL = 'user/';
-    static details(data){
-        return axios.post(this.baseURL + "profile/details", data);
+    static details(data, module) {
+        return axios.post(this.baseURL + "profile/details", { params: data, module });
     }
 
-    static list(data) {
-        return axios.get(this.baseURL + 'list', { params: data });
+    static list(data, module) {
+        return axios.get(this.baseURL + 'list', { params: data, module });
     }
 
-    static listAll(data) {
-        return axios.get(this.baseURL + 'list/ALL', { params: data });
+    static listAll(data, module) {
+        return axios.get(this.baseURL + 'list/ALL', { params: data, module });
     }
 
-    static save(data) {
-        return axios.post(this.baseURL + "save", data);
+    static save(data, module) {
+        console.log('module', module);
+        return axios.post(this.baseURL + "save", data, { module });
     }
 
-    static delete(id) {
-        return axios.delete(`${this.baseURL}/delete/${id}`);
+    static delete(id, module) {
+        return axios.delete(`${this.baseURL}/delete/${id}`, { module });
     }
-    
+
 }

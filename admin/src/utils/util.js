@@ -2,8 +2,11 @@
 
 class util {
     setUserData = (data) => {
+        window.localStorage.clear();
         window.localStorage.setItem('authorization', data.accessToken);
         window.localStorage.setItem('refreshToken', data.refreshToken);
+        window.localStorage.setItem('modules', data.modules);
+        window.localStorage.setItem('userType', data.userType);
     }
     getUserData = ($key) => {
         if ($key) {
@@ -26,8 +29,18 @@ class util {
         window.localStorage.clear();
         window.location.reload();
     }
-    getmodules() {
-        return JSON.parse(window.localStorage['modules'] || '[]');
+    getModules(key=null) {
+        if(key){
+            if((window.localStorage['modules'] || '').split(',').includes(key) || window.localStorage['userType'] === 'superAdmin'){
+                return key;
+            }
+            return null;
+        }
+        return (window.localStorage['modules'] || '').split(',');
+    }
+
+    isSuperAdmin(){
+        return window.localStorage['userType'] === 'superAdmin' ? true : false;
     }
 
     setTheme($theme = 'light') {
