@@ -22,6 +22,7 @@ export default function MyPagination(props) {
                 pageSize={sdata.limit}
                 current={sdata.page}
                 onChange={handleChange}
+                showSizeChanger={true}
             />
         </If>
     )

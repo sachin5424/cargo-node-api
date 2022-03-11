@@ -7,6 +7,7 @@ import Customer, { modules as customerModules } from './views/pages/customer/Cus
 import AssignPermission from './views/pages/roleAndPermissions/AssignPermission';
 import User, { modules as userModules } from './views/pages/admin/User';
 import TabsVehicle from './views/pages/vehicle/Tabs';
+import Category, {modules as categoryModules} from './views/pages/vehicle/Category';
 import util from './utils/util';
 
 const allModules = util.getModules();
@@ -21,20 +22,18 @@ Array.prototype.includesAny = function (arr = []) {
 const routes = {
     leftNav: [
         { name: 'Dashboard', icon: () => <DashboardOutlined />, url: '/', component: Dashboard },
-        // {
-        //     name: 'Master Users',
-        //     baseURL: '/master-users',
-        //     icon: () => <AppstoreOutlined />,
-        //     // modules: [masterUserModules.view, masterUserTypeModules.view],
-        //     subMenus: [
-        //         // { name: 'User Types', url: '/types', /* module: masterUserTypeModules.view, */ component: Usertype },
-        //         { name: 'Master Users', url: '', /* module: masterUserModules.view,  */component: MasterUser },
-        //     ]
-        // },
+        { name: 'Tabs', url: '/vehicles', icon: () => <CarOutlined />, component: TabsVehicle },
+        {
+            name: 'Vehicle',
+            baseURL: '/vehicle',
+            icon: () => <CarOutlined />,
+            subMenus: [
+                { name: 'Category', url: '/category', component: Category, modules: [categoryModules.view] },
+            ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
+        },
         { name: 'Admins', url: '/users', icon: () => <TeamOutlined />, component: User, modules: [userModules.view] },
         { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer, modules: [customerModules.view] },
         { name: 'User Permissions', url: '/user-permissions', icon: () => <KeyOutlined />, component: AssignPermission },
-        { name: 'Vehicles', url: '/vehicles', icon: () => <CarOutlined />, component: TabsVehicle },
     ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
 
     topNav: [

@@ -1,11 +1,12 @@
 import { check } from '../settings/import';
-import { tripCategorieModel, VehicalCategorieModel} from '../data-base';
+import { tripCategorieModel} from '../data-base';
+import VehicalCategoryModel from '../data-base/models/vehicaleCategoryModel';
 import VehicleTypeModel from '../data-base/models/vehicleType';
 import VehicleModelModel from '../data-base/models/vehicleModel';
 import VehicleModel from '../data-base/models/vehicle';
 import DriverModel from '../data-base/models/driver';
 import VehicleOwnerModel from '../data-base/models/vehicleOwner';
-import { UserModel } from '../data-base';
+import VehicleCategoryModel from '../data-base/models/vehicaleCategoryModel';
 
 export const vehicleOwnerLoginValidation = [
     check('email')
@@ -25,6 +26,62 @@ export const vehicleOwnerLoginValidation = [
     check('password')
         .notEmpty().withMessage("Password is required"),
 
+];
+
+export const vehicleCategoryValidation = [
+
+    check('_id')
+        .optional()
+        .notEmpty().withMessage("Provide / Select a valid data")
+        .custom(async (v)=>{
+            try{
+                const r = await VehicleCategoryModel.findById(v);
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch(e){
+                throw new Error("This data does not exit. Please check or refresh");
+            }
+        }),
+
+    check('name')
+        .notEmpty().withMessage("The 'name' field is required")
+        .isString().withMessage("The 'name' field is not valid"),
+
+
+    check('slug')
+        .notEmpty().withMessage("The 'slug' field is required")
+        .isSlug().withMessage("The 'slug' field is not valid")
+        .custom(async (value, { req }) => {
+            const body = req.body;
+            const result = await VehicleCategoryModel.findOne({ isDeleted: false, slug: value });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A category already exist with this slug");
+                    }
+                } else {
+                    throw new Error("A category already exist with this slug");
+                }
+            }
+        }),
+
+    check('photo')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.photo) {
+                    throw new Error("The 'Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Photo is not an image"),
+
+
+    check('isActive').
+        notEmpty().withMessage("The 'active' field is required")
+        .toBoolean(1 ? true : false),
 ];
 
 export const typeValidation = [
@@ -83,7 +140,7 @@ export const typeValidation = [
         .custom(async (value) =>{
 
             try{
-                const result = await VehicalCategorieModel.findById(value);
+                const result = await VehicalCategoryModel.findById(value);
                 if (!result) {
                     throw new Error("Data not found");
                 }

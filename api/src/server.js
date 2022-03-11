@@ -14,7 +14,7 @@ export default class App {
         this.port = port;
         databaseConnect();
         // autuGenratePermission();
-        // createModules();
+        createModules();
         this.app.use('/files', express.static('uploads'));
         this.app.use(cors());
         router(this.app);

@@ -8,6 +8,7 @@ import { clearSearch, encryptData, decryptData, getAdminFilter } from "../utls/_
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
 import { sendResetPasswordMail } from "../thrirdParty/emailServices/vehicleOwner/sendEmail";
+import VehicleCategoryModel from "../data-base/models/vehicaleCategoryModel";
 
 export default class Service {
 
@@ -115,6 +116,120 @@ export default class Service {
             return response;
         } catch (e) {
             throw new Error(e)
+        }
+    }
+
+    static async listVehicleCategory(query, params) {
+        const isAll = params.isAll === 'ALL';
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+                page: query.page * 1 > 0 ? query.page * 1 : 1,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                total: 0,
+            },
+            status: false
+        };
+
+        try {
+            const search = {
+                _id: query._id,
+                isDeleted: false,
+                $or: [
+                    {
+                        name: { $regex: '.*' + query?.key + '.*' }
+                    },
+                    {
+                        slug: { $regex: '.*' + query?.key + '.*' }
+                    },
+                ],
+            };
+            
+            clearSearch(search);
+
+            const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
+                {
+                    "$project": {
+                        name: 1,
+                        slug: 1,
+                        isActive: 1,
+                        image: {
+                            url: { $concat: [config.applicationFileUrl + 'vehicle/category/', "$photo"] },
+                            name: "$photo"
+                        }
+                    }
+                },
+            ];
+
+
+            const counter = await VehicleCategoryModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if(isAll){
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+
+            response.result.data = await VehicleCategoryModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ]);
+
+            if (response.result.data.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
+    static async saveVehicleCategory(data) {
+        const _id = data._id;
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            const tplData = _id ? await VehicleCategoryModel.findById(_id) : new VehicleCategoryModel();
+
+            tplData.name = data.name;
+            tplData.slug = data.slug;
+            tplData.photo = await uploadFile(data.photo, config.uploadPaths.vehicle.category, VehicleCategoryModel, 'photo', _id);
+            tplData.isActive = data.isActive;
+
+            await tplData.save();
+
+            response.message = _id ? "Vehicle category is Updated" : "A new vehicle category is created";
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
+    static async deleteVehicleCategory(_id, cond) {
+        clearSearch({ cond });
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            await VehicleCategoryModel.updateOne({ _id, ...cond }, { isDeleted: true });
+
+            response.message = "Deleted successfully";
+            response.statusCode = 200;
+            response.status = true;
+            return response;
+
+        } catch (e) {
+            throw new Error("Can not delete. Something went wrong.")
         }
     }
 

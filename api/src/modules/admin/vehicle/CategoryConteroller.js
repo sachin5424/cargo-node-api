@@ -1,9 +1,11 @@
 import { validationResult } from 'express-validator';
-import { VehicalCategorieModel } from '../../../data-base/index';
-import { createData, listPaginate } from '../../../services/test';
-import { slug } from '../../../utls/_helper';
+import Service from '../../../services/VehicleService';
+// import { VehicalCategorieModel } from '../../../data-base/index';
+// import { createData, listPaginate } from '../../../services/test';
+// import { slug } from '../../../utls/_helper';
 
 export default class CategoryController {
+/*
     static async addVehicalCategorie(req, res) {
         try {
             const errors = validationResult(req);
@@ -133,4 +135,33 @@ export default class CategoryController {
             return res.status(500).json({ error });
         }
     }
+
+*/
+    static async list(req, res) {
+        try {
+			const srvRes = await Service.listVehicleCategory(req?.query, req.params)
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async save(req, res) {
+        try {
+			const srvRes = await Service.saveVehicleCategory(req.body)
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async delete(req, res) {
+        try {
+			const srvRes = await Service.deleteVehicleCategory(req.params.id);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
 }
