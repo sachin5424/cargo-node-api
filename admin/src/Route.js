@@ -1,3 +1,4 @@
+/* eslint no-extend-native: ["error", { "exceptions": ["Array"] }] */
 import { DashboardOutlined, TeamOutlined, KeyOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import Dashboard from './views/pages/Dashboard';
