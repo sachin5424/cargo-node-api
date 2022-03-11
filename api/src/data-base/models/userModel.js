@@ -4,10 +4,6 @@ const bcrypt = require('bcryptjs'), SALT_WORK_FACTOR = 10;
 
 
 const UserSchema = new mongoose.Schema({
-    serviceType: {
-        type: Schema.Types.ObjectId,
-        ref: "serviceType",
-    },
     type: {
         type: String,
         enum: ['superAdmin', 'stateAdmin', 'districtAdmin', 'talukAdmin'],

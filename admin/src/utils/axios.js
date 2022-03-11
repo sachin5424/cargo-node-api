@@ -1,6 +1,5 @@
 import axios from "axios";
 import util from "./util";
-import rdx from "../rdx";
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -15,11 +14,6 @@ axiosInstance.interceptors.request.use(
     (config) => {
         if (isSuperAdmin || config.module === 'ignoreModule' || allModules.includes(config.module)) {
             config.headers.authorization = 'Bearer ' + util.getToken();
-            if (!config.params) {
-                config.params = { serviceType: rdx.serviceType };
-            } else {
-                config.params.serviceType = rdx.serviceType;
-            }
             return config;
         } else {
             return Promise.reject(new Error('Unauthorized'));

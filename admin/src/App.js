@@ -11,19 +11,13 @@ import config from './rdx';
 export const IsSuperAdminContext = createContext();
 
 function App() {
-	const [isLoggedin, setIsLoggedin, createContext] = useState(util.isLogged());
-	const [isSuperAdmin, setIsSuperAdmin] = useState(config.isSupeadmin);
+	const [isLoggedin, setIsLoggedin] = useState(util.isLogged());
 
 
 	useEffect(() => {
 		auth.validateToken().then(res => {
 			setIsLoggedin(true);
 			config.userType = res.type;
-			config.serviceType = res.serviceType;
-			if (res.type === 'superAdmin') {
-				config.isSupeadmin = true;
-				setIsSuperAdmin(true);
-			}
 		}).catch(err => {
 			setIsLoggedin(false);
 			window.localStorage.clear();
@@ -35,9 +29,7 @@ function App() {
 		<>
 			<BrowserRouter basename="/cargo/admin">
 				<If cond={isLoggedin}>
-					<IsSuperAdminContext.Provider value={isSuperAdmin}>
-						<Layout />
-					</IsSuperAdminContext.Provider>
+					<Layout />
 				</If>
 				<If cond={!isLoggedin}>
 					<Login />

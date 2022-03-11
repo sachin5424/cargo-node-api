@@ -34,13 +34,13 @@ export function AntdSelect(props) {
     if (typeof options !== "object") {
         options = [];
     }
-    if (typeof options[0] !== "object") {
-        let ops = [...options];
-        options = [];
-        for (let ind in ops) {
-            options.push({ value: ops[ind], label: ops[ind] });
-        }
-    }
+    // if (typeof options[0] !== "object") {
+    //     let ops = [...options];
+    //     options = [];
+    //     for (let ind in ops) {
+            // options.push({ value: ops[ind], label: ops[ind] });
+    //     }
+    // }
     if (typeof options[0]?.value === "undefined") {
         let ops = [...options];
         options = [];

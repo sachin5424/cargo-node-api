@@ -1,43 +1,23 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, Fragment, useEffect, useContext } from 'react';
+import React, { useState, Fragment } from 'react';
 import { Menu, Image } from 'antd';
 import routes from '../../Route';
-import { Link, useLocation, useHistory } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { PoweroffOutlined, MenuOutlined } from '@ant-design/icons';
 import util from '../../utils/util';
 import { Moon, Sun } from '../components/svgIcons';
 import { If } from '../../utils/controls';
-import { AntdSelect } from '../../utils/Antd';
-import config from '../../rdx';
-import { IsSuperAdminContext } from '../../App';
 const { SubMenu } = Menu;
 
 export default function Sider() {
     const location = useLocation();
-    const history = useHistory();
-    const type = util.queryStringToJSON(location.search?.slice(1))?.type;
 
     const [selectedKey, setSelectedKey] = useState(location.pathname);
     const [theme, setTheme] = useState(typeof util.getTheme === 'undefined' ? util.setTheme('light') : util.getTheme());
-    const [serviceType, setServiceType] = useState(type || 'taxi');
-    const isSuperAdmin = useContext(IsSuperAdminContext);
-    
 
     const handleClick = e => {
         setSelectedKey(e.key);
     };
-
-    useEffect(() => { 
-        if(isSuperAdmin){
-            history.push({ search: `?type=${serviceType}` }); 
-            config.serviceType = serviceType; 
-        }
-    }, [serviceType, isSuperAdmin]);
-    useEffect(() => { 
-        if(isSuperAdmin){
-            history.push({ search: `?type=${config.serviceType}` }); 
-        }
-    }, [location.pathname, location.search, isSuperAdmin]);
 
     const handleTheme = ($theme) => {
         setTheme($theme);
@@ -77,18 +57,6 @@ export default function Sider() {
                     }
                     }>
                 </Menu.Item>
-
-                {
-                    isSuperAdmin && Date()
-                        ? <Menu.Item key="serviceType">
-                            <AntdSelect
-                                options={[{ value: 'taxi', label: 'Taxi' }, { value: 'cargo', label: 'Cargo' }]}
-                                value={serviceType}
-                                onChange={v => { setServiceType(v); setTimeout(()=>{window.location.reload();}, 400) }}
-                            />
-                        </Menu.Item>
-                        : null
-                }
 
                 {
                     routes.topNav.map((v, i) => (

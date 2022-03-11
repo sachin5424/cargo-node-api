@@ -186,7 +186,6 @@ export default class AdminService {
                 { $sort: { _id: -1 } },
                 {
                     "$project": {
-                        serviceType: 1,
                         firstName: 1,
                         lastName: 1,
                         phoneNo: 1,
