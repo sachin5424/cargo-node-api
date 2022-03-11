@@ -146,7 +146,7 @@ export default function Customer() {
                 <span>Customer List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name' }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew11: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, sdt }} />
         </>
@@ -174,7 +174,7 @@ const AddForm = forwardRef((props, ref) => {
             handleVisible(true);
             if (!dt?._id && addAccess) {
                 setChangeForm(true);
-            } else if (dt._id && editAccess) {
+            } else if (dt?._id && editAccess) {
                 setChangeForm(true);
             } else {
                 setChangeForm(false);

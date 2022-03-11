@@ -6,7 +6,7 @@ import Profile from './views/pages/user/Profile';
 import Customer, { modules as customerModules } from './views/pages/customer/Customer';
 import AssignPermission from './views/pages/roleAndPermissions/AssignPermission';
 import User, { modules as userModules } from './views/pages/admin/User';
-import TabsVehicle from './views/pages/vehicle/Tabs';
+import TabsVehicle from './views/pages/tabs/Tabs';
 import Category, {modules as categoryModules} from './views/pages/vehicle/Category';
 import util from './utils/util';
 
