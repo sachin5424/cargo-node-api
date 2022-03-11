@@ -98,7 +98,10 @@ class util {
         });
     }
     queryStringToJSON(qs) {
-        qs = qs || location.search.slice(1);
+        qs = qs || window.location.search.slice(1);
+        if(qs.charAt(0) === '?'){
+            qs = qs.slice(1);
+        }
     
         var pairs = qs.split('&');
         var result = {};

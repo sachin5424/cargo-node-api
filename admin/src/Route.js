@@ -1,12 +1,12 @@
 /* eslint no-extend-native: ["error", { "exceptions": ["Array"] }] */
-import { DashboardOutlined, TeamOutlined, KeyOutlined } from '@ant-design/icons';
+import { DashboardOutlined, TeamOutlined, KeyOutlined, CarOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import Dashboard from './views/pages/Dashboard';
 import Profile from './views/pages/user/Profile';
 import Customer, { modules as customerModules } from './views/pages/customer/Customer';
 import AssignPermission from './views/pages/roleAndPermissions/AssignPermission';
 import User, { modules as userModules } from './views/pages/admin/User';
-import Tabs from './views/pages/tabs/Tabs';
+import TabsVehicle from './views/pages/vehicle/Tabs';
 import util from './utils/util';
 
 const allModules = util.getModules();
@@ -31,10 +31,10 @@ const routes = {
         //         { name: 'Master Users', url: '', /* module: masterUserModules.view,  */component: MasterUser },
         //     ]
         // },
-        { name: 'Tabs', url: '/tabs', icon: () => <TeamOutlined />, component: Tabs },
         { name: 'Admins', url: '/users', icon: () => <TeamOutlined />, component: User, modules: [userModules.view] },
         { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer, modules: [customerModules.view] },
         { name: 'User Permissions', url: '/user-permissions', icon: () => <KeyOutlined />, component: AssignPermission },
+        { name: 'Vehicles', url: '/vehicles', icon: () => <CarOutlined />, component: TabsVehicle },
     ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
 
     topNav: [
