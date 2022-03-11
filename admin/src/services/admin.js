@@ -15,7 +15,6 @@ export default class profile {
     }
 
     static save(data, module) {
-        console.log('module', module);
         return axios.post(this.baseURL + "save", data, { module });
     }
 

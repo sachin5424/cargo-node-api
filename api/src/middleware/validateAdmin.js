@@ -52,11 +52,11 @@ export const checkAdminPermission = async (req, res, next, module, fillSDTValues
             response.status = true;
             response.statusCode = 200;
         } else if (userType === 'stateAdmin' || userType === 'districtAdmin' || userType === 'talukAdmin') {
-            const moduleData = await ModuleModel.findOne({key: module}).select('_id');
-            const moduleId = moduleData._id;
+            const moduleData = await ModuleModel.findOne({key: module}).select('key');
+            const moduleKey = moduleData.key;
             const adminModules = await AdminModulesModel.findOne({ typeKey: userType });
 
-            if (adminModules && adminModules.grantedModules.includes(moduleId)) {
+            if (adminModules && adminModules.grantedModules.includes(moduleKey)) {
                 response.status = true;
                 response.statusCode = 200;
 

@@ -5,7 +5,7 @@ const adminModulesSchema = new Schema({
     typeKey: String,
     grantedModules: [
         {
-            type: Schema.Types.ObjectId,
+            type: String,
         }
     ]
 }, { timestamps: false });

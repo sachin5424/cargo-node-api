@@ -26,6 +26,7 @@ const routes = {
         {
             name: 'Vehicle',
             baseURL: '/vehicle',
+            modules: [categoryModules.view],
             icon: () => <CarOutlined />,
             subMenus: [
                 { name: 'Category', url: '/category', component: Category, modules: [categoryModules.view] },

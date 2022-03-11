@@ -81,7 +81,7 @@ export default class AdminService {
                     $lookup: {
                         from: "modules",
                         localField: "grantedModules",
-                        foreignField: "_id",
+                        foreignField: "key",
                         as: "grantedModuleTitles",
                         pipeline: [
                             {

@@ -154,7 +154,7 @@ const AddForm = forwardRef((props, ref) => {
                                         </div>
                                     </div>
                                     <div className="col-md-12 form-group">
-                                        <MultiChechBox options={modules} value={data.grantedModules} onChange={v => { (!v?.length || handleChange(v, 'grantedModules')) }} />
+                                        <MultiChechBox options={modules?.map(v=>({_id: v.key, label: v.title}))} value={data.grantedModules} onChange={v => { (!v?.length || handleChange(v, 'grantedModules')) }} />
                                     </div>
                                 </div>
                             </div>

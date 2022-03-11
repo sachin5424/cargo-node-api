@@ -10,7 +10,6 @@ export default class profile {
         return axios.get(this.baseURL + 'category/list/ALL', { params: data, module });
     }
     static saveCategory(data, module) {
-        console.log('module', module);
         return axios.post(this.baseURL + "category/save", data, { module });
     }
     static deleteCategory(id, module) {
@@ -24,7 +23,6 @@ export default class profile {
         return axios.get(this.baseURL + 'list/ALL', { params: data, module });
     }
     static save(data, module) {
-        console.log('module', module);
         return axios.post(this.baseURL + "save", data, { module });
     }
     static delete(id, module) {

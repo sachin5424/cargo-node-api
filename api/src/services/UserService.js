@@ -33,18 +33,14 @@ export default class Service {
                     response.status = true;
                     response.message = "Loggedin successfully";
 
-                    let modules = await ModuleModel.find();
+                    let modules = [];
                     if(user.type !== 'superAdmin'){
-                        let grantedModules = await AdminModulesModel.findOne({typeKey: user.type}).select({grantedModules: 1});
-                        grantedModules = grantedModules.grantedModules;
-                        modules =  modules.filter((v)=>{
-                            if(grantedModules.includes(v._id) ){
-                                return v.key;
-                            }
-                        });
+                        modules = await AdminModulesModel.findOne({typeKey: user.type}).select({grantedModules: 1});
+                        modules = modules.grantedModules;
+                    } else{
+                        modules = await ModuleModel.find();
+                        modules = modules.map(v=>v.key);
                     }
-
-                    modules = modules.map((v)=> v.key);
 
                     response.data = { accessToken, modules, userType: user.type };
                 }

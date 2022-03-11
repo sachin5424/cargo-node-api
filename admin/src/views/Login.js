@@ -16,7 +16,7 @@ export default function Login() {
         auth.login({ email: userName, password: password }).then(res => {
             AntdMsg(res.message);
             util.setUserData(res.data);
-            window.location.reload();
+            // window.location.reload();
         }).catch((err) => {
             if(typeof err.message !== 'string'){
                 AntdMsg(err.message[Object.keys(err.message)[0]][0], 'error');

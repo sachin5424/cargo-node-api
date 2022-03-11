@@ -10,7 +10,7 @@ import UploadImage from "../../components/UploadImage";
 import util from "../../../utils/util";
 
 export const modules = {
-    view: util.getModules('veiwVehicleCategory'),
+    view: util.getModules('viewVehicleCategory'),
     add: util.getModules('addVehicleCategory'),
     edit: util.getModules('editVehicleCategory'),
     delete: util.getModules('deleteVehicleCategory'),
