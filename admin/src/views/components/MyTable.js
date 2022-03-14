@@ -3,8 +3,7 @@ import { Table, Input, Button } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import MyPagination from './Pagination';
-import { If } from '../../utils/controls';
-// import { AntdSelect } from '../../utils/Antd';
+import { AntdSelect } from '../../utils/Antd';
 
 
 export default function MyTable(props) {
@@ -78,19 +77,27 @@ export default function MyTable(props) {
 const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew }) => {
     return <>
         <div className="d-flex">
-            <If cond={typeof sdata.key !== 'undefined'}>
-                <Input className="w200 mx-1" allowClear placeholder={searchPlaceholder || "Search"} value={sdata.key || ''} onChange={(e) => { handleSData(e.target.value, 'key') }} />
-                <Button type="primary" onClick={() => { list(sdata) }} >Search</Button>
-            </If>
-            {/* <If cond={typeof filters !== 'undefined'}>
-                {filters.map((v, i) => (
-                    <React.Fragment key={i}>
-                        <If cond={v.type === 'dropdown'}>
-                            <AntdSelect style={200} options={v.options} value={sdata?.[v.key] || ''} onChange={value => { handleSData(value, v.key) }} />
-                        </If>
-                    </React.Fragment>
-                ))}
-            </If> */}
+            {
+                typeof sdata.key !== 'undefined'
+                    ? <>
+                        <Input className="w200 mx-1" allowClear placeholder={searchPlaceholder || "Search"} value={sdata.key || ''} onChange={(e) => { handleSData(e.target.value, 'key') }} />
+                        {
+                            typeof filters !== 'undefined'
+                                ? filters.map((v, i) => (
+                                    <React.Fragment key={i}>
+                                        {
+                                            v.type === 'dropdown'
+                                                ? <AntdSelect style={v.style} className={v?.className} options={v.options} value={sdata?.[v.key] || ''} onChange={value => { handleSData(value, v.key) }} />
+                                                : null
+                                        }
+                                    </React.Fragment>
+                                ))
+                                : null
+                        }
+                        <Button type="primary" onClick={() => { list(sdata) }} >Search</Button>
+                    </>
+                    : null
+            }
             {
                 addNew
                     ? <Button type="primary" className="ml-auto">

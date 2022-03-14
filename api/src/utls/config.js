@@ -31,6 +31,9 @@ const config = {
             type: process.env.VEHICLE_TYPE_ICON_UPLOAD_PATH || "./uploads/vehicle/type/",
             owner: process.env.VEHICLE_OWNER_PHOTO_UPLOAD_PATH || "./uploads/vehicle/owner/",
         },
+        ride: {
+            type: process.env.RIDE_TYPE_PHOTO_UPLOAD_PATH || "./uploads/ride/type/",
+        },
         user: {
             photo: process.env.USER_PHOTO_UPLOAD_PATH || "./uploads/user/photo/",
         },

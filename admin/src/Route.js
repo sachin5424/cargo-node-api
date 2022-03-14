@@ -8,6 +8,7 @@ import AssignPermission from './views/pages/roleAndPermissions/AssignPermission'
 import User, { modules as userModules } from './views/pages/admin/User';
 import TabsVehicle from './views/pages/tabs/Tabs';
 import Category, {modules as categoryModules} from './views/pages/vehicle/Category';
+import Type, {modules as typeModules} from './views/pages/ride/Type';
 import util from './utils/util';
 
 const allModules = util.getModules();
@@ -30,6 +31,15 @@ const routes = {
             icon: () => <CarOutlined />,
             subMenus: [
                 { name: 'Category', url: '/category', component: Category, modules: [categoryModules.view] },
+            ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
+        },
+        {
+            name: 'Ride',
+            baseURL: '/ride',
+            modules: [typeModules.view],
+            icon: () => <CarOutlined />,
+            subMenus: [
+                { name: 'Type', url: '/type', component: Type, modules: [typeModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
         { name: 'Admins', url: '/users', icon: () => <TeamOutlined />, component: User, modules: [userModules.view] },

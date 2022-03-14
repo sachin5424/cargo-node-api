@@ -45,7 +45,7 @@ export function AntdSelect(props) {
         let ops = [...options];
         options = [];
         ops.forEach(v => {
-            options.push({ value: v.id, label: v.title || v.name });
+            options.push({ value: v.id || v._id, label: v.title || v.name });
         })
     }
 

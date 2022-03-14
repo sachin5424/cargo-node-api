@@ -8,6 +8,7 @@ import routerDriver from './admin/driver/route';
 import routerCommon from './admin/common/route';
 import routerCustomer from './admin/customer/route';
 import routerOnlyAdmin from './admin/onlyAdmin/route';
+import routerRide from './admin/ride/route';
 
 
 import routerVOVehicle from './vehicleOwner/vehicle/route';
@@ -57,6 +58,7 @@ const api = (app) => {
     app.use('/admin/customer', routerCustomer);
     app.use('/admin/sdt', routerSDT);
     app.use('/admin/adm', jwtTokenPermission, validateSuperAdmin, routerOnlyAdmin);
+    app.use('/admin/ride', jwtTokenPermission, routerRide);
 
 
     app.use('/vehicle-owner/user', routerVOCustomer);

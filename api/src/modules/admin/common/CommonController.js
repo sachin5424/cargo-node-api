@@ -6,8 +6,17 @@ export default class CommonController {
     
     static async listStates(req, res) {
         try {
-			const srvRes = await Service.listStates(req?.query)
+			const srvRes = await Service.listStates(req?.query);
             return res.status(srvRes.statusCode).json({ srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async listServiceType(req, res) {
+        try {
+			const srvRes = await Service.listServiceType(req?.query);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
 		}

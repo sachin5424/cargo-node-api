@@ -3,10 +3,12 @@ import DistrictModel from "../models/district";
 import TalukModel from "../models/taluk";
 import ServiceTypeModel from "../models/serviceType";
 import AdminModulesModel from "../models/adminModules";
+import RideTypeModel from "../models/rideTypeModel";
 
 import states from "../initdata/statesDistrictsAndTaluks";
 import serviceTypes from "../initdata/serviceTypes";
 import userTypePermission from "../initdata/adminModules";
+import rideType from "../initdata/rideType";
 
 export default async function initdata() {
     let resultState = await StateModel.findOne(),
@@ -58,6 +60,26 @@ export default async function initdata() {
             resultUserTypePermission.typeKey = utp.typeKey;
             resultUserTypePermission.grantedModules = utp.grantedModules;
             await resultUserTypePermission.save();
-        })
+        });
+    }
+
+
+    let rideTypeResult = RideTypeModel.findOne();
+
+    if(rideTypeResult){
+        const cargoId = await ServiceTypeModel.findOne({key: 'cargo'});
+        const taxiId = await ServiceTypeModel.findOne({key: 'taxi'});
+        rideType.forEach(async(v)=>{
+            rideTypeResult = new RideTypeModel();
+            rideTypeResult.name = v.name;
+            rideTypeResult.key = v.key;
+            if(v.serviceType === 'cargo'){
+                rideTypeResult.serviceType = cargoId;
+            } else if(v.serviceType === 'taxi'){
+                rideTypeResult.serviceType = taxiId;
+            }
+            
+            await rideTypeResult.save();
+        });
     }
 }
