@@ -1,5 +1,5 @@
 import { Input, Button, Spin } from 'antd';
-import { UserOutlined, LockOutlined, LoadingOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, LoadingOutlined, EyeOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import auth from '../services/auth';
 import { AntdMsg } from '../utils/Antd';
@@ -8,7 +8,8 @@ import util from '../utils/util';
 export default function Login() {
     const [userName, setUserName] = useState('superadmin@test.com');
     const [password, setPassword] = useState('123456');
-    const [ajxRequesting, setAjxRequesting] = useState(false)
+    const [ajxRequesting, setAjxRequesting] = useState(false);
+    const [inputType, setInputType] = useState(false);
 
     const login = () => {
         setAjxRequesting(true);
@@ -45,7 +46,9 @@ export default function Login() {
                         prefix={<LockOutlined className="site-form-item-icon" />}
                         value={password}
                         onChange={(e) => { setPassword(e.target.value) }}
-                        type="password"
+                        type={!inputType ? "password" : "text"}
+                        suffix={<Button type="primary1" shape="circle" icon={<EyeOutlined />} onClick={()=>setInputType(!inputType)} />
+                        }
                         placeholder="Password" />
                     <Button className="login-form-button w-100" type="primary" onClick={login}>Log in</Button>
                 </div>
