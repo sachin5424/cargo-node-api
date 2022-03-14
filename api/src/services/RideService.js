@@ -2,6 +2,7 @@ import { clearSearch } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
 import RideTypeModel from "../data-base/models/rideTypeModel";
+import mongoose from "mongoose";
 
 export default class Service {
 
@@ -28,12 +29,15 @@ export default class Service {
                         name: { $regex: '.*' + query?.key + '.*' }
                     },
                     {
-                        slug: { $regex: '.*' + query?.key + '.*' }
+                        key: { $regex: '.*' + query?.key + '.*' }
                     },
                 ],
+                serviceType: query.serviceType ? mongoose.Types.ObjectId(query.serviceType) : ''
             };
 
             clearSearch(search);
+
+            console.log(search);
 
             const $aggregate = [
                 { $match: search },
@@ -53,7 +57,22 @@ export default class Service {
                             }
                         ]
                     },
-
+                },
+                {
+                    $lookup: {
+                        from: "vehiclecategories",
+                        localField: "allowedVehicleCategories",
+                        foreignField: "_id",
+                        as: "allowedVehicleCategoriesTitles",
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1,
+                                    _id: 0,
+                                }
+                            },
+                        ]
+                    }
                 },
                 {
                     $unwind: "$serviceType"
@@ -61,10 +80,11 @@ export default class Service {
                 {
                     "$project": {
                         name: 1,
-                        key: 1,
+                        // key: 1,
                         isActive: 1,
                         serviceType: 1,
-                        // serviceType: 1,
+                        allowedVehicleCategories: 1,
+                        allowedVehicleCategoriesTitles: 1,
                         image: {
                             url: { $concat: [config.applicationFileUrl + 'ride/type/', "$photo"] },
                             name: "$photo"
@@ -105,11 +125,13 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            const tplData = _id ? await RideTypeModel.findById(_id) : new RideTypeModel();
+            // const tplData = _id ? await RideTypeModel.findById(_id) : new RideTypeModel();
+            const tplData = await RideTypeModel.findById(_id);
 
             (data._id || (tplData.serviceType = data.serviceType));
             tplData.name = data.name;
-            tplData.key = data.key;
+            // tplData.key = data.key;
+            tplData.allowedVehicleCategories = data.allowedVehicleCategories;
             tplData.photo = await uploadFile(data.photo, config.uploadPaths.ride.type, RideTypeModel, 'photo', _id);
             tplData.isActive = data.isActive;
 

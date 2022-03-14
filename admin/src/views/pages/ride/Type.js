@@ -5,10 +5,11 @@ import { Button, Input, Modal, Tag, Spin, Image } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/ride";
-import { AntdMsg } from "../../../utils/Antd";
+import { AntdMsg, MultiChechBox } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import util from "../../../utils/util";
 import commonService from "../../../services/common";
+import vehicleService from "../../../services/vehicle";
 
 export const modules = {
     view: util.getModules('viewRideType'),
@@ -29,6 +30,7 @@ export default function Type() {
     const [loading, setLoading] = useState(true);
     const [serviceType, setServiceType] = useState([]);
     const [filters, setFilters] = useState([]);
+    const [vehicleCategories, setVehicleCategories] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
@@ -42,6 +44,24 @@ export default function Type() {
         {
             title: 'Name',
             dataIndex: 'name',
+            width: 200,
+        },
+        {
+            title: 'Allowed Vehicle Categories',
+            dataIndex: 'allowedVehicleCategoriesTitles',
+            render: (data, row) => (
+                data.map((v, i) => {
+                    return <Tag color={
+                        i % 4 === 0
+                            ? 'blue'
+                            : i % 4 === 1
+                                ? 'gold'
+                                : i % 4 === 2
+                                    ? 'cyan'
+                                    : 'pink'
+                    } key={i}>{v.name}</Tag>
+                })
+            )
         },
         {
             title: 'Service Type',
@@ -144,7 +164,8 @@ export default function Type() {
 
     useEffect(() => {
         list();
-        commonService.listServiceType().then(res=>{setServiceType(res.result.data);})
+        commonService.listServiceType().then(res=>{setServiceType(res.result.data);});
+        vehicleService.listAllCategory({}, 'viewVehicleCategory').then(res=>{setVehicleCategories(res.result.data);});
     }, []);
 
     useEffect(()=>{
@@ -164,15 +185,15 @@ export default function Type() {
                 <span>Ride Type List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, filters, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
+                <MyTable {...{ data, columns, parentSData: sdata, filters, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: false }} />
             </div>
-            <AddForm ref={formRef} {...{ list, serviceType }} />
+            <AddForm ref={formRef} {...{ list, serviceType, vehicleCategories }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, serviceType } = props;
+    const { list, serviceType, vehicleCategories } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -241,7 +262,7 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
-                                <div className="col-md-4 form-group">
+                                <div className="col-md-6 form-group">
                                     <label className="req">Service Type</label>
                                     <AntdSelect
                                         options={serviceType}
@@ -250,13 +271,14 @@ const AddForm = forwardRef((props, ref) => {
                                         onChange={v => { /*handleChange(v, 'serviceType')*/ }}
                                     />
                                 </div>
-                                <div className="col-md-4 form-group">
+                                <div className="col-md-6 form-group">
                                     <label className="req">Name</label>
                                     <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} />
                                 </div>
-                                <div className="col-md-4 form-group">
-                                    <label className="req">Key</label>
-                                    <Input value={data.key || ''} disabled={true} onChange={e => { /* handleChange(util.removeSpecialChars(e.target.value), 'key'); */}} />
+                                <div className="col-md-12 form-group">
+                                    <label className="req">Service Type</label>
+                                    <MultiChechBox options={vehicleCategories} value={data.allowedVehicleCategories} onChange={v => { (!v?.length || handleChange(v, 'allowedVehicleCategories')) }} />
+
                                 </div>
                                 <div className="col-md-12 form-group">
                                     <label className="req">Image</label>
@@ -264,7 +286,7 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div></div>
 
-                                <div className="col-md-12 form-group">
+                                <div className="col-md-4 form-group">
                                     <label className="req">Status</label>
                                     <AntdSelect
                                         options={[{ value: true, label: "Active" }, { value: false, label: "Inactive" }]}

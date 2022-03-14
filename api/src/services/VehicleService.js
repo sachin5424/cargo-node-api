@@ -139,10 +139,10 @@ export default class Service {
                 isDeleted: false,
                 $or: [
                     {
-                        name: { $regex: '.*' + query?.key + '.*' }
+                        name: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                     {
-                        slug: { $regex: '.*' + query?.key + '.*' }
+                        slug: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
             };

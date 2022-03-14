@@ -1,6 +1,6 @@
 import axios from "../utils/axios";
 
-export default class profile {
+export default class vehicle {
     static baseURL = 'vehicle/';
 
     static listCategory(data, module) {

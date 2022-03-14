@@ -87,7 +87,7 @@ const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder,
                                     <React.Fragment key={i}>
                                         {
                                             v.type === 'dropdown'
-                                                ? <AntdSelect style={v.style} className={v?.className} options={v.options} value={sdata?.[v.key] || ''} onChange={value => { handleSData(value, v.key) }} />
+                                                ? <AntdSelect style={v.style} className={v?.className} allowClear={true} options={v.options} value={sdata?.[v.key] || ''} onChange={value => { handleSData(value, v.key) }} />
                                                 : null
                                         }
                                     </React.Fragment>

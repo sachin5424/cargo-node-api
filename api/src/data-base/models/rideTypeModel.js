@@ -4,6 +4,10 @@ const rideTypeScheam = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "serviceType",
     },
+    allowedVehicleCategories: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "vehicleCategory",
+    }],
     name: String,
     key: String,
     photo: String,
