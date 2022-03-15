@@ -6,22 +6,20 @@ const VehicleSchema = new Schema({
         ref: "serviceType",
     },
     name: String,
-    photo: String,
     vehicleNumber: String,
     availableSeats: Number,
-
-    // owner: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'vehicleOwner',
-    // },
+    availableCapacity: Number,
+    
     driver: {
         type: Schema.Types.ObjectId,
         ref: 'driver',
     },
-    vehicleType: {
+    vehicleCategory: {
         type: Schema.Types.ObjectId,
         ref: 'vehicleType',
     },
+    primaryPhoto: String,
+    otherPhotos: [{type: String}],
     state: {
         type: Schema.Types.ObjectId,
         ref: "state",

@@ -75,6 +75,7 @@ const UploadImage = forwardRef((props, ref) => {
                         handleChange(value)
                     }
                 }}
+                // multiple={fileCount > 1 ? true : false}
                 onRemove={(e) => {
                     if (!fileRef.current.deletingFiles) {
                         fileRef.current.deletingFiles = [];

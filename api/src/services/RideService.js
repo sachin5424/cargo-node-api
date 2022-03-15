@@ -26,10 +26,10 @@ export default class Service {
                 isDeleted: false,
                 $or: [
                     {
-                        name: { $regex: '.*' + query?.key + '.*' }
+                        name: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                     {
-                        key: { $regex: '.*' + query?.key + '.*' }
+                        key: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
                 serviceType: query.serviceType ? mongoose.Types.ObjectId(query.serviceType) : ''
@@ -63,12 +63,12 @@ export default class Service {
                         from: "vehiclecategories",
                         localField: "allowedVehicleCategories",
                         foreignField: "_id",
-                        as: "allowedVehicleCategoriesTitles",
+                        as: "allowedVehicleCategoriesDetails",
                         pipeline: [
                             {
                                 $project: {
                                     name: 1,
-                                    _id: 0,
+                                    _id: 1,
                                 }
                             },
                         ]
@@ -84,7 +84,7 @@ export default class Service {
                         isActive: 1,
                         serviceType: 1,
                         allowedVehicleCategories: 1,
-                        allowedVehicleCategoriesTitles: 1,
+                        allowedVehicleCategoriesDetails: 1,
                         image: {
                             url: { $concat: [config.applicationFileUrl + 'ride/type/', "$photo"] },
                             name: "$photo"

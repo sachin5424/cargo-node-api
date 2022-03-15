@@ -48,7 +48,7 @@ export default function Type() {
         },
         {
             title: 'Allowed Vehicle Categories',
-            dataIndex: 'allowedVehicleCategoriesTitles',
+            dataIndex: 'allowedVehicleCategoriesDetails',
             render: (data, row) => (
                 data.map((v, i) => {
                     return <Tag color={

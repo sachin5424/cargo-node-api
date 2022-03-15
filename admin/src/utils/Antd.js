@@ -23,7 +23,7 @@ export function AntdSelect(props) {
         ...rest
     } = props;
 
-    if(!options.length>0){
+    if (!options.length > 0) {
         value = defaultValue;
     }
 
@@ -38,7 +38,7 @@ export function AntdSelect(props) {
     //     let ops = [...options];
     //     options = [];
     //     for (let ind in ops) {
-            // options.push({ value: ops[ind], label: ops[ind] });
+    // options.push({ value: ops[ind], label: ops[ind] });
     //     }
     // }
     if (typeof options[0]?.value === "undefined") {
@@ -93,7 +93,7 @@ export function AntdDatepicker(props) {
     let otherProps = {};
     if (typeof value !== "undefined") {
         // otherProps.value = moment(value).format(format || 'DD MMM YYYY') ? moment(new Date(value)) : null
-        otherProps.value = moment(new Date(value?value:new Date()), format || 'DD MMM YYYY');
+        otherProps.value = moment(new Date(value ? value : new Date()), format || 'DD MMM YYYY');
     }
     if (typeof defaultValue !== "undefined") {
         otherProps.defaultValue = defaultValue ? moment(new Date(defaultValue)) : null
@@ -103,7 +103,7 @@ export function AntdDatepicker(props) {
             onChange(dt ? moment(dt).format('YYYY-MM-DD') : null);
         }
     }
-    useEffect(()=>{
+    useEffect(() => {
         onChange(moment(value).format('YYYY-MM-DD'))
     }, [])
 
@@ -175,6 +175,7 @@ export function AntdCheckbox(props) {
 
 
 export function MultiChechBox(props) {
+    const { col = 3 } = props;
     const type = typeof props.value === 'object' ? 'array' : 'string';
 
     let [values, setValues] = useState();
@@ -203,13 +204,13 @@ export function MultiChechBox(props) {
     }, [props.value]);
 
     useEffect(() => {
-        let opts = props.options.map((v, i)=>{
+        let opts = props.options.map((v, i) => {
             if (v.value) {
                 return { value: v.value * 1, label: v.label }
             } else if (v.id) {
                 return { value: v.id * 1, label: v.name || v.title || v.label }
             } else if (v._id) {
-                return { value: v._id + '' , label: v.name || v.title || v.label }
+                return { value: v._id + '', label: v.name || v.title || v.label }
             }
             return null;
         });
@@ -220,7 +221,7 @@ export function MultiChechBox(props) {
         // if (type === 'string') {
         //     props.onChange(values?.join());
         // } else {
-            props.onChange(values)
+        props.onChange(values)
         // }
     }, [(values || []).join(",")])
 
@@ -228,7 +229,7 @@ export function MultiChechBox(props) {
         <div className="row mingap" >
             {
                 options.map((v, i) => (
-                    <div className="col-md-3 mb-2 form-group" key={i}>
+                    <div className={`col-md-${col} mb-2 form-group`} key={i}>
                         <div className="border p-1">
                             <Checkbox
                                 value={typeof v.value * 1 !== 'NaN' ? v.value + '' : v.value * 1}
@@ -329,7 +330,7 @@ const UploadImage = forwardRef((props, ref) => {
                 fileList={fileList}
                 onPreview={handlePreview}
                 onChange={(value) => {
-                    if (value.file.status === 'removed' || value.file.status ) {
+                    if (value.file.status === 'removed' || value.file.status) {
                         handleChange(value)
                     }
                 }}

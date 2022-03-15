@@ -7,6 +7,7 @@ import { formValidation } from "../../../middleware/others";
 const router = Router({ mergeParams: true });
 
 router.get('/type/list', checkRideTypeListAccess, TypeConteroller.list);
+router.get('/type/list/:isAll', checkRideTypeListAccess, TypeConteroller.list);
 router.post('/type/save',  checkRideTypeSaveAccess, rideTypeValidation, formValidation, TypeConteroller.save);
 router.delete("/type/delete/:id", CheckRideTypeDeleteAccess,  TypeConteroller.delete);
 
