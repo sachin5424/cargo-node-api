@@ -228,72 +228,73 @@ export default class Service {
     }
 
 
-    static async listVehicle(query) {
+    static async listVehicle(query, params) {
+        const isAll = params.isAll === 'ALL';
         const response = {
             statusCode: 400,
             message: 'Data not found!',
-            data: {
-                docs: [],
+            result: {
+                data: [],
                 page: query.page * 1 > 0 ? query.page * 1 : 1,
                 limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
-                totalDocs: 0,
+                total: 0,
             },
             status: false
         };
 
         try {
-            const search = { _id: query._id, isDeleted: false};
+            const search = {
+                _id: query._id,
+                isDeleted: false,
+                $or: [
+                    {
+                        name: { $regex: '.*' + (query?.key || '') + '.*' }
+                    },
+                    {
+                        vehicleNumber: { $regex: '.*' + (query?.key || '') + '.*' }
+                    },
+                ],
+            };
+            
             clearSearch(search);
-            const driverFilter ={isDeleted: false, ...getAdminFilter()};
-            clearSearch(driverFilter);
 
             const $aggregate = [
-                {
-                    $match: search
-                },
-                {
-                    $lookup: {
-                        from: 'drivers',
-                        localField: 'driver',
-                        foreignField: '_id',
-                        as: 'driver',
-                        pipeline: [
-                            {
-                                $match: driverFilter
-                            },
-                        ],
-                    }
-                },
-                {
-                    $unwind: "$driver"
-                },
-                {
-                    $addFields: {
-                        "driverFirstName": "$driver.firstName", "driverLastName": "$driver.lastName", "driverState": "$driver.state"
-                    }
-                },
+                { $match: search },
+                { $sort: { _id: -1 } },
                 {
                     "$project": {
-                        "driver": 0,
+                        serviceType: 1,
+                        rideTypes: 1,
+                        vehicleCategory: 1,
+                        name: 1,
+                        vehicleNumber: 1,
+                        availableSeats: 1,
+                        availableCapacity: 1,
+                        isActive: 1,
+                        image: {
+                            url: { $concat: [config.applicationFileUrl + 'vehicle/photo/', "$primaryPhoto"] },
+                            name: "$primaryPhoto"
+                        }
                     }
                 },
             ];
 
 
+            const counter = await VehicleModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if(isAll){
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
 
-            response.data.docs = await VehicleModel.aggregate(
+            response.result.data = await VehicleModel.aggregate(
                 [
                     ...$aggregate,
-                    { $limit: response.data.limit + response.data.limit * (response.data.page - 1) },
-                    { $skip: response.data.limit * (response.data.page - 1) }
-                ])
-                .then(async function (data) {
-                    await VehicleModel.aggregate([...$aggregate, { $count: "totalDocs" }]).then(count => { response.data.totalDocs = count[0].totalDocs }).catch(err => { response.data.totalDocs = 0 })
-                    return data;
-                })
-                .catch(err => { throw new Error(err.message) })
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ]);
 
-            if (response.data.docs.length) {
+            if (response.result.data.length) {
                 response.message = "Data fetched";
             }
             response.statusCode = 200;
@@ -304,6 +305,7 @@ export default class Service {
         } catch (e) {
             throw new Error(e)
         }
+
     }
     static async saveVehicle(data) {
         const _id = data._id;
@@ -312,13 +314,13 @@ export default class Service {
         try {
             const tplData = _id ? await VehicleModel.findById(_id) : new VehicleModel();
 
+            tplData.serviceType = data.serviceType;
+            tplData.rideTypes = data.rideTypes;
+            tplData.vehicleCategory = data.vehicleCategory;
             tplData.name = data.name;
-            tplData.photo = await uploadFile(data.photo, config.uploadPaths.vehicle.photo, VehicleModel, 'photo', _id);
+            tplData.primaryPhoto = await uploadFile(data.primaryPhoto, config.uploadPaths.vehicle.photo, VehicleModel, 'primaryPhoto', _id);
             tplData.vehicleNumber = data.vehicleNumber;
             tplData.availableSeats = data.availableSeats;
-            // tplData.owner = data.owner;
-            tplData.driver = data.driver;
-            tplData.vehicleType = data.vehicleType;
             tplData.isActive = data.isActive;
 
             await tplData.save();

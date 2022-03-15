@@ -45,8 +45,8 @@ export default function Vehicle() {
             dataIndex: 'name',
         },
         {
-            title: 'Slug',
-            dataIndex: 'slug',
+            title: 'Vehicle Number',
+            dataIndex: 'vehicleNumber',
             width: 200,
         },
         {
@@ -128,7 +128,7 @@ export default function Vehicle() {
     }
 
     const deleteConfirm = (id) => {
-        service.deleteCategory(id, deleteAccess).then(res => {
+        service.delete(id, deleteAccess).then(res => {
             AntdMsg(res.message);
             list();
         }).catch(err => {
@@ -214,8 +214,10 @@ const AddForm = forwardRef((props, ref) => {
     }, [rideTypes, data.rideTypes]);
 
     useEffect(() => {
-        const flagUpdate = vehicleCategories?.filter(v => v._id === data.vehicleCategory);
-        if (flagUpdate?.length === 0) { handleChange('', 'vehicleCategory'); }
+        if(Array.isArray(vehicleCategories) && vehicleCategories.length > 0){
+            const flagUpdate = vehicleCategories?.filter(v => v._id === data.vehicleCategory);
+            if (flagUpdate?.length === 0) { handleChange('', 'vehicleCategory'); }
+        }
     }, [vehicleCategories]);
 
     const save = () => {
@@ -224,7 +226,7 @@ const AddForm = forwardRef((props, ref) => {
         data.primaryPhoto = primaryImgRef?.current?.uploadingFiles?.[0]?.base64;
         data.otherPhotos = otherImgRef?.current?.uploadingFiles?.map(v=>v.base64);
         data.deletingFiles = otherImgRef?.current?.deletingFiles;
-        service.saveCategory(data, data._id ? editAccess : addAccess).then((res) => {
+        service.save(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -277,7 +279,7 @@ const AddForm = forwardRef((props, ref) => {
                                     vehicleCategories?.length
                                         ? <div className="col-md-3 form-group">
                                             <label className="req">Vehicle Categories</label>
-                                            <AntdSelect options={vehicleCategories} value={data.vehicleCategory || ''} onChange={v => { handleChange(v, 'vehicleCategory') }} />
+                                            <AntdSelect options={vehicleCategories} value={ data.vehicleCategory || ''} onChange={v => { handleChange(v, 'vehicleCategory') }} />
                                         </div>
                                         : null
                                 }
@@ -309,7 +311,7 @@ const AddForm = forwardRef((props, ref) => {
                                     <UploadImage ref={otherImgRef} {...{ fileCount: 4, files: data.image ? [data.image] : [] }} />
                                 </div>
                                 <div></div>
-                                <div className="col-md-12 form-group">
+                                <div className="col-md-4 form-group">
                                     <label className="req">Status</label>
                                     <AntdSelect
                                         options={[{ value: true, label: "Active" }, { value: false, label: "Inactive" }]}

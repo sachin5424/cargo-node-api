@@ -1,4 +1,3 @@
-import { validationResult } from 'express-validator';
 import Service from '../../../services/VehicleService';
 // import { VehicalCategorieModel } from '../../../data-base/index';
 // import { createData, listPaginate } from '../../../services/test';

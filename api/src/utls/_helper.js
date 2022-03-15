@@ -109,6 +109,16 @@ export async function uploadFile(dataBase64, path, model, key, _id) {
     }
 }
 
+export async function uploadMultipleFile(dataBase64Array, path, model, key, _id) {
+    if(Array.isArray(dataBase64Array) && Array.length > 0){
+        const prms = dataBase64Array.map(async (v)=> {
+            return uploadFile(v, path, model);
+        });
+
+        
+    }
+}
+
 export function encryptData(text) {
     let iv = crypto.randomBytes(Config.crypto.ivLength);
     let cipher = crypto.createCipheriv(Config.crypto.algorithm, Buffer.from(Config.crypto.encryptionKey, 'hex'), iv);
