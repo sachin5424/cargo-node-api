@@ -115,7 +115,7 @@ export default function Vehicle() {
             data = sdata;
         }
         setLoading(true);
-        service.listCategory(data, viewAccess).then(res => {
+        service.list(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });

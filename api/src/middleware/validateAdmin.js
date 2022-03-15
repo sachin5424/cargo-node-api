@@ -72,10 +72,6 @@ export const checkAdminPermission = async (req, res, next, module, fillSDTValues
                         req.body[idKeys[0]] = cuser.state;
                         req.body[idKeys[1]] = cuser.district;
                         req.body[idKeys[2]] = cuser.taluk;
-                    } else if (cuser.type === 'vehicleOwner') {
-                        req.body[idKeys[0]] = cuser.state;
-                        req.body[idKeys[1]] = cuser.district;
-                        req.body[idKeys[2]] = cuser.taluk;
                     }
                 }
             }
