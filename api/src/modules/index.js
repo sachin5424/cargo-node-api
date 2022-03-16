@@ -1,22 +1,22 @@
 import { jwtTokenPermission } from '../middleware/jwtToken';
-// import { validateSuperAdmin } from '../middleware/validateAdmin';
+import { validateSuperAdmin } from '../middleware/validateAdmin';
 import routerVehicle from './admin/vehicle/route';
 import routerUser from './admin/user/route';
-// import routerPermission from './admin/permission/route';
-// import routerTrip from './admin/trip/route';
-// import routerDriver from './admin/driver/route';
+import routerPermission from './admin/permission/route';
+import routerTrip from './admin/trip/route';
+import routerDriver from './admin/driver/route';
 import routerCommon from './admin/common/route';
-// import routerCustomer from './admin/customer/route';
-// import routerOnlyAdmin from './admin/onlyAdmin/route';
+import routerCustomer from './admin/customer/route';
+import routerOnlyAdmin from './admin/onlyAdmin/route';
 import routerRide from './admin/ride/route';
 
 
-// import routerCUser from './customers/user/route';
+import routerCUser from './customers/user/route';
 
 
-// import routerDUser from './driver/user/route';
+import routerDUser from './driver/user/route';
 
-// import routerSDT from './admin/sdt/route';
+import routerSDT from './admin/sdt/route';
 
 const api = (app) => {
     app.use('*', (req, res, next) => {
@@ -46,19 +46,19 @@ const api = (app) => {
 
     app.use('/admin/vehicle', routerVehicle);
     app.use('/admin/user', routerUser);
-    // app.use('/admin/permission', routerPermission);
-    // app.use('/admin/trip', routerTrip);
-    // app.use('/admin/driver', jwtTokenPermission, routerDriver);
+    app.use('/admin/permission', routerPermission);
+    app.use('/admin/trip', routerTrip);
+    app.use('/admin/driver', jwtTokenPermission, routerDriver);
     app.use('/admin/common', routerCommon);
-    // app.use('/admin/customer', routerCustomer);
-    // app.use('/admin/sdt', routerSDT);
-    // app.use('/admin/adm', jwtTokenPermission, validateSuperAdmin, routerOnlyAdmin);
+    app.use('/admin/customer', routerCustomer);
+    app.use('/admin/sdt', routerSDT);
+    app.use('/admin/adm', jwtTokenPermission, validateSuperAdmin, routerOnlyAdmin);
     app.use('/admin/ride', jwtTokenPermission, routerRide);
 
-    // app.use('/customer/user', routerCUser);
+    app.use('/customer/user', routerCUser);
 
 
-    // app.use('/driver/user', routerDUser);
+    app.use('/driver/user', routerDUser);
 };
 
 export default api;
