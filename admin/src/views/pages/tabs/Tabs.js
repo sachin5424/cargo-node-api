@@ -3,13 +3,11 @@ import React, { forwardRef, useState, useEffect } from "react";
 import { useHistory, } from "react-router-dom";
 import { Tabs } from "antd";
 import util from "../../../utils/util";
-import Vehicle from "./Vehicle";
-import Category from "./Category";
+import Module from "./Module";
 
 
 const components = [
-    { component: Vehicle, name: 'Vehicle', key: 'vehicle' },
-    { component: Category, name: 'Category', key: 'category' },
+    { component: Module, name: 'Module', key: 'module' },
 ];
 
 

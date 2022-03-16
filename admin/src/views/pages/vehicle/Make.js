@@ -1,21 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Input, Modal, Tag, Spin, Image } from "antd";
+import { Button, Popconfirm, Input, Modal, Tag, Spin } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
-import { EditOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
-import service from "../../../services/ride";
-import { AntdMsg, MultiChechBox } from "../../../utils/Antd";
-import UploadImage from "../../components/UploadImage";
+import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
+import service from "../../../services/vehicle";
+import { AntdMsg } from "../../../utils/Antd";
 import util from "../../../utils/util";
-import commonService from "../../../services/common";
-import vehicleService from "../../../services/vehicle";
 
 export const modules = {
-    view: util.getModules('viewRideType'),
-    add: util.getModules('addRideType'),
-    edit: util.getModules('editRideType'),
-    delete: util.getModules('deleteRideType'),
+    view: util.getModules('viewMake'),
+    add: util.getModules('addMake'),
+    edit: util.getModules('editMake'),
+    delete: util.getModules('deleteMake'),
 };
 
 const viewAccess = modules.view;
@@ -24,56 +21,22 @@ const editAccess = modules.edit;
 const deleteAccess = modules.delete;
 
 
-export default function Type() {
+export default function Make() {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [serviceType, setServiceType] = useState([]);
-    const [filters, setFilters] = useState([]);
-    const [vehicleCategories, setVehicleCategories] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
-            title: 'Image',
-            dataIndex: 'image',
-            width: 100,
-            render: (v) => (<Image height={30} preview={{ mask: "View" }} src={v?.url} />)
-        },
-        {
             title: 'Name',
             dataIndex: 'name',
+        },
+        {
+            title: 'Key',
+            dataIndex: 'key',
             width: 200,
-        },
-        {
-            title: 'Allowed Vehicle Categories',
-            dataIndex: 'allowedVehicleCategoriesDetails',
-            render: (data, row) => (
-                data.map((v, i) => {
-                    return <Tag color={
-                        i % 4 === 0
-                            ? 'blue'
-                            : i % 4 === 1
-                                ? 'gold'
-                                : i % 4 === 2
-                                    ? 'cyan'
-                                    : 'pink'
-                    } key={i}>{v.name}</Tag>
-                })
-            )
-        },
-        {
-            title: 'Service Type',
-            dataIndex: 'serviceType',
-            width: 100,
-            render: serviceType => {
-                if (serviceType.key === 'cargo') {
-                    return <Tag color="magenta">{serviceType.name}</Tag>
-                } else {
-                    return <Tag color="orange">{serviceType.name}</Tag>
-                }
-            },
         },
         {
             title: 'Status',
@@ -89,13 +52,13 @@ export default function Type() {
         },
         {
             title: 'Action',
-            width: 60,
+            width: 90,
             hidden: !addAccess && !editAccess && !deleteAccess && !viewAccess,
             render: (text, row) => (
                 <>
                     {
                         editAccess
-                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm({serviceType: sdata?.serviceType, ...text }) }}>
+                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
                                 <span className="d-flex">
                                     <EditOutlined />
                                 </span>
@@ -105,7 +68,7 @@ export default function Type() {
 
                     {
                         !editAccess && viewAccess
-                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm({serviceType: sdata?.serviceType, ...text }) }}>
+                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
                                 <span className="d-flex">
                                     <EyeOutlined />
                                 </span>
@@ -113,12 +76,12 @@ export default function Type() {
                             : null
                     }
 
-                    {/* {
+                    {
                         deleteAccess
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this ride type?"
+                                        title="Are you sure to delete this make?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -128,7 +91,7 @@ export default function Type() {
                                 </span>
                             </Button>
                             : null
-                    } */}
+                    }
 
 
                 </>
@@ -141,7 +104,7 @@ export default function Type() {
             data = sdata;
         }
         setLoading(true);
-        service.listRideType(data, viewAccess).then(res => {
+        service.listMake(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -153,47 +116,34 @@ export default function Type() {
         })
     }
 
-    // const deleteConfirm = (id) => {
-    //     service.deleteRideType(id, deleteAccess).then(res => {
-    //         AntdMsg(res.message);
-    //         list();
-    //     }).catch(err => {
-    //         AntdMsg(err.message, 'error');
-    //     })
-    // }
+    const deleteConfirm = (id) => {
+        service.deleteMake(id, deleteAccess).then(res => {
+            AntdMsg(res.message);
+            list();
+        }).catch(err => {
+            AntdMsg(err.message, 'error');
+        })
+    }
 
     useEffect(() => {
         list();
-        commonService.listServiceType().then(res=>{setServiceType(res.result.data);});
-        vehicleService.listAllCategory({}, 'viewVehicleCategory').then(res=>{setVehicleCategories(res.result.data);});
     }, []);
-
-    useEffect(()=>{
-        setFilters([
-            {
-                type: 'dropdown',
-                key: 'serviceType',
-                className: "w200 mx-1",
-                options: serviceType
-            }
-        ]);
-    }, [serviceType]);
 
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Ride Type List</span>
+                <span>Make List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, filters, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: false }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, serviceType, vehicleCategories }} />
+            <AddForm ref={formRef} {...{ list }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, serviceType, vehicleCategories } = props;
+    const { list } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -221,12 +171,12 @@ const AddForm = forwardRef((props, ref) => {
 
     const handleChange = (v, k) => { setData({ ...data, [k]: v }); }
 
-    // useEffect(() => { handleChange(util.removeSpecialChars(data.name || ''), 'key'); }, [data.name]);
+    useEffect(() => { handleChange(util.removeSpecialChars(data.name || ''), 'key'); }, [data.name]);
 
     const save = () => {
         setAjxRequesting(true);
         data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
-        service.saveRideType(data, data._id ? editAccess : addAccess).then((res) => {
+        service.saveMake(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -246,7 +196,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Ride Type'}
+                title={(!data._id ? 'Add' : 'Edit') + ' Make'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -255,38 +205,22 @@ const AddForm = forwardRef((props, ref) => {
                 onCancel={() => { handleVisible(false); }}
                 destroyOnClose
                 maskClosable={false}
-                width={1200}
+                width={400}
                 className="app-modal-body-overflow"
             >
                 <Spin spinning={ajxRequesting} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
-                                <div className="col-md-6 form-group">
-                                    <label className="req">Service Type</label>
-                                    <AntdSelect
-                                        options={serviceType}
-                                        value={data?.serviceType?._id}
-                                        disabled={data._id}
-                                        onChange={v => { /*handleChange(v, 'serviceType')*/ }}
-                                    />
-                                </div>
-                                <div className="col-md-6 form-group">
+                                <div className="col-md-12 form-group">
                                     <label className="req">Name</label>
                                     <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} />
                                 </div>
                                 <div className="col-md-12 form-group">
-                                    <label className="req">Vehicle Categories</label>
-                                    <MultiChechBox options={vehicleCategories} value={data.allowedVehicleCategories} onChange={v => { (!v?.length || handleChange(v, 'allowedVehicleCategories')) }} />
-
+                                    <label className="req">Key</label>
+                                    <Input value={data.key || ''} onChange={e => handleChange(util.removeSpecialChars(e.target.value), 'key')} />
                                 </div>
                                 <div className="col-md-12 form-group">
-                                    <label className="req">Image</label>
-                                    <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
-                                </div>
-                                <div></div>
-
-                                <div className="col-md-4 form-group">
                                     <label className="req">Status</label>
                                     <AntdSelect
                                         options={[{ value: true, label: "Active" }, { value: false, label: "Inactive" }]}

@@ -3,6 +3,108 @@ import VehicleModel from '../data-base/models/vehicle';
 import VehicleCategoryModel from '../data-base/models/vehicaleCategoryModel';
 import ServiceTypeModel from '../data-base/models/serviceType';
 import RideTypeModel from '../data-base/models/rideTypeModel';
+import MakeModel from '../data-base/models/make';
+import MakeModelModel from '../data-base/models/makeModel';
+
+export const MakeValidation = [
+
+    check('_id')
+        .optional()
+        .notEmpty().withMessage("Provide / Select a valid data")
+        .custom(async (v) => {
+            try {
+                const r = await MakeModel.findById(v);
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("This data does not exit. Please check or refresh");
+            }
+        }),
+
+    check('name')
+        .notEmpty().withMessage("The 'name' field is required")
+        .isString().withMessage("The 'name' field is not valid"),
+
+
+    check('key')
+        .notEmpty().withMessage("The 'key' field is required")
+        .isSlug().withMessage("The 'key' field is not valid")
+        .custom(async (value, { req }) => {
+            const body = req.body;
+            const result = await MakeModel.findOne({ isDeleted: false, key: value });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A make already exist with this key");
+                    }
+                } else {
+                    throw new Error("A make already exist with this key");
+                }
+            }
+        }),
+
+    check('isActive').
+        notEmpty().withMessage("The 'active' field is required")
+        .toBoolean(1 ? true : false),
+];
+
+export const MakeModelValidation = [
+
+    check('_id')
+        .optional()
+        .notEmpty().withMessage("Provide / Select a valid data")
+        .custom(async (v) => {
+            try {
+                const r = await MakeModelModel.findById(v);
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("This data does not exit. Please check or refresh");
+            }
+        }),
+
+    check('make')
+        .notEmpty().withMessage("'Make' field is required")
+        .custom(async (value) => {
+            try {
+                const result = await MakeModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("'Make' field is not valid");
+            }
+        }),
+
+    check('name')
+        .notEmpty().withMessage("The 'name' field is required")
+        .isString().withMessage("The 'name' field is not valid"),
+
+
+    check('key')
+        .notEmpty().withMessage("The 'key' field is required")
+        .isSlug().withMessage("The 'key' field is not valid")
+        .custom(async (value, { req }) => {
+            const body = req.body;
+            const result = await MakeModelModel.findOne({ isDeleted: false, key: value });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A make model already exist with this key");
+                    }
+                } else {
+                    throw new Error("A make model already exist with this key");
+                }
+            }
+        }),
+
+    check('isActive').
+        notEmpty().withMessage("The 'active' field is required")
+        .toBoolean(1 ? true : false),
+];
+
 
 export const vehicleCategoryValidation = [
 
@@ -126,7 +228,7 @@ export const vehicleValidation = [
     check('primaryPhoto')
         .custom((v, { req }) => {
             if (!req.body._id) {
-                if (!req.body.photo) {
+                if (!req.body.primaryPhoto) {
                     throw new Error("The 'Primary Photo' field is required");
                 }
             }
@@ -139,7 +241,7 @@ export const vehicleValidation = [
         .optional()
         .isArray().withMessage("Other photo field is not valid")
         .custom((value) => {
-            const temp = value.find(v=>{
+            const temp = value?.find(v=>{
                 return !v.match(/data:image\/[^;]+;base64[^"]+/)
             });
             if(temp?.length){
@@ -147,7 +249,7 @@ export const vehicleValidation = [
             } else{
                 return true;
             }
-        }),//.withMessage("Other Photo is not an image"),
+        }),
         
     check('vehicleNumber')
         .notEmpty().withMessage("The 'Vehicle Number' field is required")

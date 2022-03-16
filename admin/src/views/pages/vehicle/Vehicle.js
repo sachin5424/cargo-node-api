@@ -92,7 +92,7 @@ export default function Vehicle() {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this admin?"
+                                        title="Are you sure to delete this vehicle?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -148,7 +148,7 @@ export default function Vehicle() {
                 <span>Vehicle List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, serviceType, rideTypes }} />
         </>

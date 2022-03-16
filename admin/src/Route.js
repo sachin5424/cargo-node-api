@@ -11,6 +11,10 @@ import Category, {modules as categoryModules} from './views/pages/vehicle/Catego
 import Vehicle, {modules as vehicleModules} from './views/pages/vehicle/Vehicle';
 import Type, {modules as typeModules} from './views/pages/ride/Type';
 import util from './utils/util';
+import Driver, {modules as driverModules} from './views/pages/driver/Driver';
+import Module from './views/pages/tabs/Module';
+import Make, {modules as makeModules} from './views/pages/vehicle/Make';
+import MakeModel, {modules as makeModelModules} from './views/pages/vehicle/MakeModel';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -24,13 +28,16 @@ Array.prototype.includesAny = function (arr = []) {
 const routes = {
     leftNav: [
         { name: 'Dashboard', icon: () => <DashboardOutlined />, url: '/', component: Dashboard },
+        { name: 'Modules', icon: () => <DashboardOutlined />, url: '/modules', component: Module },
         { name: 'Tabs', url: '/vehicles', icon: () => <CarOutlined />, component: TabsVehicle },
         {
             name: 'Vehicle',
             baseURL: '/vehicle',
-            modules: [categoryModules.view, vehicleModules.view],
+            modules: [makeModules.view, makeModelModules.view, categoryModules.view, vehicleModules.view ],
             icon: () => <CarOutlined />,
             subMenus: [
+                { name: 'Make', url: '/make', component: Make, modules: [makeModules.view] },
+                { name: 'Make Model', url: '/make-model', component: MakeModel, modules: [makeModelModules.view] },
                 { name: 'Vehicle', url: '/vehicle', component: Vehicle, modules: [vehicleModules.view] },
                 { name: 'Category', url: '/category', component: Category, modules: [categoryModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
@@ -44,6 +51,7 @@ const routes = {
                 { name: 'Type', url: '/type', component: Type, modules: [typeModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
+        { name: 'Drivers', url: '/drivers', icon: () => <TeamOutlined />, component: Driver, modules: [driverModules.view] },
         { name: 'Admins', url: '/users', icon: () => <TeamOutlined />, component: User, modules: [userModules.view] },
         { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer, modules: [customerModules.view] },
         { name: 'User Permissions', url: '/user-permissions', icon: () => <KeyOutlined />, component: AssignPermission },

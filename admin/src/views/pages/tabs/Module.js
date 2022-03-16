@@ -1,52 +1,48 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Modal, Tag, Spin } from "antd";
-import { MultiChechBox } from "../../../utils/Antd";
-import { EditOutlined, LoadingOutlined } from "@ant-design/icons";
+import { Button, Popconfirm, Input, Modal, Spin } from "antd";
+import { EditOutlined, DeleteOutlined, LoadingOutlined } from "@ant-design/icons";
+import service from "../../../services/onlyAdmin";
 import { AntdMsg } from "../../../utils/Antd";
-import admService from "../../../services/onlyAdmin";
 
-export default function AssignPermission() {
+export default function Module() {
 
     const [data, setData] = useState([]);
-    const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
-            title: 'User Type',
-            dataIndex: 'typeName',
-            width: 150,
+            title: 'Title',
+            dataIndex: 'title',
         },
         {
-            title: 'Granted Modules',
-            dataIndex: 'grantedModuleTitles',
-            render: (data, row) => (
-                data.map((v, i) => {
-                    return <Tag color={
-                        i % 4 === 0
-                            ? 'blue'
-                            : i % 4 === 1
-                                ? 'gold'
-                                : i % 4 === 2
-                                    ? 'cyan'
-                                    : 'pink'
-                    } key={row.grantedModules[i]}>{v.title}</Tag>
-                })
-            )
+            title: 'Key',
+            dataIndex: 'key',
+            width: 200,
         },
         {
             title: 'Action',
-            key: 'action',
-            width: 60,
+            width: 90,
             render: (text, row) => (
                 <>
                     <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(text) }}>
                         <span className="d-flex">
                             <EditOutlined />
+                        </span>
+                    </Button>
+                    <Button type="danger" size="small">
+                        <span className="d-flex">
+                            <Popconfirm
+                                title="Are you sure to delete this admin?"
+                                onConfirm={() => deleteConfirm(row._id)}
+                                okText="Yes"
+                                cancelText="No"
+                            >
+                                <DeleteOutlined />
+                            </Popconfirm>
                         </span>
                     </Button>
                 </>
@@ -59,7 +55,7 @@ export default function AssignPermission() {
             data = sdata;
         }
         setLoading(true);
-        admService.listAdminModules(data).then(res => {
+        service.listModules(data).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -71,29 +67,38 @@ export default function AssignPermission() {
         })
     }
 
+    const deleteConfirm = (id) => {
+        service.deleteModule(id).then(res => {
+            AntdMsg(res.message);
+            list();
+        }).catch(err => {
+            AntdMsg(err.message, 'error');
+        })
+    }
+
     useEffect(() => {
         list();
-        admService.listModulesAll().then(res => { setModules(res.result.data || []) });
     }, []);
 
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Customer List</span>
+                <span>Module List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: false }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Key' }} />
             </div>
-            <AddForm ref={formRef} {...{ list, modules }} />
+            <AddForm ref={formRef} {...{ list }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, modules } = props;
-    const [ajxRequesting, setAjxRequesting] = useState(false)
-    const [visible, setVisible] = useState(false)
+    const { list } = props;
+    const [ajxRequesting, setAjxRequesting] = useState(false);
+    const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
+    const imgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -101,7 +106,8 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            setData({ ...dt });
+            imgRef.current = {};
+            setData(dt ? { ...dt } : { isActive: true });
             handleVisible(true);
         }
     }));
@@ -110,7 +116,8 @@ const AddForm = forwardRef((props, ref) => {
 
     const save = () => {
         setAjxRequesting(true);
-        admService.saveAdminModules(data).then((res) => {
+        data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
+        service.saveModule(data).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -130,7 +137,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={'Add / Remove Modules'}
+                title={(!data._id ? 'Add' : 'Edit') + ' Module'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -139,23 +146,20 @@ const AddForm = forwardRef((props, ref) => {
                 onCancel={() => { handleVisible(false); }}
                 destroyOnClose
                 maskClosable={false}
-                width={1200}
+                width={400}
                 className="app-modal-body-overflow"
             >
                 <Spin spinning={ajxRequesting} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
-                        <fieldset>
+                        <fieldset className="">
                             <div className="row mingap">
-                                <div>
-                                    <div className="col-md-12 form-group">
-                                        <div className="d-flex mb-2">
-                                            <Button size="small" danger className="ml-auto mx-2" onClick={() => { handleChange([], 'grantedModules') }}> Uncheck All Modules</Button>
-                                            <Button size="small" type="primary" onClick={() => { handleChange(modules?.map(v=>v?._id), 'grantedModules') }}> Check All Modules</Button>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-12 form-group">
-                                        <MultiChechBox options={modules?.map(v=>({_id: v.key, label: v.title}))} value={data.grantedModules} onChange={v => { (!v?.length || handleChange(v, 'grantedModules')) }} />
-                                    </div>
+                                <div className="col-md-12 form-group">
+                                    <label className="req">Title</label>
+                                    <Input value={data.title || ''} onChange={e => handleChange(e.target.value, 'title')} />
+                                </div>
+                                <div className="col-md-12 form-group">
+                                    <label className="req">Key</label>
+                                    <Input value={data.key || ''} onChange={e => handleChange(e.target.value, 'key')} />
                                 </div>
                             </div>
                         </fieldset>
@@ -164,4 +168,4 @@ const AddForm = forwardRef((props, ref) => {
             </Modal>
         </>
     );
-})
+});

@@ -131,8 +131,10 @@ export async function uploadMultipleFile(dataBase64Array, path, model, key, _id,
 export async function deleteMultipleFiles(path, model, key, _id, deletingFiles) {
     let tpl, fileNames = [];
 
-    tpl = await model.findById(_id);
-    fileNames = tpl[key]?.filter(v => !deletingFiles?.includes(v));
+    if(_id){
+        tpl = await model.findById(_id);
+        fileNames = tpl[key]?.filter(v => !deletingFiles?.includes(v));
+    }
 
     if (_id && Array.isArray(deletingFiles) && deletingFiles.length > 0) {
         try {

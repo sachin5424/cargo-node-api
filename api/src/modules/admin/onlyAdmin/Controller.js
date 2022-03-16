@@ -5,7 +5,25 @@ export default class CustomerController {
     
     static async listModules(req, res) {
         try {
-			const srvRes = await Service.listModules(req?.query, req.params)
+			const srvRes = await Service.listModules(req?.query, req.params);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async saveModule(req, res) {
+        try {
+			const srvRes = await Service.saveModule(req?.body);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async deleteModule(req, res) {
+        try {
+			const srvRes = await Service.deleteModule(req.params._id);
             return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

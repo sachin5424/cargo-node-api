@@ -1,12 +1,24 @@
 import { Router } from "express";
 import CategoryConteroller from "./CategoryConteroller";
 import VehicleController from "./VehicleController";
-import { vehicleValidation, vehicleCategoryValidation} from "../../../validation/VehicleValidations";
+import MakeController from "./MakeController";
+import MakeModelController from "./MakeModelController";
+import { vehicleValidation, vehicleCategoryValidation, MakeValidation, MakeModelValidation} from "../../../validation/VehicleValidations";
 import { jwtTokenPermission } from "../../../settings/import";
 import { checkAdminPermission } from "../../../middleware/validateAdmin";
 import { formValidation } from "../../../middleware/others";
 
 const router = Router({ mergeParams: true });
+
+router.get('/make/list', jwtTokenPermission, checkVehicleCategoryListAccess, MakeController.list);
+router.get('/make/list/:isAll', jwtTokenPermission, checkVehicleCategoryListAccess, MakeController.list);
+router.post('/make/save', jwtTokenPermission, checkVehicleCategorySaveAccess, MakeValidation, formValidation, MakeController.save);
+router.delete("/make/delete/:id", jwtTokenPermission, CheckVehicleCategoryDeleteAccess, MakeController.delete);
+
+router.get('/make-model/list', jwtTokenPermission, checkVehicleCategoryListAccess, MakeModelController.list);
+router.get('/make-model/list/:isAll', jwtTokenPermission, checkVehicleCategoryListAccess, MakeModelController.list);
+router.post('/make-model/save', jwtTokenPermission, checkVehicleCategorySaveAccess, MakeModelValidation, formValidation, MakeModelController.save);
+router.delete("/make-model/delete/:id", jwtTokenPermission, CheckVehicleCategoryDeleteAccess, MakeModelController.delete);
 
 router.get('/category/list', jwtTokenPermission, checkVehicleCategoryListAccess, CategoryConteroller.list);
 router.get('/category/list/:isAll', jwtTokenPermission, checkVehicleCategoryListAccess, CategoryConteroller.list);

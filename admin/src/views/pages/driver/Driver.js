@@ -10,13 +10,12 @@ import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
-import { UserTypeSelect } from "../../components/ProComponent";
 
 export const modules = {
-    view: util.getModules('viewUser'),
-    add: util.getModules('addUser'),
-    edit: util.getModules('editUser'),
-    delete: util.getModules('deleteUser'),
+    view: util.getModules('viewDriver'),
+    add: util.getModules('addDriver'),
+    edit: util.getModules('editDriver'),
+    delete: util.getModules('deleteDriver'),
 };
 
 const viewAccess = modules.view;
@@ -25,7 +24,7 @@ const editAccess = modules.edit;
 const deleteAccess = modules.delete;
 
 
-export default function Vehicle() {
+export default function Driver() {
 
     const [data, setData] = useState([]);
     const [sdt, setSdt] = useState([]);
@@ -38,30 +37,6 @@ export default function Vehicle() {
             title: 'Name',
             dataIndex: 'firstName',
             render: (id, row) => row.firstName + ' ' + row.lastName,
-        },
-        {
-            title: 'User Type',
-            dataIndex: 'type',
-            width: 150,
-            render: (text) =>
-                <Tag
-                    color={text === 'stateAdmin'
-                        ? 'geekblue'
-                        : text === 'districtAdmin'
-                            ? 'magenta'
-                            : text === 'talukAdmin'
-                                ? 'orange'
-                                : ''}
-                >
-                    {text === 'stateAdmin'
-                        ? 'State Admin'
-                        : text === 'districtAdmin'
-                            ? 'District Admin'
-                            : text === 'talukAdmin'
-                                ? 'Taluk Admin'
-                                : ''}
-                </Tag>
-
         },
         {
             title: 'Email',
@@ -116,7 +91,7 @@ export default function Vehicle() {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this admin?"
+                                        title="Are you sure to delete this driver?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -168,7 +143,7 @@ export default function Vehicle() {
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Admin List</span>
+                <span>Driver List</span>
             </div>
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: addAccess }} />
@@ -274,11 +249,6 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Type</label>
-                                    <UserTypeSelect {...{ data, handleChange }} />
-                                </div>
-                                <div></div>
                                 <div className="col-md-6 form-group">
                                     <label className="req">First Name</label>
                                     <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />
@@ -302,6 +272,26 @@ const AddForm = forwardRef((props, ref) => {
                                 <div className="col-md-3 form-group">
                                     <label className="req">DOB</label>
                                     <AntdDatepicker format="MMMM D, YYYY" value={data.dob || new Date()} onChange={value => { handleChange(value, 'dob') }} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Driving Licence Number</label>
+                                    <Input value={data.drivingLicenceNumber || ''} onChange={e => handleChange(e.target.value, 'drivingLicenceNumber')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Driving Licence Number Expiry Date</label>
+                                    <AntdDatepicker format="MMMM D, YYYY" value={data.drivingLicenceNumberExpiryDate || new Date()} onChange={value => { handleChange(value, 'drivingLicenceNumberExpiryDate') }} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Adhar Number</label>
+                                    <Input value={data.adharNo || ''} onChange={e => handleChange(e.target.value, 'adharNo')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">panNo</label>
+                                    <Input value={data.panNo || ''} onChange={e => handleChange(e.target.value, 'panNo')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">badgeNo</label>
+                                    <Input value={data.badgeNo || ''} onChange={e => handleChange(e.target.value, 'badgeNo')} />
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">State</label>

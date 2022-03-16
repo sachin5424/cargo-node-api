@@ -6,14 +6,13 @@ import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/vehicle";
 import { AntdMsg } from "../../../utils/Antd";
-import UploadImage from "../../components/UploadImage";
 import util from "../../../utils/util";
 
 export const modules = {
-    view: util.getModules('veiwVehicleCategory'),
-    add: util.getModules('addVehicleCategory'),
-    edit: util.getModules('editVehicleCategory'),
-    delete: util.getModules('deleteVehicleCategory'),
+    view: util.getModules('viewMakeModel'),
+    add: util.getModules('addMakeModel'),
+    edit: util.getModules('editMakeModel'),
+    delete: util.getModules('deleteMakeModel'),
 };
 
 const viewAccess = modules.view;
@@ -22,10 +21,11 @@ const editAccess = modules.edit;
 const deleteAccess = modules.delete;
 
 
-export default function Category() {
+export default function MakeModel() {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [makes, setMakes] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
@@ -35,9 +35,15 @@ export default function Category() {
             dataIndex: 'name',
         },
         {
-            title: 'Slug',
-            dataIndex: 'slug',
+            title: 'Key',
+            dataIndex: 'key',
             width: 200,
+        },
+        {
+            title: 'Make',
+            dataIndex: 'makeDetails',
+            width: 200,
+            render: data =>  <Tag>{data.name}</Tag>,
         },
         {
             title: 'Status',
@@ -82,7 +88,7 @@ export default function Category() {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this admin?"
+                                        title="Are you sure to delete this make model?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -105,7 +111,7 @@ export default function Category() {
             data = sdata;
         }
         setLoading(true);
-        service.listCategory(data, viewAccess).then(res => {
+        service.listMakeModel(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -118,7 +124,7 @@ export default function Category() {
     }
 
     const deleteConfirm = (id) => {
-        service.deleteCategory(id, deleteAccess).then(res => {
+        service.deleteMakeModel(id, deleteAccess).then(res => {
             AntdMsg(res.message);
             list();
         }).catch(err => {
@@ -128,23 +134,24 @@ export default function Category() {
 
     useEffect(() => {
         list();
+        service.listAllMake().then(res=>{setMakes(res.result.data)});
     }, []);
 
     return (
         <>
-            {/* <div className="page-description text-white p-2" >
-                <span>Vehicle Category List</span>
-            </div> */}
+            <div className="page-description text-white p-2" >
+                <span>Make Model List</span>
+            </div>
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list }} />
+            <AddForm ref={formRef} {...{ list, makes }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list } = props;
+    const { list, makes } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -172,12 +179,12 @@ const AddForm = forwardRef((props, ref) => {
 
     const handleChange = (v, k) => { setData({ ...data, [k]: v }); }
 
-    useEffect(()=>{ handleChange(util.removeSpecialChars(data.name || ''), 'slug'); }, [data.name]);
+    useEffect(() => { handleChange(util.removeSpecialChars(data.name || ''), 'key'); }, [data.name]);
 
     const save = () => {
         setAjxRequesting(true);
         data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
-        service.saveCategory(data, data._id ? editAccess : addAccess).then((res) => {
+        service.saveMakeModel(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -197,7 +204,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Vehicle Category'}
+                title={(!data._id ? 'Add' : 'Edit') + ' Make Model'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -214,18 +221,17 @@ const AddForm = forwardRef((props, ref) => {
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
                                 <div className="col-md-12 form-group">
+                                    <label className="req">Status</label>
+                                    <AntdSelect options={makes} value={data.make} onChange={v => { handleChange(v, 'make') }} />
+                                </div>
+                                <div className="col-md-12 form-group">
                                     <label className="req">Name</label>
                                     <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} />
                                 </div>
                                 <div className="col-md-12 form-group">
-                                    <label className="req">Slug</label>
-                                    <Input value={data.slug || ''} onChange={e => handleChange(util.removeSpecialChars(e.target.value), 'slug')} />
+                                    <label className="req">Key</label>
+                                    <Input value={data.key || ''} onChange={e => handleChange(util.removeSpecialChars(e.target.value), 'key')} />
                                 </div>
-                                <div className="col-md-12 form-group">
-                                    <label className="req">Image</label>
-                                    <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
-                                </div>
-                                <div></div>
                                 <div className="col-md-12 form-group">
                                     <label className="req">Status</label>
                                     <AntdSelect
