@@ -103,20 +103,48 @@ export async function uploadFile(dataBase64, path, model, key, _id) {
             // new Error
         }
         return fileName
-    }
-    catch (err) {
+    } catch (err) {
         throw new Error(err)
     }
 }
 
-export async function uploadMultipleFile(dataBase64Array, path, model, key, _id) {
-    if(Array.isArray(dataBase64Array) && Array.length > 0){
-        const prms = dataBase64Array.map(async (v)=> {
+export async function uploadMultipleFile(dataBase64Array, path, model, key, _id, deletingFiles) {
+    const fileNames = await deleteMultipleFiles(path, model, key, _id, deletingFiles);
+    if (Array.isArray(dataBase64Array) && dataBase64Array.length > 0) {
+        const prms = dataBase64Array.map(async (v) => {
             return uploadFile(v, path, model);
         });
 
-        
+        if (prms.length > 0) {
+            return Promise.all(prms).then(res => {
+                res.forEach(v => {
+                    fileNames.push(v);
+                })
+                return fileNames;
+            });
+        }
+    } else {
+        return fileNames;
     }
+}
+
+export async function deleteMultipleFiles(path, model, key, _id, deletingFiles) {
+    let tpl, fileNames = [];
+
+    tpl = await model.findById(_id);
+    fileNames = tpl[key]?.filter(v => !deletingFiles?.includes(v));
+
+    if (_id && Array.isArray(deletingFiles) && deletingFiles.length > 0) {
+        try {
+            deletingFiles.map(v => {
+                fs.unlink(path + v, () => { });
+            });
+
+        } catch (err) {
+
+        }
+    }
+    return fileNames;
 }
 
 export function encryptData(text) {

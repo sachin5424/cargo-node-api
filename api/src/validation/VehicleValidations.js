@@ -135,6 +135,20 @@ export const vehicleValidation = [
         .optional()
         .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Primary Photo is not an image"),
 
+    check('otherPhotos')
+        .optional()
+        .isArray().withMessage("Other photo field is not valid")
+        .custom((value) => {
+            const temp = value.find(v=>{
+                return !v.match(/data:image\/[^;]+;base64[^"]+/)
+            });
+            if(temp?.length){
+                throw new Error("Other Photo is not an image");
+            } else{
+                return true;
+            }
+        }),//.withMessage("Other Photo is not an image"),
+        
     check('vehicleNumber')
         .notEmpty().withMessage("The 'Vehicle Number' field is required")
         .isString().withMessage("The 'Vehicle Number' field is not valid"),

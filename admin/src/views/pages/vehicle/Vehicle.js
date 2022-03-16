@@ -308,7 +308,7 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div className="col-md-10 form-group">
                                     <label className="req">Images</label>
-                                    <UploadImage ref={otherImgRef} {...{ fileCount: 4, files: data.image ? [data.image] : [] }} />
+                                    <UploadImage ref={otherImgRef} {...{ fileCount: 4, files: data.otherPhotos ? data.otherPhotos : [] }} />
                                 </div>
                                 <div></div>
                                 <div className="col-md-4 form-group">

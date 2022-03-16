@@ -37,8 +37,6 @@ export default class Service {
 
             clearSearch(search);
 
-            console.log(search);
-
             const $aggregate = [
                 { $match: search },
                 { $sort: { _id: -1 } },

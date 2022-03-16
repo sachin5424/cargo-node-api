@@ -1,5 +1,5 @@
 import VehicleModel from "../data-base/models/vehicle";
-import { clearSearch, encryptData, decryptData, getAdminFilter } from "../utls/_helper";
+import { clearSearch, encryptData, decryptData, getAdminFilter, uploadMultipleFile } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
 // import { sendResetPasswordMail } from "../thrirdParty/emailServices/vehicleOwner/sendEmail";
@@ -140,7 +140,7 @@ export default class Service {
                     },
                 ],
             };
-            
+
             clearSearch(search);
 
             const $aggregate = [
@@ -162,7 +162,7 @@ export default class Service {
 
             const counter = await VehicleCategoryModel.aggregate([...$aggregate, { $count: "total" }]);
             response.result.total = counter[0]?.total;
-            if(isAll){
+            if (isAll) {
                 response.result.page = 1;
                 response.result.limit = response.result.total;
             }
@@ -255,7 +255,7 @@ export default class Service {
                     },
                 ],
             };
-            
+
             clearSearch(search);
 
             const $aggregate = [
@@ -271,10 +271,21 @@ export default class Service {
                         availableSeats: 1,
                         availableCapacity: 1,
                         isActive: 1,
+                        // otherPhotos: 1,
                         image: {
                             url: { $concat: [config.applicationFileUrl + 'vehicle/photo/', "$primaryPhoto"] },
                             name: "$primaryPhoto"
-                        }
+                        },
+                        otherPhotos: {
+                            $map: {
+                                input: "$otherPhotos",
+                                as: "images",
+                                in: {
+                                    url: { $concat: [config.applicationFileUrl + 'vehicle/photo/', "$$images"] },
+                                    name: "$$images",
+                                }
+                            }
+                        },
                     }
                 },
             ];
@@ -282,7 +293,7 @@ export default class Service {
 
             const counter = await VehicleModel.aggregate([...$aggregate, { $count: "total" }]);
             response.result.total = counter[0]?.total;
-            if(isAll){
+            if (isAll) {
                 response.result.page = 1;
                 response.result.limit = response.result.total;
             }
@@ -319,6 +330,7 @@ export default class Service {
             tplData.vehicleCategory = data.vehicleCategory;
             tplData.name = data.name;
             tplData.primaryPhoto = await uploadFile(data.primaryPhoto, config.uploadPaths.vehicle.photo, VehicleModel, 'primaryPhoto', _id);
+            tplData.otherPhotos = await uploadMultipleFile(data.otherPhotos, config.uploadPaths.vehicle.photo, VehicleModel, 'otherPhotos', _id, data.deletingFiles);
             tplData.vehicleNumber = data.vehicleNumber;
             tplData.availableSeats = data.availableSeats;
             tplData.isActive = data.isActive;
