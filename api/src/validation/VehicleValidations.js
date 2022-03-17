@@ -5,6 +5,50 @@ import ServiceTypeModel from '../data-base/models/serviceType';
 import RideTypeModel from '../data-base/models/rideTypeModel';
 import MakeModel from '../data-base/models/make';
 import MakeModelModel from '../data-base/models/makeModel';
+import ColorModel from '../data-base/models/color';
+
+export const ColorValidation = [
+
+    check('_id')
+        .optional()
+        .notEmpty().withMessage("Provide / Select a valid data")
+        .custom(async (v) => {
+            try {
+                const r = await ColorModel.findById(v);
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("This data does not exit. Please check or refresh");
+            }
+        }),
+
+    check('name')
+        .notEmpty().withMessage("The 'name' field is required")
+        .isString().withMessage("The 'name' field is not valid"),
+
+
+    check('code')
+        .notEmpty().withMessage("The 'code' field is required")
+        .isSlug().withMessage("The 'code' field is not valid")
+        .custom(async (value, { req }) => {
+            const body = req.body;
+            const result = await ColorModel.findOne({ isDeleted: false, code: value });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A color already exist with this code");
+                    }
+                } else {
+                    throw new Error("A color already exist with this code");
+                }
+            }
+        }),
+
+    check('isActive').
+        notEmpty().withMessage("The 'active' field is required")
+        .toBoolean(1 ? true : false),
+];
 
 export const MakeValidation = [
 

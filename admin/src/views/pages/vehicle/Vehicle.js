@@ -2,7 +2,7 @@
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
 import { Button, Popconfirm, Input, Modal, Tag, Spin, Image, Divider } from "antd";
-import { AntdSelect, MultiChechBox } from "../../../utils/Antd";
+import { AntdSelect, MultiChechBox, AntdDatepicker } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/vehicle";
 import commonService from "../../../services/common";
@@ -30,6 +30,8 @@ export default function Vehicle() {
     const [serviceType, setServiceType] = useState([]);
     const [rideTypes, setRideTypes] = useState();
     const [loading, setLoading] = useState(true);
+    const [makes, setMakes] = useState();
+    const [colors, setColors] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
@@ -139,7 +141,9 @@ export default function Vehicle() {
     useEffect(() => {
         list();
         commonService.listServiceType().then(res => { setServiceType(res.result.data); });
-        rideService.listAllRideType({}, 'viewRideType').then(res => { setRideTypes(res.result.data); })
+        rideService.listAllRideType({}, 'viewRideType').then(res => { setRideTypes(res.result.data); });
+        service.listAllMake({ models: 1, active: 1, modelActive: 1 }, 'viewMake').then(res => { setMakes(res.result.data); });
+        service.listAllColor({}, 'viewColor').then(res => { setColors(res.result.data); });
     }, []);
 
     return (
@@ -150,21 +154,26 @@ export default function Vehicle() {
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, serviceType, rideTypes }} />
+            <AddForm ref={formRef} {...{ list, serviceType, rideTypes, makes, colors }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, serviceType, rideTypes: parRideTypes } = props;
+    const { list, serviceType, rideTypes: parRideTypes, makes, colors } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
     const [rideTypes, setRideTypes] = useState([]);
     const [vehicleCategories, setVehicleCategories] = useState([]);
     const [changeForm, setChangeForm] = useState(false);
+    const [models, setModels] = useState([]);
     const primaryImgRef = useRef();
     const otherImgRef = useRef();
+    const registrationImgRef = useRef();
+    const insuranceImgRef = useRef();
+    const permitImgRef = useRef();
+    const pollutionImgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -174,6 +183,10 @@ const AddForm = forwardRef((props, ref) => {
         openForm(dt) {
             primaryImgRef.current = {};
             otherImgRef.current = {};
+            registrationImgRef.current = {};
+            insuranceImgRef.current = {};
+            permitImgRef.current = {};
+            pollutionImgRef.current = {};
             setData(dt ? { ...dt } : { isActive: true });
             handleVisible(true);
             if (!dt?._id && addAccess) {
@@ -214,7 +227,26 @@ const AddForm = forwardRef((props, ref) => {
     }, [rideTypes, data.rideTypes]);
 
     useEffect(() => {
-        if(Array.isArray(vehicleCategories) && vehicleCategories.length > 0){
+        const newModels = makes?.find(v => data.make === v._id)?.models || [];
+        setModels([...newModels]);
+    }, [data.make]);
+
+    useEffect(() => {
+        if (!models?.map(v => v._id)?.includes(data?.model)) {
+            handleChange('', 'model');
+        }
+    }, [models]);
+
+    useEffect(() => {
+        handleChange(
+            (makes?.find(v => v._id === data.make)?.name || '')
+            + " - " + (models?.find(v => v._id === data.model)?.name || '')
+            , 'name');
+    }, [data.make, data.model]);
+
+
+    useEffect(() => {
+        if (Array.isArray(vehicleCategories) && vehicleCategories.length > 0) {
             const flagUpdate = vehicleCategories?.filter(v => v._id === data.vehicleCategory);
             if (flagUpdate?.length === 0) { handleChange('', 'vehicleCategory'); }
         }
@@ -224,7 +256,11 @@ const AddForm = forwardRef((props, ref) => {
         console.log(otherImgRef.current);
         setAjxRequesting(true);
         data.primaryPhoto = primaryImgRef?.current?.uploadingFiles?.[0]?.base64;
-        data.otherPhotos = otherImgRef?.current?.uploadingFiles?.map(v=>v.base64);
+        data.otherPhotos = otherImgRef?.current?.uploadingFiles?.map(v => v.base64);
+        data.registrationPhoto = registrationImgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.insurancePhoto = insuranceImgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.permitPhoto = permitImgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.pollutionPhoto = pollutionImgRef?.current?.uploadingFiles?.[0]?.base64;
         data.deletingFiles = otherImgRef?.current?.deletingFiles;
         service.save(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
@@ -262,6 +298,7 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
+                                <div><Divider orientation="left" className="text-danger">Service Type </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Service Type</label>
                                     <AntdSelect options={serviceType} value={data.serviceType} onChange={v => { handleChange(v, 'serviceType') }} />
@@ -279,15 +316,35 @@ const AddForm = forwardRef((props, ref) => {
                                     vehicleCategories?.length
                                         ? <div className="col-md-3 form-group">
                                             <label className="req">Vehicle Categories</label>
-                                            <AntdSelect options={vehicleCategories} value={ data.vehicleCategory || ''} onChange={v => { handleChange(v, 'vehicleCategory') }} />
+                                            <AntdSelect options={vehicleCategories} value={data.vehicleCategory || ''} onChange={v => { handleChange(v, 'vehicleCategory') }} />
                                         </div>
                                         : null
                                 }
 
-                                <Divider />
+                                <div><Divider orientation="left" className="text-danger">Make Details </Divider></div>
+
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Make</label>
+                                    <AntdSelect options={makes} value={data.make || ''} onChange={v => { handleChange(v, 'make') }} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Model</label>
+                                    <AntdSelect options={models} value={data.model || ''} onChange={v => { handleChange(v, 'model') }} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Color</label>
+                                    <AntdSelect options={colors} value={data.color || ''} onChange={v => { handleChange(v, 'color') }} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Manufacturing Year</label>
+                                    <AntdDatepicker picker="year" format="YYYY" getFormat="YYYY" disableUpcomingDate={true} value={data.manufacturingYear || new Date()} onChange={value => { handleChange(value, 'manufacturingYear') }} />
+                                </div>
+
+                                <div><Divider orientation="left" className="text-danger">Basic Details</Divider></div>
+
                                 <div className="col-md-4 form-group">
                                     <label className="req">Name</label>
-                                    <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} />
+                                    <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} disabled />
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Vehicle Number</label>
@@ -310,6 +367,64 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Images</label>
                                     <UploadImage ref={otherImgRef} {...{ fileCount: 4, files: data.otherPhotos ? data.otherPhotos : [] }} />
                                 </div>
+
+                                <div><Divider orientation="left" className="text-danger">Registration</Divider></div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Registration Number</label>
+                                    <Input value={data.registrationNumber || ''} onChange={e => handleChange(e.target.value, 'registrationNumber')} />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Registration Expirary Date</label>
+                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.registrationExpiraryDate || new Date()} onChange={value => { handleChange(value, 'registrationExpiraryDate') }} />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Registration Image</label>
+                                    <UploadImage ref={registrationImgRef} {...{ fileCount: 1, files: data.registrationImage ? [data.registrationImage] : [] }} />
+                                </div>
+
+                                <div><Divider orientation="left" className="text-danger">Insurance</Divider></div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Insurance Number</label>
+                                    <Input value={data.insuranceNumber || ''} onChange={e => handleChange(e.target.value, 'insuranceNumber')} />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Insurance Expirary Date</label>
+                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.insuranceExpiraryDate || new Date()} onChange={value => { handleChange(value, 'insuranceExpiraryDate') }} />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Insurance Image</label>
+                                    <UploadImage ref={insuranceImgRef} {...{ fileCount: 1, files: data.insuranceImage ? [data.insuranceImage] : [] }} />
+                                </div>
+
+                                <div><Divider orientation="left" className="text-danger">Permit</Divider></div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Permit Number</label>
+                                    <Input value={data.permitNumber || ''} onChange={e => handleChange(e.target.value, 'permitNumber')} />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Permit Expirary Date</label>
+                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.permitExpiraryDate || new Date()} onChange={value => { handleChange(value, 'permitExpiraryDate') }} />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Permit Image</label>
+                                    <UploadImage ref={permitImgRef} {...{ fileCount: 1, files: data.permitImage ? [data.permitImage] : [] }} />
+                                </div>
+
+                                <div><Divider orientation="left" className="text-danger">Pollution Certificate</Divider></div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Pollution Certificate Number</label>
+                                    <Input value={data.pollutionNumber || ''} onChange={e => handleChange(e.target.value, 'pollutionNumber')} />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Pollution Certificate Expirary Date</label>
+                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.pollutionExpiraryDate || new Date()} onChange={value => { handleChange(value, 'pollutionExpiraryDate') }} />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Pollution Certificate Image</label>
+                                    <UploadImage ref={pollutionImgRef} {...{ fileCount: 1, files: data.pollutionImage ? [data.pollutionImage] : [] }} />
+                                </div>
+                                
+
                                 <div></div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Status</label>

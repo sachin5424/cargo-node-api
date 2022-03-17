@@ -3,6 +3,19 @@ import axios from "../utils/axios";
 export default class vehicle {
     static baseURL = 'vehicle/';
 
+    static listColor(data, module) {
+        return axios.get(this.baseURL + 'color/list', { params: data, module });
+    }
+    static listAllColor(data, module) {
+        return axios.get(this.baseURL + 'color/list/ALL', { params: data, module });
+    }
+    static saveColor(data, module) {
+        return axios.post(this.baseURL + "color/save", data, { module });
+    }
+    static deleteColor(id, module) {
+        return axios.delete(`${this.baseURL}color/delete/${id}`, { module });
+    }
+
     static listMake(data, module) {
         return axios.get(this.baseURL + 'make/list', { params: data, module });
     }

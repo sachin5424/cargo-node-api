@@ -83,12 +83,16 @@ export function AntdSelect(props) {
 export function AntdDatepicker(props) {
     let {
         format,
+        getFormat = 'YYYY-MM-DD',
         inputReadOnly,
         value,
         defaultValue,
         onChange,
+        disablePastDate = false,
+        disableUpcomingDate = false,
         ...rest
     } = props;
+
 
     let otherProps = {};
     if (typeof value !== "undefined") {
@@ -100,17 +104,26 @@ export function AntdDatepicker(props) {
     }
     if (typeof onChange !== "undefined") {
         otherProps.onChange = (dt) => {
-            onChange(dt ? moment(dt).format('YYYY-MM-DD') : null);
+            onChange(dt ? moment(dt).format(getFormat) : null);
         }
     }
     useEffect(() => {
-        onChange(moment(value).format('YYYY-MM-DD'))
+        onChange(moment(value).format(getFormat))
     }, [])
 
     return (
         <DatePicker
             format={format || 'DD MMM YYYY'}
             inputReadOnly={inputReadOnly || true}
+            disabledDate={(current) => {
+                let customDate = moment().format("YYYY-MM-DD");
+                if (disablePastDate) {
+                    return current && current < moment(customDate, "YYYY-MM-DD");
+                }
+                if (disableUpcomingDate) {
+                    return current && current > moment(customDate, "YYYY-MM-DD");
+                }
+            }}
             {...otherProps}
             {...rest}
             style={{ width: '100%' }}

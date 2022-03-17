@@ -9,10 +9,10 @@ import { AntdMsg } from "../../../utils/Antd";
 import util from "../../../utils/util";
 
 export const modules = {
-    view: util.getModules('viewMake'),
-    add: util.getModules('addMake'),
-    edit: util.getModules('editMake'),
-    delete: util.getModules('deleteMake'),
+    view: util.getModules('viewColor'),
+    add: util.getModules('addColor'),
+    edit: util.getModules('editColor'),
+    delete: util.getModules('deleteColor'),
 };
 
 const viewAccess = modules.view;
@@ -21,7 +21,7 @@ const editAccess = modules.edit;
 const deleteAccess = modules.delete;
 
 
-export default function Make() {
+export default function Color() {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -34,9 +34,10 @@ export default function Make() {
             dataIndex: 'name',
         },
         {
-            title: 'Key',
-            dataIndex: 'key',
-            width: 200,
+            title: 'Color',
+            dataIndex: 'code',
+            width: 60,
+            render: data => <Tag style={{backgroundColor: data}}>&nbsp;</Tag>
         },
         {
             title: 'Status',
@@ -81,7 +82,7 @@ export default function Make() {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this make?"
+                                        title="Are you sure to delete this color?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -104,7 +105,7 @@ export default function Make() {
             data = sdata;
         }
         setLoading(true);
-        service.listMake(data, viewAccess).then(res => {
+        service.listColor(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -117,7 +118,7 @@ export default function Make() {
     }
 
     const deleteConfirm = (id) => {
-        service.deleteMake(id, deleteAccess).then(res => {
+        service.deleteColor(id, deleteAccess).then(res => {
             AntdMsg(res.message);
             list();
         }).catch(err => {
@@ -132,10 +133,10 @@ export default function Make() {
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Make List</span>
+                <span>Color List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Key', addNew: addAccess }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Code', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list }} />
         </>
@@ -176,7 +177,7 @@ const AddForm = forwardRef((props, ref) => {
     const save = () => {
         setAjxRequesting(true);
         data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
-        service.saveMake(data, data._id ? editAccess : addAccess).then((res) => {
+        service.saveColor(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -196,7 +197,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Make'}
+                title={(!data._id ? 'Add' : 'Edit') + ' Color'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -217,8 +218,8 @@ const AddForm = forwardRef((props, ref) => {
                                     <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} />
                                 </div>
                                 <div className="col-md-12 form-group">
-                                    <label className="req">Key</label>
-                                    <Input value={data.key || ''} onChange={e => handleChange(util.removeSpecialChars(e.target.value), 'key')} />
+                                    <label className="req">Code</label>
+                                    <Input type="color" value={data.code || ''} onChange={e => handleChange((e.target.value), 'code')} />
                                 </div>
                                 <div className="col-md-12 form-group">
                                     <label className="req">Status</label>

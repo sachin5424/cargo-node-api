@@ -15,6 +15,7 @@ import Driver, {modules as driverModules} from './views/pages/driver/Driver';
 import Module from './views/pages/tabs/Module';
 import Make, {modules as makeModules} from './views/pages/vehicle/Make';
 import MakeModel, {modules as makeModelModules} from './views/pages/vehicle/MakeModel';
+import Color, {modules as colorModules} from './views/pages/vehicle/Color';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -33,9 +34,10 @@ const routes = {
         {
             name: 'Vehicle',
             baseURL: '/vehicle',
-            modules: [makeModules.view, makeModelModules.view, categoryModules.view, vehicleModules.view ],
+            modules: [colorModules.view, makeModules.view, makeModelModules.view, categoryModules.view, vehicleModules.view ],
             icon: () => <CarOutlined />,
             subMenus: [
+                { name: 'Color', url: '/color', component: Color, modules: [colorModules.view] },
                 { name: 'Make', url: '/make', component: Make, modules: [makeModules.view] },
                 { name: 'Make Model', url: '/make-model', component: MakeModel, modules: [makeModelModules.view] },
                 { name: 'Vehicle', url: '/vehicle', component: Vehicle, modules: [vehicleModules.view] },

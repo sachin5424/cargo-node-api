@@ -143,7 +143,7 @@ export default function MakeModel() {
                 <span>Make Model List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Key', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, makes }} />
         </>
