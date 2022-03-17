@@ -6,6 +6,9 @@ import RideTypeModel from '../data-base/models/rideTypeModel';
 import MakeModel from '../data-base/models/make';
 import MakeModelModel from '../data-base/models/makeModel';
 import ColorModel from '../data-base/models/color';
+import StateModel from '../data-base/models/state';
+import DistrictModel from '../data-base/models/district';
+import TalukModel from '../data-base/models/taluk';
 
 export const ColorValidation = [
 
@@ -149,7 +152,6 @@ export const MakeModelValidation = [
         .toBoolean(1 ? true : false),
 ];
 
-
 export const vehicleCategoryValidation = [
 
     check('_id')
@@ -265,9 +267,126 @@ export const vehicleValidation = [
             }
         }),
 
+    check('make')
+        .notEmpty().withMessage("The 'Make' field is required")
+        .custom(async (value) => {
+            try {
+                const result = await MakeModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("Make is not valid");
+            }
+        }),
+
+    check('model')
+        .notEmpty().withMessage("The 'Model' field is required")
+        .custom(async (value) => {
+            try {
+                const result = await MakeModelModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("Model is not valid");
+            }
+        }),
+
+    check('color')
+        .notEmpty().withMessage("The 'Color' field is required")
+        .custom(async (value) => {
+            try {
+                const result = await ColorModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("Color is not valid");
+            }
+        }),
+
+    check('manufacturingYear')
+        .notEmpty().withMessage("The 'Manufacturing Year' field is required")
+        .matches(/^[0-9]{4}$/).withMessage("The 'Manufacturing Year' field is not valid"),
+
     check('name')
         .notEmpty().withMessage("The 'name' field is required")
         .isString().withMessage("The 'name' field is not valid"),
+
+    check('vehicleNumber')
+        .notEmpty().withMessage("The 'Vehicle Number' field is required")
+        .isString().withMessage("The 'Vehicle Number' field is not valid"),
+
+    check('availableSeats')
+        .optional()
+        .isNumeric().withMessage("The 'Available Seats' field is must be a number")
+        .custom(async (value, {req}) => {
+            try {
+                const ServiceType = await ServiceTypeModel.findById(req.body?.ServiceType);
+                if (ServiceType?.key === 'taxi' && !value?.length) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("The 'Available Seats' field is required");
+            }
+        }),
+
+    check('availableCapacity')
+        .optional()
+        .isNumeric().withMessage("The 'Available Capacity' field is must be a number")
+        .custom(async (value, {req}) => {
+            try {
+                const ServiceType = await ServiceTypeModel.findById(req.body?.ServiceType);
+                if (ServiceType?.key === 'cargo' && !value?.length) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("The 'Available Capacity' field is required");
+            }
+        }),
+
+    check('state')
+        .notEmpty().withMessage("The 'State' field is required")
+        // .isString().withMessage("The 'State' field is not valid")
+        .custom(async (value) => {
+            try {
+                const result = await StateModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("State is not valid");
+            }
+        }),
+
+    check('district')
+        .notEmpty().withMessage("The 'District' field is required")
+        .isString().withMessage("The 'District' field is not valid")
+        .custom(async (value) => {
+            try {
+                const result = await DistrictModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("District is not valid");
+            }
+        }),
+
+    check('taluk')
+        .notEmpty().withMessage("The 'Taluk' field is required")
+        .isString().withMessage("The 'Taluk' field is not valid")
+        .custom(async (value) => {
+            try {
+                const result = await TalukModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("Taluk is not valid");
+            }
+        }),
 
     check('primaryPhoto')
         .custom((v, { req }) => {
@@ -294,14 +413,95 @@ export const vehicleValidation = [
                 return true;
             }
         }),
-        
-    check('vehicleNumber')
-        .notEmpty().withMessage("The 'Vehicle Number' field is required")
-        .isString().withMessage("The 'Vehicle Number' field is not valid"),
 
-    check('availableSeats')
-        .notEmpty().withMessage("The 'Available Seats' field is required")
-        .isNumeric().withMessage("The 'Available Seats' field is must be a number"),
+    check('registrationNumber')
+        .notEmpty().withMessage("The 'Registration Number' field is required")
+        .isString().withMessage("The 'Registration Number' field is not valid"),
+
+    check('registrationExpiraryDate')
+        .notEmpty().withMessage("The 'Registration Expirary Date' field is required")
+        .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Registration Expirary Date' field is not valid"),
+
+    check('registrationPhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.registrationPhoto) {
+                    throw new Error("The 'Registration Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Registration Photo is not an image"),
+
+    
+        
+    check('insuranceNumber')
+        .notEmpty().withMessage("The 'Insurance Number' field is required")
+        .isString().withMessage("The 'Insurance Number' field is not valid"),
+
+    check('insuranceExpiryDate')
+        .notEmpty().withMessage("The 'Insurance Expirary Date' field is required")
+        .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Insurance Expirary Date' field is not valid"),
+
+    check('insurancePhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.insurancePhoto) {
+                    throw new Error("The 'Insurance Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Insurance Photo is not an image"),
+
+
+
+    check('permitNumber')
+        .notEmpty().withMessage("The 'Permit Number' field is required")
+        .isString().withMessage("The 'Permit Number' field is not valid"),
+
+    check('permitExpiryDate')
+        .notEmpty().withMessage("The 'Permit Expirary Date' field is required")
+        .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Permit Expirary Date' field is not valid"),
+
+    check('permitPhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.permitPhoto) {
+                    throw new Error("The 'Permit Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Permit Photo is not an image"),
+
+
+
+    check('pollutionNumber')
+        .notEmpty().withMessage("The 'Pollution Number' field is required")
+        .isString().withMessage("The 'Pollution Number' field is not valid"),
+
+    check('pollutionExpiryDate')
+        .notEmpty().withMessage("The 'Pollution Expirary Date' field is required")
+        .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Pollution Expirary Date' field is not valid"),
+
+    check('pollutionPhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.pollutionPhoto) {
+                    throw new Error("The 'Pollution Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Pollution Photo is not an image"),
+
+
+
 
     check('isActive')
         .notEmpty().withMessage("The 'active' field is required")

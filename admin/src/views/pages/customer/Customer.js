@@ -299,7 +299,7 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Zip Code</label>
-                                    <Input value={data.zipcode || ''} onChange={e => { handleChange(e.target.value, 'zipcode') }} />
+                                    <Input value={data.zipcode || ''} onChange={e => { handleChange(util.handleInteger(e.target.value, 6), 'zipcode') }} />
                                 </div>
 
                                 <div className="col-md-12 form-group">

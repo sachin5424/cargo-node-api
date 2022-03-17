@@ -717,11 +717,36 @@ export default class Service {
             tplData.serviceType = data.serviceType;
             tplData.rideTypes = data.rideTypes;
             tplData.vehicleCategory = data.vehicleCategory;
+            tplData.state = data.state;
+            tplData.district = data.district;
+            tplData.taluk = data.taluk;
+            tplData.make = data.make;
+            tplData.model = data.model;
+            tplData.color = data.color;
             tplData.name = data.name;
-            tplData.primaryPhoto = await uploadFile(data.primaryPhoto, config.uploadPaths.vehicle.photo, VehicleModel, 'primaryPhoto', _id);
-            tplData.otherPhotos = await uploadMultipleFile(data.otherPhotos, config.uploadPaths.vehicle.photo, VehicleModel, 'otherPhotos', _id, data.deletingFiles);
             tplData.vehicleNumber = data.vehicleNumber;
             tplData.availableSeats = data.availableSeats;
+            tplData.availableCapacity = data.availableCapacity;
+            tplData.manufacturingYear = data.manufacturingYear;
+            tplData.primaryPhoto = await uploadFile(data.primaryPhoto, config.uploadPaths.vehicle.photo, VehicleModel, 'primaryPhoto', _id);
+            tplData.otherPhotos = await uploadMultipleFile(data.otherPhotos, config.uploadPaths.vehicle.photo, VehicleModel, 'otherPhotos', _id, data.deletingFiles);
+            
+            tplData.registrationNumber = data.registrationNumber;
+            tplData.registrationExpiryDate = data.registrationExpiryDate;
+            tplData.registrationPhoto = await uploadFile(data.registrationPhoto, config.uploadPaths.vehicle.document, VehicleModel, 'registrationPhoto', _id);
+            
+            tplData.insuranceNumber = data.insuranceNumber;
+            tplData.insuranceExpiryDate = data.insuranceExpiryDate;
+            tplData.insurancePhoto = await uploadFile(data.insurancePhoto, config.uploadPaths.vehicle.document, VehicleModel, 'insurancePhoto', _id);
+            
+            tplData.permitNumber = data.permitNumber;
+            tplData.permitExpiryDate = data.permitExpiryDate;
+            tplData.permitPhoto = await uploadFile(data.permitPhoto, config.uploadPaths.vehicle.document, VehicleModel, 'permitPhoto', _id);
+            
+            tplData.pollutionNumber = data.pollutionNumber;
+            tplData.pollutionExpiryDate = data.pollutionExpiryDate;
+            tplData.pollutionPhoto = await uploadFile(data.pollutionPhoto, config.uploadPaths.vehicle.document, VehicleModel, 'pollutionPhoto', _id);
+            
             tplData.isActive = data.isActive;
 
             await tplData.save();

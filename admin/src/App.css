@@ -138,3 +138,18 @@ form fieldset:disabled .ant-upload-picture-card-wrapper .ant-upload-list-item-ca
 .ant-message .anticon {
   top: -3px!important;
 }
+
+/* fieldset {
+  padding: 10px!important;
+  align-items: center;
+  border: 1px solid aquamarine!important;
+} 
+legend {
+  position: absolute;
+  width: fit-content!important;
+  padding: 4px 8px!important;
+  top: -10px;
+  left: 10px;
+  font-weight: bold;
+  background-color: red!important;
+} */

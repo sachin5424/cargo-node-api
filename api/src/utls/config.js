@@ -28,8 +28,7 @@ const config = {
         vehicle: {
             category: process.env.VEHICLE_CATEGORY_PHOTO_UPLOAD_PATH || "./uploads/vehicle/category/",
             photo: process.env.VEHICLE_PHOTO_UPLOAD_PATH || "./uploads/vehicle/photo/",
-            type: process.env.VEHICLE_TYPE_ICON_UPLOAD_PATH || "./uploads/vehicle/type/",
-            owner: process.env.VEHICLE_OWNER_PHOTO_UPLOAD_PATH || "./uploads/vehicle/owner/",
+            document: process.env.VEHICLE_DOCUMENT_UPLOAD_PATH || "./uploads/vehicle/document/",
         },
         ride: {
             type: process.env.RIDE_TYPE_PHOTO_UPLOAD_PATH || "./uploads/ride/type/",

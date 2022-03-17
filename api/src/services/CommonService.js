@@ -57,7 +57,7 @@ export default class Service {
         };
 
         try {
-            response.result.data = await ServiceTypeModel.find().select({name: 1});
+            response.result.data = await ServiceTypeModel.find().select({name: 1, key: 1});
             if (response.result.data.length) {
                 response.message = "Data fetched";
             }

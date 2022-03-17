@@ -7,6 +7,7 @@ import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant
 import service from "../../../services/vehicle";
 import commonService from "../../../services/common";
 import rideService from "../../../services/ride";
+import sdtService from "../../../services/sdt";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import util from "../../../utils/util";
@@ -32,6 +33,7 @@ export default function Vehicle() {
     const [loading, setLoading] = useState(true);
     const [makes, setMakes] = useState();
     const [colors, setColors] = useState([]);
+    const [sdt, setSdt] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
@@ -144,6 +146,7 @@ export default function Vehicle() {
         rideService.listAllRideType({}, 'viewRideType').then(res => { setRideTypes(res.result.data); });
         service.listAllMake({ models: 1, active: 1, modelActive: 1 }, 'viewMake').then(res => { setMakes(res.result.data); });
         service.listAllColor({}, 'viewColor').then(res => { setColors(res.result.data); });
+        sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
     }, []);
 
     return (
@@ -154,13 +157,13 @@ export default function Vehicle() {
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, serviceType, rideTypes, makes, colors }} />
+            <AddForm ref={formRef} {...{ list, serviceType, rideTypes, makes, colors, sdt }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, serviceType, rideTypes: parRideTypes, makes, colors } = props;
+    const { list, serviceType, rideTypes: parRideTypes, makes, colors, sdt } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -168,6 +171,8 @@ const AddForm = forwardRef((props, ref) => {
     const [vehicleCategories, setVehicleCategories] = useState([]);
     const [changeForm, setChangeForm] = useState(false);
     const [models, setModels] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [taluks, setTaluks] = useState([]);
     const primaryImgRef = useRef();
     const otherImgRef = useRef();
     const registrationImgRef = useRef();
@@ -251,6 +256,27 @@ const AddForm = forwardRef((props, ref) => {
             if (flagUpdate?.length === 0) { handleChange('', 'vehicleCategory'); }
         }
     }, [vehicleCategories]);
+
+    const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district)
+    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v => v._id)?.includes(data.taluk)
+    useEffect(() => {
+        const newDistricts = sdt.find(v => v._id === data.state)?.districts || [];
+        setDistricts(newDistricts?.map(v => ({ value: v._id, label: v.name, taluks: v.taluks })) || [])
+    }, [data.state]);
+    useEffect(() => {
+        const newTaluks = districts?.find(v => v.value === data.district)?.taluks || [];
+        setTaluks(newTaluks?.map(v => { return { value: v._id, label: v.name } }))
+    }, [data.district, districts]);
+    useEffect(() => {
+        if (!checkDistrictExist()) {
+            handleChange('', 'district');
+        }
+    }, [data.state]);
+    useEffect(() => {
+        if (!checkTalukExist()) {
+            handleChange('', 'taluk');
+        }
+    }, [data.district, districts]);
 
     const save = () => {
         console.log(otherImgRef.current);
@@ -342,21 +368,54 @@ const AddForm = forwardRef((props, ref) => {
 
                                 <div><Divider orientation="left" className="text-danger">Basic Details</Divider></div>
 
-                                <div className="col-md-4 form-group">
+                                <div className="col-md-3 form-group">
                                     <label className="req">Name</label>
                                     <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} disabled />
                                 </div>
-                                <div className="col-md-4 form-group">
+                                <div className="col-md-3 form-group">
                                     <label className="req">Vehicle Number</label>
                                     <Input value={data.vehicleNumber || ''} onChange={e => handleChange(e.target.value, 'vehicleNumber')} />
                                 </div>
-                                <div className="col-md-4 form-group">
-                                    <label className="req">Available Seats</label>
-                                    <Input value={data.availableSeats || ''} onChange={e => handleChange(util.handleInteger(e.target.value, 2), 'availableSeats')} />
+                                {
+                                    serviceType?.find(v => v._id === data.serviceType)?.key === 'taxi'
+                                        ? <div className="col-md-3 form-group">
+                                            <label className="req">Available Seats</label>
+                                            <Input value={data.availableSeats || ''} onChange={e => handleChange(util.handleInteger(e.target.value, 2), 'availableSeats')} />
+                                        </div>
+                                        : null
+                                }
+                                {
+                                    serviceType?.find(v => v._id === data.serviceType)?.key === 'cargo'
+                                        ? <div className="col-md-3 form-group">
+                                            <label className="req">Available Capacity (in tons)</label>
+                                            <Input value={data.availableCapacity || ''} onChange={e => handleChange(e.target.value, 'availableCapacity')} />
+                                        </div>
+                                        : null
+                                }
+                                <div></div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">State</label>
+                                    <AntdSelect
+                                        options={sdt.map(v => ({ value: v._id, label: v.name }))}
+                                        value={data.state}
+                                        onChange={v => { handleChange(v, 'state') }}
+                                    />
                                 </div>
-                                <div className="col-md-4 form-group">
-                                    <label className="req">Available Capacity</label>
-                                    <Input value={data.availableCapacity || ''} onChange={e => handleChange(e.target.value, 'availableCapacity')} />
+                                <div className="col-md-3 form-group">
+                                    <label className="req">District</label>
+                                    <AntdSelect
+                                        options={districts || []}
+                                        value={data.district}
+                                        onChange={v => { handleChange(v, 'district') }}
+                                    />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Taluk</label>
+                                    <AntdSelect
+                                        options={taluks || []}
+                                        value={data.taluk}
+                                        onChange={v => { handleChange(v, 'taluk') }}
+                                    />
                                 </div>
                                 <div></div>
                                 <div className="col-md-2 form-group">
@@ -374,8 +433,8 @@ const AddForm = forwardRef((props, ref) => {
                                     <Input value={data.registrationNumber || ''} onChange={e => handleChange(e.target.value, 'registrationNumber')} />
                                 </div>
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Registration Expirary Date</label>
-                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.registrationExpiraryDate || new Date()} onChange={value => { handleChange(value, 'registrationExpiraryDate') }} />
+                                    <label className="req">Registration Expiry Date</label>
+                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.registrationExpiryDate || new Date()} onChange={value => { handleChange(value, 'registrationExpiryDate') }} />
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Registration Image</label>
@@ -389,7 +448,7 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Insurance Expirary Date</label>
-                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.insuranceExpiraryDate || new Date()} onChange={value => { handleChange(value, 'insuranceExpiraryDate') }} />
+                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.insuranceExpiryDate || new Date()} onChange={value => { handleChange(value, 'insuranceExpiryDate') }} />
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Insurance Image</label>
@@ -403,7 +462,7 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Permit Expirary Date</label>
-                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.permitExpiraryDate || new Date()} onChange={value => { handleChange(value, 'permitExpiraryDate') }} />
+                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.permitExpiryDate || new Date()} onChange={value => { handleChange(value, 'permitExpiryDate') }} />
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Permit Image</label>
@@ -417,13 +476,13 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Pollution Certificate Expirary Date</label>
-                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.pollutionExpiraryDate || new Date()} onChange={value => { handleChange(value, 'pollutionExpiraryDate') }} />
+                                    <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.pollutionExpiryDate || new Date()} onChange={value => { handleChange(value, 'pollutionExpiryDate') }} />
                                 </div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Pollution Certificate Image</label>
                                     <UploadImage ref={pollutionImgRef} {...{ fileCount: 1, files: data.pollutionImage ? [data.pollutionImage] : [] }} />
                                 </div>
-                                
+
 
                                 <div></div>
                                 <div className="col-md-4 form-group">
