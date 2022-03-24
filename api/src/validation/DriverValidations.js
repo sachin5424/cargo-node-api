@@ -55,21 +55,21 @@ export const driverValidation = [
         .notEmpty().withMessage("The 'Last Name' field is required")
         .isString().withMessage("The 'Last Name' field is not valid"),
 
-    // check('driverId')
-    //     .notEmpty().withMessage("The 'Driver ID' field is required")
-    //     .custom(async (value, { req }) => {
-    //         const body = req.body;
-    //         const result = await DriverModel.findOne({ driverId: value });
-    //         if (result) {
-    //             if (body._id) {
-    //                 if (result._id != body._id) {
-    //                     throw new Error("A driver already exist with this Driver ID");
-    //                 }
-    //             } else {
-    //                 throw new Error("A driver already exist with this Driver ID");
-    //             }
-    //         }
-    //     }),
+    check('driverId')
+        .notEmpty().withMessage("The 'Driver ID' field is required")
+        .custom(async (value, { req }) => {
+            const body = req.body;
+            const result = await DriverModel.findOne({ driverId: value });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A driver already exist with this Driver ID");
+                    }
+                } else {
+                    throw new Error("A driver already exist with this Driver ID");
+                }
+            }
+        }),
 
     check('phoneNo')
         .notEmpty().withMessage("The 'Phone Number' field is required")
@@ -106,21 +106,35 @@ export const driverValidation = [
         }),
 
     check('password')
-        .notEmpty().withMessage("The 'Password' field is required"),
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.password) {
+                    throw new Error("The 'Password' field is required");
+                }
+            }
+            return true;
+        }),
 
     check('dob')
         .notEmpty().withMessage("The 'Date of Birth' field is required")
         .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Date of Birth' field is not valid"),
 
     check('photo')
-        .notEmpty().withMessage("Photo is required")
-        .isString().withMessage("Photo is not valid")
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.permitPhoto) {
+                    throw new Error("The 'Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
         .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Photo is not an image"),
 
     check('drivingLicenceNumber')
         .notEmpty().withMessage("The 'Driving Licence Number' field is required")
         .isString().withMessage("The 'Driving Licence Number' field is must be a valid")
-        .matches(/^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/).withMessage("'Driving Licence Number' is not valid")
+        // .matches(/^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/).withMessage("'Driving Licence Number' is not valid")
         .custom(async (value, { req }) => {
             const body = req.body;
             const result = await DriverModel.findOne({ drivingLicenceNumber: value });
@@ -134,19 +148,26 @@ export const driverValidation = [
                 }
             }
         }),
-
-    check('drivingLicenceImage')
-        .notEmpty().withMessage("Driving Licence Image is required")
-        .isString().withMessage("Driving Licence Image is not valid")
-        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Driving Licence Image is not an image"),
-
+        
     check('drivingLicenceNumberExpiryDate')
-        .notEmpty().withMessage("The 'Driving Licence Expiry Date' field is required")
-        .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Driving Licence Expiry Date' field is not valid"),
+            .notEmpty().withMessage("The 'Driving Licence Expiry Date' field is required")
+            .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Driving Licence Expiry Date' field is not valid"),
+    
+    check('drivingLicencePhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.permitPhoto) {
+                    throw new Error("The 'Driving Licence Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Driving Licence Photo is not an image"),
 
     check('adharNo')
         .notEmpty().withMessage("The 'Adhar Number' field is required")
-        .matches(/^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$/).withMessage("The 'Adhar Number' field is not valid")
+        // .matches(/^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$/).withMessage("The 'Adhar Number' field is not valid")
         .custom(async (value, { req }) => {
 
             const body = req.body;
@@ -164,14 +185,21 @@ export const driverValidation = [
 
         }),
 
-    check('adharImage')
-        .notEmpty().withMessage("Adhar Image is required")
-        .isString().withMessage("Adhar Image is not valid")
-        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Adhar Image is not an image"),
+    check('adharCardPhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.permitPhoto) {
+                    throw new Error("The 'Adhar Card Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Adhar Card Photo is not an image"),
 
     check('panNo')
         .notEmpty().withMessage("The 'Pan Number' field is required")
-        .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}$/).withMessage("The 'Pan Number' field is not valid")
+        // .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}$/).withMessage("The 'Pan Number' field is not valid")
         .custom(async (value, { req }) => {
 
             const body = req.body;
@@ -189,14 +217,21 @@ export const driverValidation = [
 
         }),
 
-    check('panImage')
-        .notEmpty().withMessage("Pan Card Image is required")
-        .isString().withMessage("Pan Card Image is not valid")
-        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Pan Card Image is not an image"),
+    check('panCardPhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.permitPhoto) {
+                    throw new Error("The 'Pan Card Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Pan Card Photo is not an image"),
 
     check('badgeNo')
         .notEmpty().withMessage("The 'Badge Number' field is required")
-        .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}$/).withMessage("The 'Badge Number' field is not valid")
+        // .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}$/).withMessage("The 'Badge Number' field is not valid")
         .custom(async (value, { req }) => {
 
             const body = req.body;
@@ -214,10 +249,17 @@ export const driverValidation = [
 
         }),
 
-    check('badgeImage')
-        .notEmpty().withMessage("Badge Image is required")
-        .isString().withMessage("Badge Image is not valid")
-        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Badge Image is not an image"),
+    check('badgePhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.permitPhoto) {
+                    throw new Error("The 'Badge Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Badge Photo is not an image"),
 
     check('address')
         .notEmpty().withMessage("The 'Address' field is required")
@@ -269,6 +311,9 @@ export const driverValidation = [
         .notEmpty().withMessage("The 'Zipcode' field is required")
         .matches(/^[1-9]{1}[0-9]{5}$/).withMessage("The 'Zipcode' field is not valid"),
 
+    check('isApproved').
+        notEmpty().withMessage("The 'Approval Status' field is required")
+        .toBoolean(1 ? true : false),
     check('isActive').
         notEmpty().withMessage("The 'active' field is required")
         .toBoolean(1 ? true : false),

@@ -7,7 +7,7 @@ export default class DriverController {
     static async list(req, res) {
         try {
 			const srvRes = await Service.listDriver(req?.query, req.__cuser._doc)
-            return res.status(srvRes.statusCode).json({ srvRes });
+            return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
 		}
@@ -34,7 +34,7 @@ export default class DriverController {
                     throw new Error("Error while sending confirmation email. Please try again!");
                 }
             }
-            return res.status(srvRes.statusCode).json({ srvRes });
+            return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
 		}
@@ -43,7 +43,7 @@ export default class DriverController {
     static async delete(req, res) {
         try {
 			const srvRes = await Service.deleteDriver(req.params.id);
-            return res.status(srvRes.statusCode).json({ srvRes });
+            return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
 		}

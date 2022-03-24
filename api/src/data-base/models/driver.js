@@ -2,35 +2,9 @@ import { Schema, model } from 'mongoose';
 import bcrypt from "bcryptjs";
 
 const DriverSchema = new Schema({
-    serviceType: {
+    vehicle: {
         type: Schema.Types.ObjectId,
-        ref: "serviceType",
-    },
-    firstName: String,
-    lastName: String,
-    // driverId: String,
-    phoneNo: String,
-    email: String,
-    emailVerified: { 
-        type: Boolean, 
-        default: false 
-    },
-    password: String,
-    dob: Date,
-    photo: String,
-    drivingLicenceNumber: String,
-    drivingLicenceImage: String,
-    drivingLicenceNumberExpiryDate: Date,
-    adharNo: String,
-    adharImage: String,
-    panNo: String,
-    panImage: String,
-    badgeNo: String,
-    badgeImage: String,
-    address: String,
-    owner: {
-        type: Schema.Types.ObjectId,
-        ref: "owner",
+        ref: "vehicle",
     },
     state: {
         type: Schema.Types.ObjectId,
@@ -44,12 +18,33 @@ const DriverSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "taluk",
     },
-    zipcode: String,
-
-    isDocApproved: {
-        type: Boolean,
-        default: false
+    driverId: Number,
+    firstName: String,
+    lastName: String,
+    phoneNo: String,
+    email: String,
+    otpVerified: { 
+        type: Boolean, 
+        default: false 
     },
+    password: String,
+    dob: Date,
+    address: String,
+    zipcode: String,
+    photo: String,
+    
+    drivingLicenceNumber: String,
+    drivingLicenceNumberExpiryDate: Date,
+    drivingLicencePhoto: String,
+
+    adharNo: String,
+    adharCardPhoto: String,
+
+    panNo: String,
+    panCardPhoto: String,
+
+    badgeNo: String,
+    badgePhoto: String,
 
     isOnline: {
         type: Boolean,

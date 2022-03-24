@@ -40,8 +40,8 @@ const routes = {
                 { name: 'Color', url: '/color', component: Color, modules: [colorModules.view] },
                 { name: 'Make', url: '/make', component: Make, modules: [makeModules.view] },
                 { name: 'Make Model', url: '/make-model', component: MakeModel, modules: [makeModelModules.view] },
-                { name: 'Vehicle', url: '/vehicle', component: Vehicle, modules: [vehicleModules.view] },
                 { name: 'Category', url: '/category', component: Category, modules: [categoryModules.view] },
+                { name: 'Vehicle', url: '/vehicle', component: Vehicle, modules: [vehicleModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
         {

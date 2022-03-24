@@ -19,11 +19,7 @@ const config = {
     uploadPaths: {
         driver: {
             photo: process.env.DRIVER_PHOTO_UPLOAD_PATH || "/uploads/driver/photo/",
-            adhar: process.env.DRIVER_ADHAR_UPLOAD_PATH || "/uploads/driver/adhar/",
-            badge: process.env.DRIVER_BADGE_UPLOAD_PATH || "/uploads/driver/badge/",
-            pan: process.env.DRIVER_PAN_UPLOAD_PATH || "/uploads/driver/pan/",
-            licence: process.env.DRIVER_LICENCE_UPLOAD_PATH || "/uploads/driver/licence/",
-
+            document: process.env.DRIVER_DOCUMENT_UPLOAD_PATH || "/uploads/driver/document/",
         },
         vehicle: {
             category: process.env.VEHICLE_CATEGORY_PHOTO_UPLOAD_PATH || "./uploads/vehicle/category/",

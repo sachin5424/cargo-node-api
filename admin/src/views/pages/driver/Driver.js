@@ -1,15 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Popconfirm, Input, Modal, Tag, Spin } from "antd";
+import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
-import service from "../../../services/admin";
+import service from "../../../services/driver";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
+import vehicleService from "../../../services/vehicle";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
+import moment from "moment";
 
 export const modules = {
     view: util.getModules('viewDriver'),
@@ -29,6 +31,7 @@ export default function Driver() {
     const [data, setData] = useState([]);
     const [sdt, setSdt] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [vehicles, setVehicles] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
@@ -138,6 +141,7 @@ export default function Driver() {
     useEffect(() => {
         list();
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
+        vehicleService.listAll({}, 'viewVehicle').then(res => { setVehicles(res.result.data || []) });
     }, []);
 
     return (
@@ -148,13 +152,13 @@ export default function Driver() {
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, sdt }} />
+            <AddForm ref={formRef} {...{ list, sdt, vehicles }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, sdt } = props;
+    const { list, sdt, vehicles } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -162,6 +166,9 @@ const AddForm = forwardRef((props, ref) => {
     const [taluks, setTaluks] = useState([]);
     const [changeForm, setChangeForm] = useState(false);
     const imgRef = useRef();
+    const licenceImgRef = useRef();
+    const adharCardImgRef = useRef();
+    const panCardImgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -170,7 +177,12 @@ const AddForm = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         openForm(dt) {
             imgRef.current = {};
-            setData(dt ? { ...dt } : { isActive: true });
+            licenceImgRef.current = {};
+            adharCardImgRef.current = {};
+            panCardImgRef.current = {};
+
+            dt.dob = moment(dt.dob).format('YYYY-MM-DD');
+            setData(dt ? { ...dt } : { isActive: true, isApproved: false });
             handleVisible(true);
             if (!dt?._id && addAccess) {
                 setChangeForm(true);
@@ -187,6 +199,10 @@ const AddForm = forwardRef((props, ref) => {
     const save = () => {
         setAjxRequesting(true);
         data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.drivingLicencePhoto = licenceImgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.adharCardPhoto = adharCardImgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.panCardPhoto = panCardImgRef?.current?.uploadingFiles?.[0]?.base64;
+
         service.save(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
@@ -204,31 +220,31 @@ const AddForm = forwardRef((props, ref) => {
 
     }
 
-    const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district)
+    const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district);
 
-    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v => v._id)?.includes(data.taluk)
+    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v => v._id)?.includes(data.taluk);
 
     useEffect(() => {
         const newDistricts = sdt.find(v => v._id === data.state)?.districts || [];
         setDistricts(newDistricts?.map(v => ({ value: v._id, label: v.name, taluks: v.taluks })) || [])
-    }, [data.state])
+    }, [data.state]);
 
     useEffect(() => {
         const newTaluks = districts?.find(v => v.value === data.district)?.taluks || [];
         setTaluks(newTaluks?.map(v => { return { value: v._id, label: v.name } }))
-    }, [data.district, districts])
+    }, [data.district, districts]);
 
     useEffect(() => {
         if (!checkDistrictExist()) {
             handleChange('', 'district');
         }
-    }, [data.state])
+    }, [data.state]);
 
     useEffect(() => {
         if (!checkTalukExist()) {
             handleChange('', 'taluk');
         }
-    }, [data.district, districts])
+    }, [data.district, districts]);
 
     return (
         <>
@@ -249,6 +265,17 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
+                                <div><Divider orientation="left" className="text-danger">Vehicle</Divider></div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Vehicle</label>
+                                    <AntdSelect options={vehicles} value={data.vehicle} onChange={v => { handleChange(v, 'vehicle') }} />
+                                </div>
+                                <div><Divider orientation="left" className="text-danger">Personal Details </Divider></div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Driver Id</label>
+                                    <Input value={data.driverId || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'driverId')} />
+                                </div>
+                                <div></div>
                                 <div className="col-md-6 form-group">
                                     <label className="req">First Name</label>
                                     <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />
@@ -272,26 +299,6 @@ const AddForm = forwardRef((props, ref) => {
                                 <div className="col-md-3 form-group">
                                     <label className="req">DOB</label>
                                     <AntdDatepicker format="MMMM D, YYYY" value={data.dob || new Date()} onChange={value => { handleChange(value, 'dob') }} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Driving Licence Number</label>
-                                    <Input value={data.drivingLicenceNumber || ''} onChange={e => handleChange(e.target.value, 'drivingLicenceNumber')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Driving Licence Number Expiry Date</label>
-                                    <AntdDatepicker format="MMMM D, YYYY" value={data.drivingLicenceNumberExpiryDate || new Date()} onChange={value => { handleChange(value, 'drivingLicenceNumberExpiryDate') }} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Adhar Number</label>
-                                    <Input value={data.adharNo || ''} onChange={e => handleChange(e.target.value, 'adharNo')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">panNo</label>
-                                    <Input value={data.panNo || ''} onChange={e => handleChange(e.target.value, 'panNo')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">badgeNo</label>
-                                    <Input value={data.badgeNo || ''} onChange={e => handleChange(e.target.value, 'badgeNo')} />
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">State</label>
@@ -330,7 +337,51 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Image</label>
                                     <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
                                 </div>
-                                <div></div>
+
+                                <div><Divider orientation="left" className="text-danger">Document Details </Divider></div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Driving Licence Number</label>
+                                    <Input value={data.drivingLicenceNumber || ''} onChange={e => handleChange(e.target.value, 'drivingLicenceNumber')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Driving Licence Number Expiry Date</label>
+                                    <AntdDatepicker format="MMMM D, YYYY" value={data.drivingLicenceNumberExpiryDate || new Date()} onChange={value => { handleChange(value, 'drivingLicenceNumberExpiryDate') }} />
+                                </div>
+                                <div className="col-md-6 form-group">
+                                    <label className="req">Driving Licence photo</label>
+                                    <UploadImage ref={licenceImgRef} {...{ fileCount: 1, files: data.drivingLicenceImage ? [data.drivingLicenceImage] : [] }} />
+                                </div>
+
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Adhar Number</label>
+                                    <Input value={data.adharNo || ''} onChange={e => handleChange(e.target.value, 'adharNo')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Adhar Card photo</label>
+                                    <UploadImage ref={adharCardImgRef} {...{ fileCount: 1, files: data.adharCardImage ? [data.adharCardImage] : [] }} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Pan No.</label>
+                                    <Input value={data.panNo || ''} onChange={e => handleChange(e.target.value, 'panNo')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Pan Card photo</label>
+                                    <UploadImage ref={panCardImgRef} {...{ fileCount: 1, files: data.panCardImage ? [data.panCardImage] : [] }} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Badge No.</label>
+                                    <Input value={data.badgeNo || ''} onChange={e => handleChange(e.target.value, 'badgeNo')} />
+                                </div>
+
+                                <div><Divider orientation="left" className="text-danger">Status </Divider></div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Approval Status</label>
+                                    <AntdSelect
+                                        options={[{ value: true, label: "Approved" }, { value: false, label: "Not Approved" }]}
+                                        value={data.isApproved}
+                                        onChange={v => { handleChange(v, 'isApproved') }}
+                                    />
+                                </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Status</label>
                                     <AntdSelect
