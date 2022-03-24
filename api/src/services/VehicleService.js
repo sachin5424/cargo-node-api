@@ -1,5 +1,5 @@
 import VehicleModel from "../data-base/models/vehicle";
-import { clearSearch, encryptData, decryptData, getAdminFilter, uploadMultipleFile } from "../utls/_helper";
+import { clearSearch, uploadMultipleFile } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
 // import { sendResetPasswordMail } from "../thrirdParty/emailServices/vehicleOwner/sendEmail";
@@ -655,10 +655,17 @@ export default class Service {
                         serviceType: 1,
                         rideTypes: 1,
                         vehicleCategory: 1,
+                        state: 1,
+                        district: 1,
+                        taluk: 1,
+                        make: 1,
+                        model: 1,
+                        color: 1,
                         name: 1,
                         vehicleNumber: 1,
                         availableSeats: 1,
                         availableCapacity: 1,
+                        manufacturingYear: 1,
                         isActive: 1,
                         // otherPhotos: 1,
                         image: {
@@ -674,6 +681,37 @@ export default class Service {
                                     name: "$$images",
                                 }
                             }
+                        },
+                        registrationNumber: 1,
+                        registrationExpiryDate: 1,
+                        registrationPhoto: 1,
+                        registrationImage: {
+                            url: { $concat: [config.applicationFileUrl + 'vehicle/document/', "$registrationPhoto"] },
+                            name: "$primaryPhoto"
+                        },
+
+                        insuranceNumber: 1,
+                        insuranceExpiryDate: 1,
+                        insurancePhoto: 1,
+                        insuranceImage: {
+                            url: { $concat: [config.applicationFileUrl + 'vehicle/document/', "$insurancePhoto"] },
+                            name: "$primaryPhoto"
+                        },
+
+                        permitNumber: 1,
+                        permitExpiryDate: 1,
+                        permitPhoto: 1,
+                        permitImage: {
+                            url: { $concat: [config.applicationFileUrl + 'vehicle/document/', "$permitPhoto"] },
+                            name: "$primaryPhoto"
+                        },
+
+                        pollutionNumber: 1,
+                        pollutionExpiryDate: 1,
+                        pollutionPhoto: 1,
+                        pollutionImage: {
+                            url: { $concat: [config.applicationFileUrl + 'vehicle/document/', "$pollutionPhoto"] },
+                            name: "$primaryPhoto"
                         },
                     }
                 },
@@ -730,23 +768,23 @@ export default class Service {
             tplData.manufacturingYear = data.manufacturingYear;
             tplData.primaryPhoto = await uploadFile(data.primaryPhoto, config.uploadPaths.vehicle.photo, VehicleModel, 'primaryPhoto', _id);
             tplData.otherPhotos = await uploadMultipleFile(data.otherPhotos, config.uploadPaths.vehicle.photo, VehicleModel, 'otherPhotos', _id, data.deletingFiles);
-            
+
             tplData.registrationNumber = data.registrationNumber;
             tplData.registrationExpiryDate = data.registrationExpiryDate;
             tplData.registrationPhoto = await uploadFile(data.registrationPhoto, config.uploadPaths.vehicle.document, VehicleModel, 'registrationPhoto', _id);
-            
+
             tplData.insuranceNumber = data.insuranceNumber;
             tplData.insuranceExpiryDate = data.insuranceExpiryDate;
             tplData.insurancePhoto = await uploadFile(data.insurancePhoto, config.uploadPaths.vehicle.document, VehicleModel, 'insurancePhoto', _id);
-            
+
             tplData.permitNumber = data.permitNumber;
             tplData.permitExpiryDate = data.permitExpiryDate;
             tplData.permitPhoto = await uploadFile(data.permitPhoto, config.uploadPaths.vehicle.document, VehicleModel, 'permitPhoto', _id);
-            
+
             tplData.pollutionNumber = data.pollutionNumber;
             tplData.pollutionExpiryDate = data.pollutionExpiryDate;
             tplData.pollutionPhoto = await uploadFile(data.pollutionPhoto, config.uploadPaths.vehicle.document, VehicleModel, 'pollutionPhoto', _id);
-            
+
             tplData.isActive = data.isActive;
 
             await tplData.save();

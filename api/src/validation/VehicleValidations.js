@@ -418,9 +418,9 @@ export const vehicleValidation = [
         .notEmpty().withMessage("The 'Registration Number' field is required")
         .isString().withMessage("The 'Registration Number' field is not valid"),
 
-    check('registrationExpiraryDate')
-        .notEmpty().withMessage("The 'Registration Expirary Date' field is required")
-        .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Registration Expirary Date' field is not valid"),
+    check('registrationExpiryDate')
+        .notEmpty().withMessage("The 'Registration Expiry Date' field is required")
+        .matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Registration Expiry Date' field is not valid"),
 
     check('registrationPhoto')
         .custom((v, { req }) => {

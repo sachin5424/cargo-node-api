@@ -11,6 +11,7 @@ import sdtService from "../../../services/sdt";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import util from "../../../utils/util";
+import moment from "moment";
 
 export const modules = {
     view: util.getModules('viewVehicle'),
@@ -192,6 +193,10 @@ const AddForm = forwardRef((props, ref) => {
             insuranceImgRef.current = {};
             permitImgRef.current = {};
             pollutionImgRef.current = {};
+            dt.registrationExpiryDate = moment(dt.registrationExpiryDate).format('YYYY-MM-DD');
+            dt.insuranceExpiryDate = moment(dt.insuranceExpiryDate).format('YYYY-MM-DD');
+            dt.permitExpiryDate = moment(dt.permitExpiryDate).format('YYYY-MM-DD');
+            dt.pollutionExpiryDate = moment(dt.pollutionExpiryDate).format('YYYY-MM-DD');
             setData(dt ? { ...dt } : { isActive: true });
             handleVisible(true);
             if (!dt?._id && addAccess) {
@@ -447,7 +452,7 @@ const AddForm = forwardRef((props, ref) => {
                                     <Input value={data.insuranceNumber || ''} onChange={e => handleChange(e.target.value, 'insuranceNumber')} />
                                 </div>
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Insurance Expirary Date</label>
+                                    <label className="req">Insurance Expiry Date</label>
                                     <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.insuranceExpiryDate || new Date()} onChange={value => { handleChange(value, 'insuranceExpiryDate') }} />
                                 </div>
                                 <div className="col-md-4 form-group">
@@ -461,7 +466,7 @@ const AddForm = forwardRef((props, ref) => {
                                     <Input value={data.permitNumber || ''} onChange={e => handleChange(e.target.value, 'permitNumber')} />
                                 </div>
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Permit Expirary Date</label>
+                                    <label className="req">Permit Expiry Date</label>
                                     <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.permitExpiryDate || new Date()} onChange={value => { handleChange(value, 'permitExpiryDate') }} />
                                 </div>
                                 <div className="col-md-4 form-group">
@@ -475,7 +480,7 @@ const AddForm = forwardRef((props, ref) => {
                                     <Input value={data.pollutionNumber || ''} onChange={e => handleChange(e.target.value, 'pollutionNumber')} />
                                 </div>
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Pollution Certificate Expirary Date</label>
+                                    <label className="req">Pollution Certificate Expiry Date</label>
                                     <AntdDatepicker format="MMMM D, YYYY" disablePastDate={true} value={data.pollutionExpiryDate || new Date()} onChange={value => { handleChange(value, 'pollutionExpiryDate') }} />
                                 </div>
                                 <div className="col-md-4 form-group">
