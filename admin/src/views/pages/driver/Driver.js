@@ -32,10 +32,27 @@ export default function Driver() {
     const [sdt, setSdt] = useState([]);
     const [loading, setLoading] = useState(true);
     const [vehicles, setVehicles] = useState([]);
+    const filters = [
+        {
+            type: 'dropdown',
+            key: 'isApproved',
+            className: "w200 mx-1",
+            placeholder: 'Approval Status',
+            options: [
+                { id: 0, name: 'Not Approved' },
+                { id: 1, name: 'Approved' },
+            ]
+        }
+    ];
 
     const formRef = useRef();
-    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
+    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, isApproved: '' });
     const columns = [
+        {
+            title: 'Driver Id',
+            dataIndex: 'driverId',
+            width: 200,
+        },
         {
             title: 'Name',
             dataIndex: 'firstName',
@@ -50,6 +67,18 @@ export default function Driver() {
             title: 'Phone No',
             dataIndex: 'phoneNo',
             width: 100,
+        },
+        {
+            title: 'Approval Status',
+            dataIndex: 'isApproved',
+            width: 120,
+            render: isApproved => {
+                if (isApproved) {
+                    return <Tag color='green'>Approved</Tag>
+                } else {
+                    return <Tag color='red'>Not Approved</Tag>
+                }
+            },
         },
         {
             title: 'Status',
@@ -150,7 +179,7 @@ export default function Driver() {
                 <span>Driver List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: addAccess }} />
+                <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name or Driver Id', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, sdt, vehicles }} />
         </>
@@ -176,6 +205,9 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
+            if (!dt) {
+                dt = {};
+            }
             imgRef.current = {};
             licenceImgRef.current = {};
             adharCardImgRef.current = {};

@@ -1,6 +1,5 @@
 import VehicleModel from "../data-base/models/vehicle";
-import { clearSearch, uploadMultipleFile } from "../utls/_helper";
-import { uploadFile } from "../utls/_helper";
+import { clearSearch, uploadMultipleFile, uploadFile, getAdminFilter } from "../utls/_helper";
 import config from "../utls/config";
 // import { sendResetPasswordMail } from "../thrirdParty/emailServices/vehicleOwner/sendEmail";
 import VehicleCategoryModel from "../data-base/models/vehicaleCategoryModel";
@@ -643,6 +642,7 @@ export default class Service {
                         vehicleNumber: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
+                ...getAdminFilter()
             };
 
             clearSearch(search);

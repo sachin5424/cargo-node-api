@@ -122,7 +122,7 @@ export const driverValidation = [
     check('photo')
         .custom((v, { req }) => {
             if (!req.body._id) {
-                if (!req.body.permitPhoto) {
+                if (!req.body.photo) {
                     throw new Error("The 'Photo' field is required");
                 }
             }
@@ -156,7 +156,7 @@ export const driverValidation = [
     check('drivingLicencePhoto')
         .custom((v, { req }) => {
             if (!req.body._id) {
-                if (!req.body.permitPhoto) {
+                if (!req.body.drivingLicencePhoto) {
                     throw new Error("The 'Driving Licence Photo' field is required");
                 }
             }
@@ -188,7 +188,7 @@ export const driverValidation = [
     check('adharCardPhoto')
         .custom((v, { req }) => {
             if (!req.body._id) {
-                if (!req.body.permitPhoto) {
+                if (!req.body.adharCardPhoto) {
                     throw new Error("The 'Adhar Card Photo' field is required");
                 }
             }
@@ -220,7 +220,7 @@ export const driverValidation = [
     check('panCardPhoto')
         .custom((v, { req }) => {
             if (!req.body._id) {
-                if (!req.body.permitPhoto) {
+                if (!req.body.panCardPhoto) {
                     throw new Error("The 'Pan Card Photo' field is required");
                 }
             }
@@ -252,7 +252,7 @@ export const driverValidation = [
     check('badgePhoto')
         .custom((v, { req }) => {
             if (!req.body._id) {
-                if (!req.body.permitPhoto) {
+                if (!req.body.badgePhoto) {
                     throw new Error("The 'Badge Photo' field is required");
                 }
             }

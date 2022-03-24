@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import DriverModel from "../data-base/models/driver";
-import { clearSearch, getAdminFilter, encryptData, decryptData} from "../utls/_helper";
+import { clearSearch, getAdminFilter, encryptData, decryptData } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
 import { sendResetPasswordMail } from "../thrirdParty/emailServices/driver/sendEmail";
@@ -19,13 +19,13 @@ export default class Service {
             if (!isPasswordMatched) {
                 throw new Error("Invalid Credentials");
             } else {
-                const JWT_EXP_DUR= config.jwt.expDuration;
+                const JWT_EXP_DUR = config.jwt.expDuration;
                 const accessToken = jwt.sign({ sub: owner._id.toString(), exp: Math.floor(Date.now() / 1000) + ((JWT_EXP_DUR) * 60), }, config.jwt.secretKey);
 
                 if (!owner.emailVerified) {
                     response.statusCode = 401;
                     response.message = "Email is not verified. Please verify from the link sent to your email!!";
-                } else if(!owner.isActive){
+                } else if (!owner.isActive) {
                     response.statusCode = 401;
                     response.message = "Your acount is blocked. Please contact admin";
                 } else {
@@ -110,7 +110,7 @@ export default class Service {
                     response.statusCode = 200;
                     response.status = true;
                 }
-            } else{
+            } else {
                 response.message = "Time expired";
             }
 
@@ -141,17 +141,35 @@ export default class Service {
                 isDeleted: false,
                 $or: [
                     {
-                        firstName: { $regex: '.*' + query?.key + '.*' }
+                        firstName: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                     {
-                        lastName: { $regex: '.*' + query?.key + '.*' }
+                        lastName: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
-
+                isApproved: query.isApproved ? (query.isApproved === '1' ? true : false) : '',
                 ...getAdminFilter()
             };
-            
+
+            // console.log(  'parseInt(query.key)', parseInt(query.key * 1)  );
+            // console.log(  "parseInt(query.key) != NaN",  parseInt(query.key) == NaN);
+            // console.log(  "typeof parseInt(query.key)",  typeof parseInt(query.key));
+            // console.log(  "typeof parseInt(query.key) == 'number'", typeof parseInt(query.key) == 'number');
+            // console.log(  "Final ",    parseInt(query.key) != 'NaN' && typeof parseInt(query.key) == 'number');
+
+
+            // if(parseInt(query.key * 1) != NaN && typeof parseInt(query.key) == 'number'){
+            //     console.log('yes');
+            //     search.$or = [
+            //         {
+            //             driverId: query.key * 1
+            //         }
+            //     ]
+            // }
+
             clearSearch(search);
+
+            // console.log('search----', search);
             const $aggregate = [
                 { $match: search },
                 { $sort: { _id: -1 } },
@@ -209,7 +227,7 @@ export default class Service {
 
             const counter = await DriverModel.aggregate([...$aggregate, { $count: "total" }]);
             response.result.total = counter[0]?.total;
-            if(isAll){
+            if (isAll) {
                 response.result.page = 1;
                 response.result.limit = response.result.total;
             }
@@ -259,18 +277,18 @@ export default class Service {
             tplData.drivingLicenceNumber = data.drivingLicenceNumber;
             tplData.drivingLicenceNumberExpiryDate = data.drivingLicenceNumberExpiryDate;
             tplData.drivingLicencePhoto = await uploadFile(data.drivingLicencePhoto, config.uploadPaths.driver.document, DriverModel, 'drivingLicencePhoto', _id);
-            
+
             tplData.adharNo = data.adharNo;
             tplData.adharCardPhoto = await uploadFile(data.adharCardPhoto, config.uploadPaths.driver.document, DriverModel, 'adharCardPhoto', _id);
-            
+
             tplData.panNo = data.panNo;
             tplData.panCardPhoto = await uploadFile(data.panCardPhoto, config.uploadPaths.driver.document, DriverModel, 'panCardPhoto', _id);
-            
+
             tplData.badgeNo = data.badgeNo;
             tplData.badgePhoto = await uploadFile(data.badgePhoto, config.uploadPaths.driver.document, DriverModel, 'badgePhoto', _id);
-            
+
             tplData.owner = data.owner;
-            
+
             tplData.isApproved = data.isApproved;
             tplData.isActive = data.isActive;
 
