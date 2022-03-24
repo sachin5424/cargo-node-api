@@ -12,6 +12,7 @@ import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import util from "../../../utils/util";
 import moment from "moment";
+import Driver from "../driver/Driver";
 
 export const modules = {
     view: util.getModules('viewVehicle'),
@@ -37,6 +38,7 @@ export default function Vehicle() {
     const [sdt, setSdt] = useState([]);
 
     const formRef = useRef();
+    const driverFormRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
@@ -53,6 +55,19 @@ export default function Vehicle() {
             title: 'Vehicle Number',
             dataIndex: 'vehicleNumber',
             width: 200,
+        },
+        {
+            title: 'Driver',
+            dataIndex: '',
+            width: 80,
+            hidden: ! util.getModules('viewDriver'),
+            render: (isActive, row) => {
+                return <Button size="small" className="mx-1" onClick={() => { driverFormRef.current.openForm(row) }}>
+                    <span className="d-flex">
+                        Driver
+                    </span>
+                </Button>
+            },
         },
         {
             title: 'Status',
@@ -159,6 +174,7 @@ export default function Vehicle() {
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, serviceType, rideTypes, makes, colors, sdt }} />
+            <AddFormDriver ref={driverFormRef} />
         </>
     );
 }
@@ -284,7 +300,6 @@ const AddForm = forwardRef((props, ref) => {
     }, [data.district, districts]);
 
     const save = () => {
-        console.log(otherImgRef.current);
         setAjxRequesting(true);
         data.primaryPhoto = primaryImgRef?.current?.uploadingFiles?.[0]?.base64;
         data.otherPhotos = otherImgRef?.current?.uploadingFiles?.map(v => v.base64);
@@ -502,6 +517,38 @@ const AddForm = forwardRef((props, ref) => {
                         </fieldset>
                     </form>
                 </Spin>
+            </Modal>
+        </>
+    );
+});
+
+const AddFormDriver = forwardRef((props, ref) => {
+    const [visible, setVisible] = useState(false);
+    const [data, setData] = useState({});
+
+    useImperativeHandle(ref, () => ({
+        openForm(dt) {
+            setData(dt);
+            setVisible(true);
+        }
+    }));
+
+
+    return (
+        <>
+            <Modal
+                style={{ top: 20 }}
+                visible={visible}
+                onCancel={() => { setVisible(false); }}
+                destroyOnClose
+                maskClosable={false}
+                width={200}
+                // bodyStyle={{display: "none"}}
+                closable={false}
+                footer={null}
+            >
+                <Spin spinning={true} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>Loading</Spin>
+                <Driver {...{vehicleData: data, setVisible}} />
             </Modal>
         </>
     );

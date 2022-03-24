@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 import DriverModel from "../data-base/models/driver";
 import { clearSearch, getAdminFilter, encryptData, decryptData } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
@@ -148,6 +149,7 @@ export default class Service {
                     },
                 ],
                 isApproved: query.isApproved ? (query.isApproved === '1' ? true : false) : '',
+                vehicle: query.vehicleId ? mongoose.Types.ObjectId(query.vehicleId) : '',
                 ...getAdminFilter()
             };
 

@@ -26,9 +26,9 @@ const editAccess = modules.edit;
 const deleteAccess = modules.delete;
 
 
-export default function Driver() {
+export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
 
-    const [data, setData] = useState([]);
+    const [data, setData] = useState();
     const [sdt, setSdt] = useState([]);
     const [loading, setLoading] = useState(true);
     const [vehicles, setVehicles] = useState([]);
@@ -46,7 +46,7 @@ export default function Driver() {
     ];
 
     const formRef = useRef();
-    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, isApproved: '' });
+    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, vehicleId: vehicleData?._id });
     const columns = [
         {
             title: 'Driver Id',
@@ -173,21 +173,34 @@ export default function Driver() {
         vehicleService.listAll({}, 'viewVehicle').then(res => { setVehicles(res.result.data || []) });
     }, []);
 
+    useEffect(() => {
+        if (vehicleData && typeof data === "object" ) {
+            formRef.current.openForm(data?.[0] ? data?.[0] : { vehicle: vehicleData._id, isActive: true, isApproved: false });
+        }
+    }, [data]);
+
     return (
         <>
-            <div className="page-description text-white p-2" >
-                <span>Driver List</span>
-            </div>
-            <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name or Driver Id', addNew: addAccess }} />
-            </div>
-            <AddForm ref={formRef} {...{ list, sdt, vehicles }} />
+
+            {
+                !vehicleData
+                    ? <>
+                        <div className="page-description text-white p-2" >
+                            <span>Driver List</span>
+                        </div>
+                        <div className="m-2 border p-2">
+                            <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name or Driver Id', addNew: addAccess }} />
+                        </div>
+                    </>
+                    : null
+            }
+            <AddForm ref={formRef} {...{ list, sdt, vehicles, setVisibleParent }} />
         </>
     );
 }
 
-const AddForm = forwardRef((props, ref) => {
-    const { list, sdt, vehicles } = props;
+export const AddForm = forwardRef((props, ref) => {
+    const { list, sdt, vehicles, setVisibleParent } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -201,6 +214,9 @@ const AddForm = forwardRef((props, ref) => {
 
     const handleVisible = (val) => {
         setVisible(val);
+        if (setVisibleParent && !val) {
+            setVisibleParent(false);
+        }
     }
 
     useImperativeHandle(ref, () => ({
@@ -281,7 +297,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' User'}
+                title={(!data._id ? 'Add' : 'Edit') + ' Driver'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -300,7 +316,7 @@ const AddForm = forwardRef((props, ref) => {
                                 <div><Divider orientation="left" className="text-danger">Vehicle</Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Vehicle</label>
-                                    <AntdSelect options={vehicles} value={data.vehicle} onChange={v => { handleChange(v, 'vehicle') }} />
+                                    <AntdSelect options={vehicles} disabled value={data.vehicle} onChange={v => { handleChange(v, 'vehicle') }} />
                                 </div>
                                 <div><Divider orientation="left" className="text-danger">Personal Details </Divider></div>
                                 <div className="col-md-3 form-group">
