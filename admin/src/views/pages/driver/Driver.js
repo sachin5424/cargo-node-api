@@ -8,6 +8,7 @@ import service from "../../../services/driver";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
+import commonService from "../../../services/common";
 import vehicleService from "../../../services/vehicle";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
@@ -32,7 +33,8 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     const [sdt, setSdt] = useState([]);
     const [loading, setLoading] = useState(true);
     const [vehicles, setVehicles] = useState([]);
-    const filters = [
+    const [serviceType, setServiceType] = useState([]);
+    const [filters, setFilters] = useState([
         {
             type: 'dropdown',
             key: 'isApproved',
@@ -43,7 +45,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
                 { id: 1, name: 'Approved' },
             ]
         }
-    ];
+    ]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, vehicleId: vehicleData?._id });
@@ -168,13 +170,26 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     }
 
     useEffect(() => {
+        if(serviceType.length > 0){
+            setFilters([...filters, {
+                type: 'dropdown',
+                key: 'serviceType',
+                placeholder: 'Service Type',
+                className: "w200 mx-1",
+                options: serviceType
+            }]);
+        }
+    }, [serviceType]);
+
+    useEffect(() => {
         list();
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
-        vehicleService.listAll({}, 'viewVehicle').then(res => { setVehicles(res.result.data || []) });
+        // vehicleService.listAll({}, 'viewVehicle').then(res => { setVehicles(res.result.data || []) });
+        commonService.listServiceType().then(res => { setServiceType(res.result.data); });
     }, []);
 
     useEffect(() => {
-        if (vehicleData && typeof data === "object" ) {
+        if (vehicleData && typeof data === "object") {
             formRef.current.openForm(data?.[0] ? data?.[0] : { vehicle: vehicleData._id, isActive: true, isApproved: false });
         }
     }, [data]);
@@ -211,6 +226,7 @@ export const AddForm = forwardRef((props, ref) => {
     const licenceImgRef = useRef();
     const adharCardImgRef = useRef();
     const panCardImgRef = useRef();
+    const badgeImgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -228,6 +244,7 @@ export const AddForm = forwardRef((props, ref) => {
             licenceImgRef.current = {};
             adharCardImgRef.current = {};
             panCardImgRef.current = {};
+            badgeImgRef.current = {};
 
             dt.dob = moment(dt.dob).format('YYYY-MM-DD');
             setData(dt ? { ...dt } : { isActive: true, isApproved: false });
@@ -250,6 +267,7 @@ export const AddForm = forwardRef((props, ref) => {
         data.drivingLicencePhoto = licenceImgRef?.current?.uploadingFiles?.[0]?.base64;
         data.adharCardPhoto = adharCardImgRef?.current?.uploadingFiles?.[0]?.base64;
         data.panCardPhoto = panCardImgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.badgePhoto = badgeImgRef?.current?.uploadingFiles?.[0]?.base64;
 
         service.save(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
@@ -316,7 +334,8 @@ export const AddForm = forwardRef((props, ref) => {
                                 <div><Divider orientation="left" className="text-danger">Vehicle</Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Vehicle</label>
-                                    <AntdSelect options={vehicles} disabled value={data.vehicle} onChange={v => { handleChange(v, 'vehicle') }} />
+                                    {/* <AntdSelect options={vehicles} disabled value={data.vehicle} onChange={v => { handleChange(v, 'vehicle') }} /> */}
+                                    <Input value={data?.vehicleDetails?.name || ''} disabled/>
                                 </div>
                                 <div><Divider orientation="left" className="text-danger">Personal Details </Divider></div>
                                 <div className="col-md-3 form-group">
@@ -386,7 +405,7 @@ export const AddForm = forwardRef((props, ref) => {
                                     <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
                                 </div>
 
-                                <div><Divider orientation="left" className="text-danger">Document Details </Divider></div>
+                                <div><Divider orientation="left" className="text-danger">Driving Licence Details </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Driving Licence Number</label>
                                     <Input value={data.drivingLicenceNumber || ''} onChange={e => handleChange(e.target.value, 'drivingLicenceNumber')} />
@@ -399,7 +418,7 @@ export const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Driving Licence photo</label>
                                     <UploadImage ref={licenceImgRef} {...{ fileCount: 1, files: data.drivingLicenceImage ? [data.drivingLicenceImage] : [] }} />
                                 </div>
-
+                                <div><Divider orientation="left" className="text-danger">Adhar Details </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Adhar Number</label>
                                     <Input value={data.adharNo || ''} onChange={e => handleChange(e.target.value, 'adharNo')} />
@@ -408,6 +427,7 @@ export const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Adhar Card photo</label>
                                     <UploadImage ref={adharCardImgRef} {...{ fileCount: 1, files: data.adharCardImage ? [data.adharCardImage] : [] }} />
                                 </div>
+                                <div><Divider orientation="left" className="text-danger">Pan Card Details </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Pan No.</label>
                                     <Input value={data.panNo || ''} onChange={e => handleChange(e.target.value, 'panNo')} />
@@ -416,11 +436,15 @@ export const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Pan Card photo</label>
                                     <UploadImage ref={panCardImgRef} {...{ fileCount: 1, files: data.panCardImage ? [data.panCardImage] : [] }} />
                                 </div>
+                                <div><Divider orientation="left" className="text-danger">Badge Details </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Badge No.</label>
                                     <Input value={data.badgeNo || ''} onChange={e => handleChange(e.target.value, 'badgeNo')} />
                                 </div>
-
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Badge photo</label>
+                                    <UploadImage ref={badgeImgRef} {...{ fileCount: 1, files: data.badgeImage ? [data.badgeImage] : [] }} />
+                                </div>
                                 <div><Divider orientation="left" className="text-danger">Status </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Approval Status</label>

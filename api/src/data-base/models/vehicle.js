@@ -43,6 +43,10 @@ const VehicleSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "color",
     },
+    vehicleId: {
+        type: Number,
+        unique: true,
+    },
     name: String,
     vehicleNumber: String,
     availableSeats: Number,

@@ -173,6 +173,7 @@ export default function Type() {
             {
                 type: 'dropdown',
                 key: 'serviceType',
+                placeholder: 'Service Type',
                 className: "w200 mx-1",
                 options: serviceType
             }

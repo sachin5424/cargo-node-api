@@ -36,6 +36,7 @@ export default function Vehicle() {
     const [makes, setMakes] = useState();
     const [colors, setColors] = useState([]);
     const [sdt, setSdt] = useState([]);
+    const [filters, setFilters] = useState([]);
 
     const formRef = useRef();
     const driverFormRef = useRef();
@@ -46,6 +47,11 @@ export default function Vehicle() {
             dataIndex: 'image',
             width: 100,
             render: (v) => (<Image height={30} preview={{ mask: "View" }} src={v?.url} />)
+        },
+        {
+            title: 'Vehicle Id',
+            dataIndex: 'vehicleId',
+            width: 150,
         },
         {
             title: 'Name',
@@ -60,7 +66,7 @@ export default function Vehicle() {
             title: 'Driver',
             dataIndex: '',
             width: 80,
-            hidden: ! util.getModules('viewDriver'),
+            hidden: !util.getModules('viewDriver'),
             render: (isActive, row) => {
                 return <Button size="small" className="mx-1" onClick={() => { driverFormRef.current.openForm(row) }}>
                     <span className="d-flex">
@@ -165,13 +171,25 @@ export default function Vehicle() {
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
     }, []);
 
+    useEffect(()=>{
+        setFilters([
+            {
+                type: 'dropdown',
+                key: 'serviceType',
+                placeholder: 'Service Type',
+                className: "w200 mx-1",
+                options: serviceType
+            }
+        ]);
+    }, [serviceType]);
+
     return (
         <>
             <div className="page-description text-white p-2" >
                 <span>Vehicle List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
+                <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, serviceType, rideTypes, makes, colors, sdt }} />
             <AddFormDriver ref={driverFormRef} />
@@ -203,6 +221,9 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
+            if(!dt){
+                dt = {};
+            }
             primaryImgRef.current = {};
             otherImgRef.current = {};
             registrationImgRef.current = {};
@@ -344,6 +365,12 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
+                                <div><Divider orientation="left" className="text-danger">Vehicle Id</Divider></div>
+
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Vehicle Id</label>
+                                    <Input value={data.vehicleId || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'vehicleId')} />
+                                </div>
                                 <div><Divider orientation="left" className="text-danger">Service Type </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Service Type</label>
@@ -548,7 +575,7 @@ const AddFormDriver = forwardRef((props, ref) => {
                 footer={null}
             >
                 <Spin spinning={true} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>Loading</Spin>
-                <Driver {...{vehicleData: data, setVisible}} />
+                <Driver {...{ vehicleData: data, setVisible }} />
             </Modal>
         </>
     );

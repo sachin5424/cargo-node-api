@@ -143,7 +143,7 @@ export default class Service {
                 $or: [
                     {
                         firstName: { $regex: '.*' + (query?.key || '') + '.*' }
-                    },
+                    }, 
                     {
                         lastName: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
@@ -153,25 +153,8 @@ export default class Service {
                 ...getAdminFilter()
             };
 
-            // console.log(  'parseInt(query.key)', parseInt(query.key * 1)  );
-            // console.log(  "parseInt(query.key) != NaN",  parseInt(query.key) == NaN);
-            // console.log(  "typeof parseInt(query.key)",  typeof parseInt(query.key));
-            // console.log(  "typeof parseInt(query.key) == 'number'", typeof parseInt(query.key) == 'number');
-            // console.log(  "Final ",    parseInt(query.key) != 'NaN' && typeof parseInt(query.key) == 'number');
-
-
-            // if(parseInt(query.key * 1) != NaN && typeof parseInt(query.key) == 'number'){
-            //     console.log('yes');
-            //     search.$or = [
-            //         {
-            //             driverId: query.key * 1
-            //         }
-            //     ]
-            // }
-
             clearSearch(search);
 
-            // console.log('search----', search);
             const $aggregate = [
                 { $match: search },
                 { $sort: { _id: -1 } },
@@ -225,6 +208,32 @@ export default class Service {
                     }
                 },
             ];
+
+            const vehicleSearch = {
+                isDeleted: false,
+                serviceType: query.serviceType ? mongoose.Types.ObjectId(query.serviceType) : '',
+            };
+
+            clearSearch(vehicleSearch);
+            $aggregate.push(
+                {
+                    $lookup: {
+                        from: 'vehicles',
+                        localField: 'vehicle',
+                        foreignField: '_id',
+                        as: 'vehicleDetails',
+                        pipeline: [
+                            { $match: vehicleSearch },
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+            );
+            $aggregate.push({$unwind: "$vehicleDetails"});
 
 
             const counter = await DriverModel.aggregate([...$aggregate, { $count: "total" }]);

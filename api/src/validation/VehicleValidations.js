@@ -224,6 +224,22 @@ export const vehicleValidation = [
             }
         }),
 
+    check('vehicleId')
+        .notEmpty().withMessage("The 'Vehicle ID' field is required")
+        .custom(async (value, { req }) => {
+            const body = req.body;
+            const result = await VehicleModel.findOne({ vehicleId: value });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A vehicle already exist with this Vehicle ID");
+                    }
+                } else {
+                    throw new Error("A vehicle already exist with this Vehicle ID");
+                }
+            }
+        }),
+
     check('serviceType')
         .notEmpty().withMessage("The 'Service Type' field is required")
         .custom(async (value) => {

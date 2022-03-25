@@ -6,6 +6,7 @@ import VehicleCategoryModel from "../data-base/models/vehicaleCategoryModel";
 import ColorModel from "../data-base/models/color";
 import MakeModel from "../data-base/models/make";
 import MakeModelModel from "../data-base/models/makeModel";
+import mongoose from "mongoose";
 
 export default class Service {
 
@@ -642,6 +643,7 @@ export default class Service {
                         vehicleNumber: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
+                serviceType: query.serviceType ? mongoose.Types.ObjectId(query.serviceType) : '',
                 ...getAdminFilter()
             };
 
@@ -652,6 +654,7 @@ export default class Service {
                 { $sort: { _id: -1 } },
                 {
                     "$project": {
+                        vehicleId: 1,
                         serviceType: 1,
                         rideTypes: 1,
                         vehicleCategory: 1,
@@ -752,6 +755,7 @@ export default class Service {
         try {
             const tplData = _id ? await VehicleModel.findById(_id) : new VehicleModel();
 
+            tplData.vehicleId = data.vehicleId;
             tplData.serviceType = data.serviceType;
             tplData.rideTypes = data.rideTypes;
             tplData.vehicleCategory = data.vehicleCategory;

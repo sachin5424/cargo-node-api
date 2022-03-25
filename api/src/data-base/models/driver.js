@@ -18,7 +18,10 @@ const DriverSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "taluk",
     },
-    driverId: Number,
+    driverId: {
+        type: Number,
+        unique: true,
+    },
     firstName: String,
     lastName: String,
     phoneNo: String,
