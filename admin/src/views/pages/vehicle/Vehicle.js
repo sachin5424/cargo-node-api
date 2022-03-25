@@ -398,11 +398,11 @@ const AddForm = forwardRef((props, ref) => {
 
                                 <div className="col-md-3 form-group">
                                     <label className="req">Make</label>
-                                    <AntdSelect options={makes} value={data.make || ''} onChange={v => { handleChange(v, 'make') }} />
+                                    <AntdSelect options={makes || []} value={data.make || ''} onChange={v => { handleChange(v, 'make') }} />
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Model</label>
-                                    <AntdSelect options={models} value={data.model || ''} onChange={v => { handleChange(v, 'model') }} />
+                                    <AntdSelect options={models || []} value={data.model || ''} onChange={v => { handleChange(v, 'model') }} />
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Color</label>
