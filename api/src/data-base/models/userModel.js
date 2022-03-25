@@ -35,6 +35,13 @@ const UserSchema = new mongoose.Schema({
         ref: "taluk",
     },
     zipcode: String,
+
+    adharNo: String,
+    adharCardPhoto: String,
+
+    panNo: String,
+    panCardPhoto: String,
+
     isActive: {
         type: Boolean,
         default: false

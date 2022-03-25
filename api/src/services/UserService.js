@@ -109,9 +109,19 @@ export default class Service {
                         district: 1,
                         taluk: 1,
                         zipcode: 1,
+                        adharNo: 1,
+                        panNo: 1,
                         isActive: 1,
                         image: {
                             url: { $concat: [config.applicationFileUrl + 'user/photo/', "$photo"] },
+                            name: "$photo"
+                        },
+                        adharCardImage: {
+                            url: { $concat: [config.applicationFileUrl + 'user/document/', "$adharCardPhoto"] },
+                            name: "$photo"
+                        },
+                        panCardImage: {
+                            url: { $concat: [config.applicationFileUrl + 'user/document/', "$panCardPhoto"] },
                             name: "$photo"
                         }
                     }
@@ -161,6 +171,13 @@ export default class Service {
             (!data.password || (tplData.password = data.password));
             tplData.dob = data.dob;
             tplData.photo = await uploadFile(data.photo, config.uploadPaths.user.photo, UserModel, 'photo', _id);
+
+            tplData.adharNo = data.adharNo;
+            tplData.adharCardPhoto = await uploadFile(data.adharCardPhoto, config.uploadPaths.user.document, UserModel, 'adharCardPhoto', _id);
+
+            tplData.panNo = data.panNo;
+            tplData.panCardPhoto = await uploadFile(data.panCardPhoto, config.uploadPaths.user.document, UserModel, 'panCardPhoto', _id);
+
             tplData.address = data.address;
             tplData.state = data.state;
             tplData.district = data.district;

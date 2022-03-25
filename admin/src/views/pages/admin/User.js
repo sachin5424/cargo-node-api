@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Popconfirm, Input, Modal, Tag, Spin } from "antd";
+import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/admin";
@@ -187,6 +187,8 @@ const AddForm = forwardRef((props, ref) => {
     const [taluks, setTaluks] = useState([]);
     const [changeForm, setChangeForm] = useState(false);
     const imgRef = useRef();
+    const adharCardImgRef = useRef();
+    const panCardImgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -195,6 +197,9 @@ const AddForm = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         openForm(dt) {
             imgRef.current = {};
+            adharCardImgRef.current = {};
+            panCardImgRef.current = {};
+
             setData(dt ? { ...dt } : { isActive: true });
             handleVisible(true);
             if (!dt?._id && addAccess) {
@@ -212,6 +217,8 @@ const AddForm = forwardRef((props, ref) => {
     const save = () => {
         setAjxRequesting(true);
         data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.adharCardPhoto = adharCardImgRef?.current?.uploadingFiles?.[0]?.base64;
+        data.panCardPhoto = panCardImgRef?.current?.uploadingFiles?.[0]?.base64;
         service.save(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
@@ -341,6 +348,23 @@ const AddForm = forwardRef((props, ref) => {
                                     <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
                                 </div>
                                 <div></div>
+                                <div><Divider orientation="left" className="text-danger">Document Details </Divider></div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Adhar Number</label>
+                                    <Input value={data.adharNo || ''} onChange={e => handleChange(e.target.value, 'adharNo')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Adhar Card photo</label>
+                                    <UploadImage ref={adharCardImgRef} {...{ fileCount: 1, files: data.adharCardImage ? [data.adharCardImage] : [] }} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Pan No.</label>
+                                    <Input value={data.panNo || ''} onChange={e => handleChange(e.target.value, 'panNo')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Pan Card photo</label>
+                                    <UploadImage ref={panCardImgRef} {...{ fileCount: 1, files: data.panCardImage ? [data.panCardImage] : [] }} />
+                                </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Status</label>
                                     <AntdSelect

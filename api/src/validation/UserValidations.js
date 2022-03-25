@@ -168,6 +168,70 @@ export const userValidation = [
         .notEmpty().withMessage("The 'Zipcode' field is required")
         .matches(/^[1-9]{1}[0-9]{5}$/).withMessage("The 'Zipcode' field is not valid"),
 
+    check('adharNo')
+        .notEmpty().withMessage("The 'Adhar Number' field is required")
+        // .matches(/^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$/).withMessage("The 'Adhar Number' field is not valid")
+        .custom(async (value, { req }) => {
+
+            const body = req.body;
+            const result = await UserModel.findOne({ adharNo: value });
+
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A user already exist with this adhar number");
+                    }
+                } else {
+                    throw new Error("A user already exist with this adhar number");
+                }
+            }
+
+        }),
+
+    check('adharCardPhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.adharCardPhoto) {
+                    throw new Error("The 'Adhar Card Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Adhar Card Photo is not an image"),
+
+    check('panNo')
+        .notEmpty().withMessage("The 'Pan Number' field is required")
+        // .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}$/).withMessage("The 'Pan Number' field is not valid")
+        .custom(async (value, { req }) => {
+
+            const body = req.body;
+            const result = await UserModel.findOne({ panNo: value });
+
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A user already exist with this pan number");
+                    }
+                } else {
+                    throw new Error("A user already exist with this pan number");
+                }
+            }
+
+        }),
+
+    check('panCardPhoto')
+        .custom((v, { req }) => {
+            if (!req.body._id) {
+                if (!req.body.panCardPhoto) {
+                    throw new Error("The 'Pan Card Photo' field is required");
+                }
+            }
+            return true;
+        })
+        .optional()
+        .matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Pan Card Photo is not an image"),
+
     check('isActive').
         notEmpty().withMessage("The 'active' field is required")
         .toBoolean(1 ? true : false),

@@ -204,7 +204,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
                             <span>Driver List</span>
                         </div>
                         <div className="m-2 border p-2">
-                            <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name or Driver Id', addNew: addAccess }} />
+                            <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name or Driver Id', addNew: false }} />
                         </div>
                     </>
                     : null
