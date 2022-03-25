@@ -48,6 +48,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     ]);
 
     const formRef = useRef();
+    const walletFormRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, vehicleId: vehicleData?._id });
     const columns = [
         {
@@ -57,8 +58,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
         },
         {
             title: 'Name',
-            dataIndex: 'firstName',
-            render: (id, row) => row.firstName + ' ' + row.lastName,
+            dataIndex: 'name',
         },
         {
             title: 'Email',
@@ -70,6 +70,18 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
             dataIndex: 'phoneNo',
             width: 100,
         },
+        // {
+        //     title: 'Wallet',
+        //     dataIndex: 'phoneNo',
+        //     width: 100,
+        //     render: (text, row) => (
+        //         <Button size="small" className="mx-1" onClick={() => { walletFormRef.current.openForm(text) }}>
+        //             <span className="d-flex">
+        //                 <EditOutlined />
+        //             </span>
+        //         </Button>
+        //     )
+        // },
         {
             title: 'Approval Status',
             dataIndex: 'isApproved',
@@ -170,7 +182,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     }
 
     useEffect(() => {
-        if(serviceType.length > 0){
+        if (serviceType.length > 0) {
             setFilters([...filters, {
                 type: 'dropdown',
                 key: 'serviceType',
@@ -335,22 +347,23 @@ export const AddForm = forwardRef((props, ref) => {
                                 <div className="col-md-3 form-group">
                                     <label className="req">Vehicle</label>
                                     {/* <AntdSelect options={vehicles} disabled value={data.vehicle} onChange={v => { handleChange(v, 'vehicle') }} /> */}
-                                    <Input value={data?.vehicleDetails?.name || ''} disabled/>
+                                    <Input value={data?.vehicleDetails?.name || ''} disabled />
                                 </div>
                                 <div><Divider orientation="left" className="text-danger">Personal Details </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Driver Id</label>
                                     <Input value={data.driverId || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'driverId')} />
                                 </div>
-                                <div></div>
-                                <div className="col-md-6 form-group">
-                                    <label className="req">First Name</label>
-                                    <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />
+                                {/* <div></div> */}
+                                <div className="col-md-9 form-group">
+                                    <label className="req">Name</label>
+                                    <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} />
                                 </div>
-                                <div className="col-md-6 form-group">
+                                <div></div>
+                                {/* <div className="col-md-6 form-group">
                                     <label className="req">Last Name</label>
                                     <Input value={data.lastName || ''} onChange={e => handleChange(e.target.value, 'lastName')} />
-                                </div>
+                                </div> */}
                                 <div className="col-md-3 form-group">
                                     <label className="req">Email</label>
                                     <Input value={data.email || ''} onChange={e => handleChange(e.target.value, 'email')} />

@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import DriverModel from "../data-base/models/driver";
+import DriverWalletModel from "../data-base/models/driverWallet";
 import { clearSearch, getAdminFilter, encryptData, decryptData } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
@@ -140,14 +141,9 @@ export default class Service {
             const search = {
                 _id: query._id,
                 isDeleted: false,
-                $or: [
-                    {
-                        firstName: { $regex: '.*' + (query?.key || '') + '.*' }
-                    }, 
-                    {
-                        lastName: { $regex: '.*' + (query?.key || '') + '.*' }
-                    },
-                ],
+                name: {
+                    $regex: '.*' + (query?.key || '') + '.*'
+                },
                 isApproved: query.isApproved ? (query.isApproved === '1' ? true : false) : '',
                 vehicle: query.vehicleId ? mongoose.Types.ObjectId(query.vehicleId) : '',
                 ...getAdminFilter()
@@ -165,8 +161,9 @@ export default class Service {
                         district: 1,
                         taluk: 1,
                         driverId: 1,
-                        firstName: 1,
-                        lastName: 1,
+                        name: 1,
+                        // firstName: 1,
+                        // lastName: 1,
                         phoneNo: 1,
                         email: 1,
                         otpVerified: 1,
@@ -233,7 +230,7 @@ export default class Service {
                     }
                 },
             );
-            $aggregate.push({$unwind: "$vehicleDetails"});
+            $aggregate.push({ $unwind: "$vehicleDetails" });
 
 
             const counter = await DriverModel.aggregate([...$aggregate, { $count: "total" }]);
@@ -275,8 +272,8 @@ export default class Service {
             tplData.district = data.district;
             tplData.taluk = data.taluk;
             tplData.driverId = data.driverId;
-            tplData.firstName = data.firstName;
-            tplData.lastName = data.lastName;
+            tplData.name = data.name;
+            // tplData.lastName = data.lastName;
             tplData.phoneNo = data.phoneNo;
             tplData.email = data.email;
             !data.password || (tplData.password = data.password);
@@ -333,5 +330,127 @@ export default class Service {
     }
     static async deleteDriverPermanent(cond) {
         await DriverModel.deleteOne({ ...cond });
+    }
+
+    static async walletDataLogicAdmin(data){
+        const tempData = await DriverWalletModel.findOne().sort({_id: -1});
+        const transactionId = tempData.transactionId;
+        const transactionIdString = transactionId?.replace(/[^a-z\.]+/gi, "");
+        const transactionIdInteger = parseInt(transactionId?.replace(/[^0-9\.]+/g, ""));
+    }
+    static async listWallet(query, params) {
+        const isAll = params.isAll === 'ALL';
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+                page: query.page * 1 > 0 ? query.page * 1 : 1,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                total: 0,
+            },
+            status: false
+        };
+
+        try {
+            const search = {
+                _id: query._id,
+                transactionId: {
+                    $regex: '.*' + (query?.key || '') + '.*'
+                },
+                transactionType: query.transactionType || '',
+                transactionMethod: query.transactionMethod || '',
+                status: query.status || '',
+                driver: query.driverId ? mongoose.Types.ObjectId(query.driverId) : '',
+                ...getAdminFilter()
+            };
+
+            clearSearch(search);
+
+            const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
+                {
+                    $lookup: {
+                        from: 'drivers',
+                        localField: 'driver',
+                        foreignField: '_id',
+                        as: 'driverDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "$project": {
+                        transactionId: 1,
+                        transactionType: 1,
+                        transactionMethod: 1,
+                        amount: 1,
+                        previousAmount: 1,
+                        currentAmount: 1,
+                        status: 1,
+                        description: 1,
+                        driverDetails: 1
+                    }
+                },
+                { $unwind: "$driverDetails" }
+            ];
+
+            const counter = await DriverWalletModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+
+            response.result.data = await DriverWalletModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ]);
+
+            if (response.result.data.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
+    static async saveWallet(data) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+        try {
+            const tplData = new DriverWalletModel();
+
+            tplData.transactionId = data.transactionId;
+            tplData.transactionType = data.transactionType;
+            tplData.transactionMethod = data.transactionMethod;
+            tplData.amount = data.amount;
+            tplData.previousAmount = data.previousAmount;
+            tplData.currentAmount = data.currentAmount;
+            tplData.status = data.status;
+            tplData.description = data.description;
+
+            await tplData.save();
+
+            response.message = "Wallet is updated";
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
     }
 }

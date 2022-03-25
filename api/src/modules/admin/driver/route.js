@@ -8,6 +8,7 @@ import { formValidation } from "../../../middleware/others";
 const router = Router({ mergeParams: true });
 
 router.get('/list', checkDriverListAccess, DriverController.list);
+router.get('/list/:isAll', checkDriverListAccess, DriverController.list);
 router.post('/save', checkDriverSaveAccess, driverValidation, formValidation, DriverController.save);
 router.delete("/delete/:id", CheckDriverDeleteAccess, DriverController.delete);
 
