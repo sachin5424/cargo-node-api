@@ -73,14 +73,10 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
         },
         {
             title: 'Wallet',
-            dataIndex: 'phoneNo',
+            dataIndex: 'walletDetails',
             width: 100,
-            render: (text, row) => (
-                <Button size="small" className="mx-1" onClick={() => { walletModalRef.current.openForm(row) }}>
-                    <span className="d-flex">
-                        <EditOutlined />
-                    </span>
-                </Button>
+            render: (walletDetails, row) => (
+                <Button size="small" className="mx-1" onClick={() => { walletModalRef.current.openForm(row) }}>Wallet <span className="text-danger"> ({walletDetails?.[0]?.amount})</span></Button>
             )
         },
         {

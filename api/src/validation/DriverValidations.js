@@ -319,6 +319,16 @@ export const driverValidation = [
         .toBoolean(1 ? true : false),
 ];
 
+export const walletValidationAdmin = [
+
+    check('transactionType')
+        .notEmpty().withMessage("The 'Transaction Type' field is required")
+        .isIn(['debit', 'credit']).withMessage('This transaction type is not valid'),
+
+    check('amount')
+        .notEmpty().withMessage("The 'Amount' field is required")
+        .isNumeric({ min:0}).withMessage("The 'Amount' field must be numeric"),
+];
 
 export const driverResetPasswordValidation = [
     check('password')

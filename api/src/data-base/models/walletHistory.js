@@ -7,7 +7,7 @@ const WalletHistorySchema = new Schema({
     },
     transactionId: {
         type: Number,
-        // unique: true
+        unique: true
     },
     transactionType: {
         type: String,
@@ -15,7 +15,7 @@ const WalletHistorySchema = new Schema({
     },
     transactionMethod: {
         type: String,
-        enum: ['byAdmin', 'online']
+        enum: ['byAdmin', 'paytm']
     },
     amount: Number,
     status: {

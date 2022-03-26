@@ -1,6 +1,7 @@
 import { clearSearch } from "../utls/_helper";
 import StateModel from "../data-base/models/state";
 import ServiceTypeModel from "../data-base/models/serviceType";
+import WalletModel from "../data-base/models/wallet";
 
 export default class Service {
 
@@ -69,4 +70,18 @@ export default class Service {
             throw new Error(e)
         }
     }
+
+    static async updateWallet(data){
+        try{
+            const wallet = await WalletModel.findById(data.wallet);
+            if(data.transactionType === 'credit'){
+                wallet.amount = wallet.amount + data.amount;
+            } else if(data.transactionType === 'debit'){
+                wallet.amount = wallet.amount - data.amount;
+            }
+            await wallet.save();
+        } catch(e){
+            throw new Error('Wallet can not be updated');
+        }
+    }    
 }

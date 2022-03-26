@@ -21,40 +21,89 @@ export default function Wallet({driverId}) {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const filters = [
+        {
+            type: 'dropdown',
+            key: 'transactionMethod',
+            placeholder: 'Transction Method',
+            className: "w200 mx-1",
+            options: [{_id: 'byAdmin', title: "By Admin"}, {_id: "paytm", title: "Paytm"}]
+        },
+        {
+            type: 'dropdown',
+            key: 'transactionType',
+            placeholder: 'Transction Type',
+            className: "w200 mx-1",
+            options: [{_id: 'debit', title: "Debit"}, {_id: "credit", title: "Credit"}]
+        },
+        {
+            type: 'dropdown',
+            key: 'status',
+            placeholder: 'Status',
+            className: "w200 mx-1",
+            options: [{_id: 'pending', title: "Pending"}, {_id: "failed", title: "Failed"}, {_id: "completed", title: "Completed"}]
+        },
+    ];
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, driverId });
     const columns = [
         {
-            title: 'Name',
-            dataIndex: 'name',
+            title: 'Transaction Id',
+            dataIndex: 'transactionId',
+            width: 150
         },
         {
-            title: 'Status',
-            dataIndex: 'isActive',
-            width: 80,
-            render: isActive => {
-                if (isActive) {
-                    return <Tag color='green'>Active</Tag>
+            title: 'Transaction Method',
+            dataIndex: 'transactionMethod',
+            width: 150,
+            render: transactionMethod => {
+                if (transactionMethod === 'byAdmin') {
+                    return <Tag color='magenta'>By Admin</Tag>
+                } else if(transactionMethod === 'paytm') {
+                    return <Tag color='yellow'>Paytm</Tag>
                 } else {
-                    return <Tag color='red'>Inactive</Tag>
+                    return <Tag color=''>{transactionMethod}</Tag>
                 }
             },
         },
         {
-            title: 'Action',
-            width: 60,
-            render: (text, row) => (
-                <>
-                    {
-                        <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm(row) }}>
-                            <span className="d-flex">
-                                <EyeOutlined />
-                            </span>
-                        </Button>
-                    }
-                </>
-            ),
+            title: 'Transaction Type',
+            dataIndex: 'transactionType',
+            width: 150,
+            render: transactionType => {
+                if (transactionType === 'credit') {
+                    return <Tag color='green'>Credit</Tag>
+                } else if(transactionType === 'debit') {
+                    return <Tag color='red'>Debit</Tag>
+                }
+            },
+        },
+        {
+            title: 'Amount',
+            dataIndex: 'amount',
+            width: 150
+        },
+        {
+            title: 'Description',
+            dataIndex: 'description',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            width: 80,
+            render: status => {
+                if (status === 'completed') {
+                    return <Tag color='green'>completed</Tag>
+                } else if(status === 'pending') {
+                    return <Tag color='yellow'>Pending</Tag>
+                } else if(status === 'failed') {
+                    return <Tag color='red'>Failed</Tag>
+                }
+            },
+        },
+        {
+            width: 10,
         },
     ].filter(item => !item.hidden);
 
@@ -85,7 +134,7 @@ export default function Wallet({driverId}) {
                 <span>Wallet History List</span>
             </div> */}
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
+                <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Transaction Id', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, driverId }} />
         </>
@@ -137,7 +186,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Wallet History'}
+                title={'Add Wallet History'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -154,17 +203,17 @@ const AddForm = forwardRef((props, ref) => {
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
                                 <div className="col-md-12 form-group">
-                                    <label className="req">Type</label>
+                                    <label className="req">Transaction Type</label>
                                     <AntdSelect
-                                        options={[{ label: 'debit', name: 'Debit' }, { label: 'credit', name: 'Credit' }]}
-                                        value={data?.type} onChange={v => { handleChange(v, 'type') }} />
+                                        options={[{ _id: 'debit', name: 'Debit' }, { _id: 'credit', name: 'Credit' }]}
+                                        value={data?.transactionType} onChange={v => { handleChange(v, 'transactionType') }} />
                                 </div>
                                 <div className="col-md-12 form-group">
                                     <label className="req">Amount</label>
                                     <Input value={data.amount || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'amount')} />
                                 </div>
                                 <div className="col-md-12 form-group">
-                                    <label className="req">Description</label>
+                                    <label className="">Description</label>
                                     <Input.TextArea value={data.description || ''} onChange={e => handleChange(e.target.value, 'description')} />
                                 </div>
                             </div>

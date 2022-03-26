@@ -1,7 +1,7 @@
 import { Router } from "express";
 import DriverController from "./DriverController";
 import WalletController from "./WalletController";
-import { driverValidation } from "../../../validation/DriverValidations";
+import { driverValidation, walletValidationAdmin } from "../../../validation/DriverValidations";
 import { checkAdminPermission } from "../../../middleware/validateAdmin";
 import { formValidation } from "../../../middleware/others";
 
@@ -9,7 +9,7 @@ const router = Router({ mergeParams: true });
 
 router.get('/list/wallet-history', checkWalletListAccess, WalletController.list);
 router.get('/list/wallet-history/:isAll', checkWalletListAccess, WalletController.list);
-router.post('/save/wallet-history', checkWalletSaveAccess, /* driverValidation, formValidation, */ WalletController.save);
+router.post('/save/wallet-history', checkWalletSaveAccess, walletValidationAdmin, formValidation, WalletController.save);
 
 router.get('/list', checkDriverListAccess, DriverController.list);
 router.get('/list/:isAll', checkDriverListAccess, DriverController.list);

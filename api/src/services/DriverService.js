@@ -7,6 +7,7 @@ import WalletHistoryModel from "../data-base/models/walletHistory";
 import { clearSearch, getAdminFilter, encryptData, decryptData } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
+import CommonService from "./CommonService";
 import { sendResetPasswordMail } from "../thrirdParty/emailServices/driver/sendEmail";
 
 export default class Service {
@@ -156,6 +157,22 @@ export default class Service {
                 { $match: search },
                 { $sort: { _id: -1 } },
                 {
+                    $lookup: {
+                        from: 'wallets',
+                        localField: '_id',
+                        foreignField: 'driver',
+                        as: 'walletDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    amount: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                // { $unwind: "$walletDetails" },
+                {
                     "$project": {
                         vehicle: 1,
                         state: 1,
@@ -203,6 +220,7 @@ export default class Service {
 
                         isApproved: 1,
                         isActive: 1,
+                        walletDetails: 1,
                     }
                 },
             ];
@@ -303,6 +321,16 @@ export default class Service {
 
             await tplData.save();
 
+            try {
+                if (_id) {
+                    await this.findOrCreateWallet(tplData._id);
+                }
+            } catch (e) {
+                tplData.remove();
+                throw e;
+            }
+
+
             response.message = _id ? "Driver is Updated" : "A new driver is created";
             response.statusCode = 200;
             response.status = true;
@@ -334,12 +362,13 @@ export default class Service {
     }
 
     static async findOrCreateWallet(driverId) {
-        if(!driverId){
+        if (!driverId) {
             throw new Error("Driver does not exist");
         }
         try {
             let wallet = await WalletModel.findOne({ driver: mongoose.Types.ObjectId(driverId) });
             if (!wallet) {
+                console.log('yes');
                 wallet = new WalletModel();
                 wallet.amount = 0;
                 wallet.driver = driverId;
@@ -347,6 +376,8 @@ export default class Service {
             }
             return wallet;
         } catch (e) {
+            console.log(driverId);
+            console.log(e.message);
             throw new Error("Error! Either wallet does not exist or can not be created");
         }
 
@@ -369,8 +400,6 @@ export default class Service {
         } else {
             res.transactionId = parseInt(Math.random() * 10000000000000000);
         }
-        // console.log('tempData--', tempData);
-        console.log('res--', res);
         return res;
     }
     static async listWalletHistory(query, params) {
@@ -393,7 +422,7 @@ export default class Service {
             const search = {
                 wallet: wallet._id,
                 _id: query._id,
-                transactionId: query?.key || '',
+                transactionId: query?.key ? parseInt(query?.key) : '',
                 transactionType: query.transactionType || '',
                 transactionMethod: query.transactionMethod || '',
                 status: query.status || '',
@@ -478,6 +507,16 @@ export default class Service {
             tplData.description = data.description;
 
             await tplData.save();
+
+            tplData.status = 'completed';
+            await tplData.save();
+
+            try {
+                await CommonService.updateWallet(tplData);
+            } catch (e) {
+                await tplData.remove();
+                throw e;
+            }
 
             response.message = "Wallet is updated";
             response.statusCode = 200;

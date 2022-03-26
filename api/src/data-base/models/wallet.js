@@ -4,9 +4,12 @@ const WalletSchema = new Schema({
     driver: {
         type: Schema.Types.ObjectId,
         ref: "driver",
-        unique: true
+        // unique: true
     },
-    amount: Number,
+    amount: {
+        type: Number,
+        default: 0
+    },
 }, { timestamps: true });
 
 const WalletModel = mongoose.model('wallet', WalletSchema);
