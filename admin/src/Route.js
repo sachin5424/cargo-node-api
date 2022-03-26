@@ -16,7 +16,7 @@ import Module from './views/pages/tabs/Module';
 import Make, {modules as makeModules} from './views/pages/vehicle/Make';
 import MakeModel, {modules as makeModelModules} from './views/pages/vehicle/MakeModel';
 import Color, {modules as colorModules} from './views/pages/vehicle/Color';
-import Wallet, {modules as walletModules} from './views/pages/driver/Wallet';
+import FareManagement, {modules as fareManagementModules} from './views/pages/fare/FareManagement';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -55,7 +55,7 @@ const routes = {
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
         { name: 'Drivers', url: '/drivers', icon: () => <TeamOutlined />, component: Driver, modules: [driverModules.view] },
-        { name: 'Driver\'s Wallet', url: '/driver-wallets', icon: () => <TeamOutlined />, component: Wallet, modules: [walletModules.view] },
+        { name: 'Fare Management', url: '/fare-management', icon: () => <TeamOutlined />, component: FareManagement, modules: [fareManagementModules.view] },
         { name: 'Admins', url: '/users', icon: () => <TeamOutlined />, component: User, modules: [userModules.view] },
         { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer, modules: [customerModules.view] },
         { name: 'User Permissions', url: '/user-permissions', icon: () => <KeyOutlined />, component: AssignPermission },
