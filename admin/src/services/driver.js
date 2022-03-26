@@ -19,4 +19,16 @@ export default class driver {
         return axios.delete(`${this.baseURL}/delete/${id}`, { module });
     }
 
+    static listWalletHistory(data, module) {
+        return axios.get(this.baseURL + 'list/wallet-history', { params: data, module });
+    }
+
+    static listAllWalletHistory(data, module) {
+        return axios.get(this.baseURL + 'list/wallet-history/ALL', { params: data, module });
+    }
+
+    static saveWalletHistory(data, module) {
+        return axios.post(this.baseURL + "save/wallet-history", data, { module });
+    }
+
 }

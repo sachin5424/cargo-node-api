@@ -2,7 +2,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import DriverModel from "../data-base/models/driver";
-import DriverWalletModel from "../data-base/models/driverWallet";
+import WalletModel from "../data-base/models/wallet";
+import WalletHistoryModel from "../data-base/models/walletHistory";
 import { clearSearch, getAdminFilter, encryptData, decryptData } from "../utls/_helper";
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
@@ -332,14 +333,49 @@ export default class Service {
         await DriverModel.deleteOne({ ...cond });
     }
 
-    static async walletDataLogicAdmin(data){
-        const tempData = await DriverWalletModel.findOne().sort({_id: -1});
-        const transactionId = tempData.transactionId;
-        const transactionIdString = transactionId?.replace(/[^a-z\.]+/gi, "");
-        const transactionIdInteger = parseInt(transactionId?.replace(/[^0-9\.]+/g, ""));
+    static async findOrCreateWallet(driverId) {
+        if(!driverId){
+            throw new Error("Driver does not exist");
+        }
+        try {
+            let wallet = await WalletModel.findOne({ driver: mongoose.Types.ObjectId(driverId) });
+            if (!wallet) {
+                wallet = new WalletModel();
+                wallet.amount = 0;
+                wallet.driver = driverId;
+                await wallet.save();
+            }
+            return wallet;
+        } catch (e) {
+            throw new Error("Error! Either wallet does not exist or can not be created");
+        }
+
     }
-    static async listWallet(query, params) {
+
+    static async walletDataLogicAdmin(data) {
+        const res = {
+            ...data,
+            transactionId: '',
+            transactionType: data.transactionType,
+            transactionMethod: 'byAdmin',
+            amount: data.amount,
+            status: 'pending'
+        }
+        const tempData = await WalletHistoryModel.findOne().sort({ transactionId: -1 });
+        if (tempData?.transactionId) {
+            let transactionId = tempData.transactionId;
+            transactionId += 1;
+            res.transactionId = parseInt(tempData.transactionId) + 1;
+        } else {
+            res.transactionId = parseInt(Math.random() * 10000000000000000);
+        }
+        // console.log('tempData--', tempData);
+        console.log('res--', res);
+        return res;
+    }
+    static async listWalletHistory(query, params) {
         const isAll = params.isAll === 'ALL';
+        const driverId = query.driverId;
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -353,16 +389,14 @@ export default class Service {
         };
 
         try {
+            const wallet = await this.findOrCreateWallet(driverId);
             const search = {
+                wallet: wallet._id,
                 _id: query._id,
-                transactionId: {
-                    $regex: '.*' + (query?.key || '') + '.*'
-                },
+                transactionId: query?.key || '',
                 transactionType: query.transactionType || '',
                 transactionMethod: query.transactionMethod || '',
                 status: query.status || '',
-                driver: query.driverId ? mongoose.Types.ObjectId(query.driverId) : '',
-                ...getAdminFilter()
             };
 
             clearSearch(search);
@@ -370,21 +404,21 @@ export default class Service {
             const $aggregate = [
                 { $match: search },
                 { $sort: { _id: -1 } },
-                {
-                    $lookup: {
-                        from: 'drivers',
-                        localField: 'driver',
-                        foreignField: '_id',
-                        as: 'driverDetails',
-                        pipeline: [
-                            {
-                                $project: {
-                                    name: 1
-                                }
-                            }
-                        ]
-                    }
-                },
+                // {
+                //     $lookup: {
+                //         from: 'drivers',
+                //         localField: 'driver',
+                //         foreignField: '_id',
+                //         as: 'driverDetails',
+                //         pipeline: [
+                //             {
+                //                 $project: {
+                //                     name: 1
+                //                 }
+                //             }
+                //         ]
+                //     }
+                // },
                 {
                     "$project": {
                         transactionId: 1,
@@ -398,17 +432,17 @@ export default class Service {
                         driverDetails: 1
                     }
                 },
-                { $unwind: "$driverDetails" }
+                // { $unwind: "$driverDetails" }
             ];
 
-            const counter = await DriverWalletModel.aggregate([...$aggregate, { $count: "total" }]);
+            const counter = await WalletHistoryModel.aggregate([...$aggregate, { $count: "total" }]);
             response.result.total = counter[0]?.total;
             if (isAll) {
                 response.result.page = 1;
                 response.result.limit = response.result.total;
             }
 
-            response.result.data = await DriverWalletModel.aggregate(
+            response.result.data = await WalletHistoryModel.aggregate(
                 [
                     ...$aggregate,
                     { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
@@ -427,11 +461,13 @@ export default class Service {
             throw new Error(e)
         }
     }
-    static async saveWallet(data) {
+    static async saveWalletHistory(data) {
         const response = { statusCode: 400, message: 'Error!', status: false };
         try {
-            const tplData = new DriverWalletModel();
+            const wallet = await this.findOrCreateWallet(data.driverId);
+            const tplData = new WalletHistoryModel();
 
+            tplData.wallet = wallet._id;
             tplData.transactionId = data.transactionId;
             tplData.transactionType = data.transactionType;
             tplData.transactionMethod = data.transactionMethod;

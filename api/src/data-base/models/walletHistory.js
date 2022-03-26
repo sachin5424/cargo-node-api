@@ -1,13 +1,13 @@
 import mongoose, {Schema} from 'mongoose';
 
-const DriverWalletSchema = new Schema({
-    driver: {
+const WalletHistorySchema = new Schema({
+    wallet: {
         type: Schema.Types.ObjectId,
-        ref: "driver",
+        ref: "wallet",
     },
     transactionId: {
-        type: String,
-        unique: true
+        type: Number,
+        // unique: true
     },
     transactionType: {
         type: String,
@@ -18,8 +18,6 @@ const DriverWalletSchema = new Schema({
         enum: ['byAdmin', 'online']
     },
     amount: Number,
-    previousAmount: Number,
-    currentAmount: Number,
     status: {
         type: String,
         enum: ['pending', 'failed', 'completed'],
@@ -27,5 +25,5 @@ const DriverWalletSchema = new Schema({
     description: String
 }, { timestamps: true });
 
-const DriverWalletModel = mongoose.model('driverWallet', DriverWalletSchema);
-export default DriverWalletModel;
+const WalletHistoryModel = mongoose.model('walletHistory', WalletHistorySchema);
+export default WalletHistoryModel;

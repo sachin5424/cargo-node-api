@@ -13,6 +13,7 @@ import vehicleService from "../../../services/vehicle";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
 import moment from "moment";
+import Wallet from "./Wallet";
 
 export const modules = {
     view: util.getModules('viewDriver'),
@@ -48,7 +49,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     ]);
 
     const formRef = useRef();
-    const walletFormRef = useRef();
+    const walletModalRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, vehicleId: vehicleData?._id });
     const columns = [
         {
@@ -70,18 +71,18 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
             dataIndex: 'phoneNo',
             width: 100,
         },
-        // {
-        //     title: 'Wallet',
-        //     dataIndex: 'phoneNo',
-        //     width: 100,
-        //     render: (text, row) => (
-        //         <Button size="small" className="mx-1" onClick={() => { walletFormRef.current.openForm(text) }}>
-        //             <span className="d-flex">
-        //                 <EditOutlined />
-        //             </span>
-        //         </Button>
-        //     )
-        // },
+        {
+            title: 'Wallet',
+            dataIndex: 'phoneNo',
+            width: 100,
+            render: (text, row) => (
+                <Button size="small" className="mx-1" onClick={() => { walletModalRef.current.openForm(row) }}>
+                    <span className="d-flex">
+                        <EditOutlined />
+                    </span>
+                </Button>
+            )
+        },
         {
             title: 'Approval Status',
             dataIndex: 'isApproved',
@@ -222,6 +223,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
                     : null
             }
             <AddForm ref={formRef} {...{ list, sdt, vehicles, setVisibleParent }} />
+            <WalletModal ref={walletModalRef} />
         </>
     );
 }
@@ -479,6 +481,45 @@ export const AddForm = forwardRef((props, ref) => {
                         </fieldset>
                     </form>
                 </Spin>
+            </Modal>
+        </>
+    );
+});
+
+export const WalletModal = forwardRef((props, ref) => {
+    const [visible, setVisible] = useState(false);
+    const [data, setData] = useState({});
+
+    const handleVisible = (val) => {
+        setVisible(val);
+    }
+
+    useImperativeHandle(ref, () => ({
+        openForm(dt) {
+            setData({...dt});
+            handleVisible(true);
+        }
+    }));
+
+    useEffect(()=>{
+        console.log('data--', data);
+    }, [data]);
+
+
+    return (
+        <>
+            <Modal
+                title={<>Wallet History of <span className="text-danger">{data.name}</span></>}
+                style={{ top: 20 }}
+                visible={visible}
+                onCancel={() => { handleVisible(false); }}
+                destroyOnClose
+                maskClosable={false}
+                width={1200}
+                footer={null}
+                className="app-modal-body-overflow"
+            >
+                <Wallet driverId={data._id} />
             </Modal>
         </>
     );

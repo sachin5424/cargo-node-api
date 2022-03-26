@@ -3,33 +3,27 @@ import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } f
 import MyTable from "../../components/MyTable";
 import { Button, Input, Modal, Tag, Spin, Image } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
-import { EditOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
-import service from "../../../services/ride";
+import { LoadingOutlined, EyeOutlined } from "@ant-design/icons";
+import service from "../../../services/driver";
 import { AntdMsg } from "../../../utils/Antd";
 import util from "../../../utils/util";
-import driverService from "../../../services/driver";
 
 export const modules = {
     view: util.getModules('viewWallet'),
     add: util.getModules('addWallet'),
-    edit: util.getModules('editWallet'),
-    delete: util.getModules('deleteWallet'),
 };
 
 const viewAccess = modules.view;
 const addAccess = modules.add;
-const editAccess = modules.edit;
-const deleteAccess = modules.delete;
 
 
-export default function Wallet() {
+export default function Wallet({driverId}) {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [drivers, setDrivers] = useState([]);
 
     const formRef = useRef();
-    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
+    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, driverId });
     const columns = [
         {
             title: 'Name',
@@ -50,7 +44,6 @@ export default function Wallet() {
         {
             title: 'Action',
             width: 60,
-            hidden: !addAccess && !editAccess && !deleteAccess && !viewAccess,
             render: (text, row) => (
                 <>
                     {
@@ -70,7 +63,7 @@ export default function Wallet() {
             data = sdata;
         }
         setLoading(true);
-        service.listRideType(data, viewAccess).then(res => {
+        service.listWalletHistory(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -84,24 +77,23 @@ export default function Wallet() {
 
     useEffect(() => {
         list();
-        driverService.listAll({}, 'viewDriver').then(res => { setDrivers(res.result.data); });
     }, []);
 
     return (
         <>
-            <div className="page-description text-white p-2" >
-                <span>Ride Type List</span>
-            </div>
+            {/* <div className="page-description text-white p-2" >
+                <span>Wallet History List</span>
+            </div> */}
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, drivers }} />
+            <AddForm ref={formRef} {...{ list, driverId }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, drivers } = props;
+    const { list, driverId } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -113,14 +105,10 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            setData(dt ? { ...dt } : { isActive: true });
+            setData({ driverId });
             handleVisible(true);
-            if (!dt?._id && addAccess) {
+            if (addAccess) {
                 setChangeForm(true);
-            } else if (dt._id && editAccess) {
-                setChangeForm(true);
-            } else {
-                setChangeForm(false);
             }
         }
     }));
@@ -129,7 +117,7 @@ const AddForm = forwardRef((props, ref) => {
 
     const save = () => {
         setAjxRequesting(true);
-        service.saveRideType(data, data._id ? editAccess : addAccess).then((res) => {
+        service.saveWalletHistory(data, addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -149,7 +137,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Wallet'}
+                title={(!data._id ? 'Add' : 'Edit') + ' Wallet History'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -165,10 +153,6 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
-                                <div className="col-md-12 form-group">
-                                    <label className="req">Driver</label>
-                                    <AntdSelect options={drivers || []} value={data?.driver} onChange={v => { handleChange(v, 'driver') }} />
-                                </div>
                                 <div className="col-md-12 form-group">
                                     <label className="req">Type</label>
                                     <AntdSelect
