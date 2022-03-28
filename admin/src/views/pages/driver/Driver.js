@@ -77,7 +77,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
             hidden: !util.getModules('viewWallet'),
             width: 100,
             render: (walletDetails, row) => (
-                <Button size="small" className="mx-1" onClick={() => { walletModalRef.current.openForm(row) }}>Wallet <span className="text-danger"> ({walletDetails?.[0]?.amount})</span></Button>
+                <Button size="small" type="primary" className="mx-1" onClick={() => { walletModalRef.current.openForm(row) }}>Wallet  ({walletDetails?.[0]?.amount})</Button>
             )
         },
         {

@@ -16,7 +16,7 @@ import Module from './views/pages/tabs/Module';
 import Make, {modules as makeModules} from './views/pages/vehicle/Make';
 import MakeModel, {modules as makeModelModules} from './views/pages/vehicle/MakeModel';
 import Color, {modules as colorModules} from './views/pages/vehicle/Color';
-import FareManagement, {modules as fareManagementModules} from './views/pages/fare/FareManagement';
+import TaxiFareManagement, {modules as taxiFareManagementModules} from './views/pages/fare/TaxiFareManagement';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -54,8 +54,16 @@ const routes = {
                 { name: 'Type', url: '/type', component: Type, modules: [typeModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
+        {
+            name: 'Fare Management',
+            baseURL: '/fare-management',
+            modules: [taxiFareManagementModules.view],
+            icon: () => <CarOutlined />,
+            subMenus: [
+                { name: 'Taxi Fare Management', url: '/taxi', component: TaxiFareManagement, modules: [taxiFareManagementModules.view] },
+            ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
+        },
         { name: 'Drivers', url: '/drivers', icon: () => <TeamOutlined />, component: Driver, modules: [driverModules.view] },
-        { name: 'Fare Management', url: '/fare-management', icon: () => <TeamOutlined />, component: FareManagement, modules: [fareManagementModules.view] },
         { name: 'Admins', url: '/users', icon: () => <TeamOutlined />, component: User, modules: [userModules.view] },
         { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer, modules: [customerModules.view] },
         { name: 'User Permissions', url: '/user-permissions', icon: () => <KeyOutlined />, component: AssignPermission },

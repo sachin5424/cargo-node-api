@@ -5,18 +5,17 @@ import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/admin";
+import commonService from "../../../services/common";
+import rideService from "../../../services/ride";
 import { AntdMsg } from "../../../utils/Antd";
-import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
-import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
-import { UserTypeSelect } from "../../components/ProComponent";
 
 export const modules = {
-    view: util.getModules('viewUser'),
-    add: util.getModules('addUser'),
-    edit: util.getModules('editUser'),
-    delete: util.getModules('deleteUser'),
+    view: util.getModules('viewFareManagement'),
+    add: util.getModules('addFareManagement'),
+    edit: util.getModules('addFareManagement'),
+    delete: util.getModules('deleteFareManagement'),
 };
 
 const viewAccess = modules.view;
@@ -25,11 +24,13 @@ const editAccess = modules.edit;
 const deleteAccess = modules.delete;
 
 
-export default function FareManagement() {
+export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
 
     const [data, setData] = useState([]);
     const [sdt, setSdt] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [serviceTypes, setServiceTypes] = useState([]);
+    const [rideTypes, setRideTypes] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
@@ -163,6 +164,8 @@ export default function FareManagement() {
     useEffect(() => {
         list();
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
+        commonService.listServiceType().then(res => setServiceTypes(res.result.data || []));
+        rideService.listAllRideType({}, 'viewRideType').then(res => setRideTypes(res.result.data || []));
     }, []);
 
     return (
@@ -173,22 +176,21 @@ export default function FareManagement() {
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, sdt }} />
+            <AddForm ref={formRef} {...{ list, sdt, activeServiceType, serviceTypes, rideTypes }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, sdt } = props;
+    const { list, sdt, activeServiceType, serviceTypes, rideTypes } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
     const [districts, setDistricts] = useState([]);
     const [taluks, setTaluks] = useState([]);
     const [changeForm, setChangeForm] = useState(false);
-    const imgRef = useRef();
-    const adharCardImgRef = useRef();
-    const panCardImgRef = useRef();
+    const [activeRideTypes, setActiveRideTypes] = useState([]);
+    const [activeVehicleCategories, setActiveVehicleCategories] = useState([]);
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -196,11 +198,11 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            imgRef.current = {};
-            adharCardImgRef.current = {};
-            panCardImgRef.current = {};
-
-            setData(dt ? { ...dt } : { isActive: true });
+            if (!dt) {
+                dt = { isActive: true, serviceType: serviceTypes?.find(v => v.key === activeServiceType)?._id };
+                dt.perKMCharges = [{}];
+            }
+            setData({ ...dt });
             handleVisible(true);
             if (!dt?._id && addAccess) {
                 setChangeForm(true);
@@ -212,13 +214,27 @@ const AddForm = forwardRef((props, ref) => {
         }
     }));
 
-    const handleChange = (v, k) => { setData({ ...data, [k]: v }); }
+    const handleChange = (v, k) => {
+        let varDt = data;
+        let keys = k.split('.');
+        for (let i = 0; i < keys.length; i++) {
+            if (i + 1 === keys.length) {
+                varDt[keys[i]] = v;
+            } else {
+                if (typeof varDt[keys[i]] === 'undefined') {
+                    if (parseInt(keys[i + 1]) * 1 >= 0) {
+                        varDt[keys[i]] = [];
+                    } else {
+                        varDt[keys[i]] = {};
+                    }
+                } varDt = varDt[keys[i]];
+            }
+        }
+        setData({ ...data });
+    }
 
     const save = () => {
         setAjxRequesting(true);
-        data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
-        data.adharCardPhoto = adharCardImgRef?.current?.uploadingFiles?.[0]?.base64;
-        data.panCardPhoto = panCardImgRef?.current?.uploadingFiles?.[0]?.base64;
         service.save(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
@@ -236,26 +252,33 @@ const AddForm = forwardRef((props, ref) => {
 
     }
 
+    useEffect(() => {
+        setActiveRideTypes(rideTypes.filter(v => v.serviceType?.key === activeServiceType));
+    }, [rideTypes]);
+
+    useEffect(() => {
+        const tempVC = activeRideTypes.find(v => v._id === data.rideType)?.allowedVehicleCategoriesDetails || [];
+        if (!tempVC.find(v => v._id === data.vehicleCategory)) {
+            handleChange('', 'vehicleCategory');
+        }
+        setActiveVehicleCategories(tempVC);
+    }, [data.rideType, activeRideTypes]);
+
     const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district)
-
     const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v => v._id)?.includes(data.taluk)
-
     useEffect(() => {
         const newDistricts = sdt.find(v => v._id === data.state)?.districts || [];
         setDistricts(newDistricts?.map(v => ({ value: v._id, label: v.name, taluks: v.taluks })) || [])
     }, [data.state])
-
     useEffect(() => {
         const newTaluks = districts?.find(v => v.value === data.district)?.taluks || [];
         setTaluks(newTaluks?.map(v => { return { value: v._id, label: v.name } }))
     }, [data.district, districts])
-
     useEffect(() => {
         if (!checkDistrictExist()) {
             handleChange('', 'district');
         }
     }, [data.state])
-
     useEffect(() => {
         if (!checkTalukExist()) {
             handleChange('', 'taluk');
@@ -265,7 +288,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' User'}
+                title={(!data._id ? 'Add' : 'Edit') + ' Fare Management'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -274,43 +297,39 @@ const AddForm = forwardRef((props, ref) => {
                 onCancel={() => { handleVisible(false); }}
                 destroyOnClose
                 maskClosable={false}
-                width={1200}
+                width={900}
                 className="app-modal-body-overflow"
             >
                 <Spin spinning={ajxRequesting} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Type</label>
-                                    <UserTypeSelect {...{ data, handleChange }} />
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Service Type</label>
+                                    <AntdSelect
+                                        options={serviceTypes}
+                                        value={data.serviceType}
+                                        onChange={v => { handleChange(v, 'serviceType') }}
+                                        disabled
+                                    />
                                 </div>
-                                <div></div>
-                                <div className="col-md-6 form-group">
-                                    <label className="req">First Name</label>
-                                    <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Service Type</label>
+                                    <AntdSelect
+                                        options={activeRideTypes}
+                                        value={data.rideType}
+                                        onChange={v => { handleChange(v, 'rideType') }}
+                                    />
                                 </div>
-                                <div className="col-md-6 form-group">
-                                    <label className="req">Last Name</label>
-                                    <Input value={data.lastName || ''} onChange={e => handleChange(e.target.value, 'lastName')} />
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Vehicle Category</label>
+                                    <AntdSelect
+                                        options={activeVehicleCategories}
+                                        value={data.vehicleCategory}
+                                        onChange={v => { handleChange(v, 'vehicleCategory') }}
+                                    />
                                 </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Email</label>
-                                    <Input value={data.email || ''} onChange={e => handleChange(e.target.value, 'email')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Phone No.</label>
-                                    <Input value={data.phoneNo || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'phoneNo')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className={data._id ? "" : "req"}>{data._id ? "Update" : "Set"} Password</label>
-                                    <Input value={data.password || ''} onChange={e => handleChange(e.target.value, 'password')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">DOB</label>
-                                    <AntdDatepicker format="MMMM D, YYYY" value={data.dob || new Date()} onChange={value => { handleChange(value, 'dob') }} />
-                                </div>
-                                <div className="col-md-3 form-group">
+                                <div className="col-md-4 form-group">
                                     <label className="req">State</label>
                                     <AntdSelect
                                         options={sdt.map(v => ({ value: v._id, label: v.name }))}
@@ -318,7 +337,7 @@ const AddForm = forwardRef((props, ref) => {
                                         onChange={v => { handleChange(v, 'state') }}
                                     />
                                 </div>
-                                <div className="col-md-3 form-group">
+                                <div className="col-md-4 form-group">
                                     <label className="req">District</label>
                                     <AntdSelect
                                         options={districts || []}
@@ -326,7 +345,7 @@ const AddForm = forwardRef((props, ref) => {
                                         onChange={v => { handleChange(v, 'district') }}
                                     />
                                 </div>
-                                <div className="col-md-3 form-group">
+                                <div className="col-md-4 form-group">
                                     <label className="req">Taluk</label>
                                     <AntdSelect
                                         options={taluks || []}
@@ -334,45 +353,42 @@ const AddForm = forwardRef((props, ref) => {
                                         onChange={v => { handleChange(v, 'taluk') }}
                                     />
                                 </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Zip Code</label>
-                                    <Input value={data.zipcode || ''} onChange={e => { handleChange(util.handleInteger(e.target.value, 6), 'zipcode') }} />
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Base Fare</label>
+                                    <Input value={data.baseFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'baseFare')} />
                                 </div>
-
-                                <div className="col-md-12 form-group">
-                                    <label className="req">Address</label>
-                                    <Input.TextArea value={data.address || ''} onChange={e => { handleChange(e.target.value, 'address') }} />
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Booking Fare</label>
+                                    <Input value={data.bookingFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'bookingFare')} />
                                 </div>
-                                <div className="col-md-12 form-group">
-                                    <label className="req">Image</label>
-                                    <UploadImage ref={imgRef} {...{ fileCount: 1, files: data.image ? [data.image] : [] }} />
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Per Minute Fare</label>
+                                    <Input value={data.perMinuteFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'perMinuteFare')} />
                                 </div>
                                 <div></div>
-                                <div><Divider orientation="left" className="text-danger">Document Details </Divider></div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Adhar Number</label>
-                                    <Input value={data.adharNo || ''} onChange={e => handleChange(e.target.value, 'adharNo')} />
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Cancel Charge</label>
+                                    <Input value={data.cancelCharge || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'cancelCharge')} />
                                 </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Adhar Card photo</label>
-                                    <UploadImage ref={adharCardImgRef} {...{ fileCount: 1, files: data.adharCardImage ? [data.adharCardImage] : [] }} />
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Waiting Charge(Per Minute)</label>
+                                    <Input value={data.waitingCharge || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'waitingCharge')} />
                                 </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Pan No.</label>
-                                    <Input value={data.panNo || ''} onChange={e => handleChange(e.target.value, 'panNo')} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Pan Card photo</label>
-                                    <UploadImage ref={panCardImgRef} {...{ fileCount: 1, files: data.panCardImage ? [data.panCardImage] : [] }} />
-                                </div>
-                                <div className="col-md-3 form-group">
-                                    <label className="req">Status</label>
+                                <div></div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Admin Commission Type</label>
                                     <AntdSelect
-                                        options={[{ value: true, label: "Active" }, { value: false, label: "Inactive" }]}
-                                        value={data.isActive}
-                                        onChange={v => { handleChange(v, 'isActive') }}
+                                        options={[{ _id: 'flat', title: 'FLAT' }, { _id: 'percentage', title: 'PERCENTAGE' }]}
+                                        value={data.adminCommissionType}
+                                        onChange={v => { handleChange(v, 'adminCommissionType') }}
                                     />
                                 </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Admin Commission Value</label>
+                                    <Input value={data.adminCommissionValue || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'adminCommissionValue')} />
+                                </div>
+                                <div><Divider orientation="left">Per KM Charge</Divider></div>
+                                <PerKMCharges {...{ perKMCharges: data.perKMCharges, handleChange }} />
                             </div>
                         </fieldset>
                     </form>
@@ -381,3 +397,57 @@ const AddForm = forwardRef((props, ref) => {
         </>
     );
 });
+
+function PerKMCharges({ perKMCharges: data, handleChange }) {
+
+    return (
+        <>
+            <div className="col-md-2 form-group">
+                <label className="req">Min KM</label><h4></h4>
+            </div>
+            <div className="col-md-2 form-group">
+                <label className="req">Max KM</label>
+            </div>
+            <div className="col-md-4 form-group">
+                <label className="req">Per KM Charge</label>
+            </div>
+            <div></div>
+            {
+                data?.map((v, i) => (
+                    <React.Fragment key={i}>
+                        <div className="col-md-2 form-group">
+                            <Input placeholder="Min KM" value={i === 0 ? 0 : (data[i - 1].maxKM)} disabled />
+                        </div>
+                        <div className="col-md-2 form-group">
+                            <Input placeholder="Max KM" value={v.maxKM || ''} onChange={(e) => { handleChange(util.handleInteger(e.target.value), `perKMCharges.${i}.maxKM`) }} />
+                        </div>
+                        <div className="col-md-4 form-group">
+                            <Input placeholder="Per KM Charge" value={v.charge || ''} onChange={(e) => { handleChange(util.handleFloat(e.target.value), `perKMCharges.${i}.charge`) }} />
+                        </div>
+                        <div className="col-md-4 form-group">
+                            {
+                                i + 1 === data.length
+                                    ? <Button type="dashed" onClick={() => {
+                                        if (v.maxKM && v.maxKM > (i === 0 ? 0 : (data[i - 1].maxKM)) && v.charge ) {
+                                            handleChange([...data, {}], 'perKMCharges');
+                                        } else{
+                                            AntdMsg(`Max KM must be greater than ${  i === 0 ? 0 : (data[i - 1].maxKM)} and per KM charge is required`, 'error');
+                                        }
+                                    }}>Add</Button>
+                                    : null
+                            }
+                            {
+                                i + 1 === data.length && i !== 0
+                                    ? <Button type="dashed" className="mx-2" danger onClick={() => {
+                                        data.pop();
+                                        handleChange([...data], 'perKMCharges');
+                                    }}>Remove</Button>
+                                    : null
+                            }
+                        </div>
+                    </React.Fragment>
+                ))
+            }
+        </>
+    );
+}
