@@ -2,10 +2,10 @@ import mongoose, {Schema} from 'mongoose';
 
 
 const FareManagementSchema = new mongoose.Schema({
-    // serviceType: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "serviceType",
-    // },
+    serviceType: {
+        type: Schema.Types.ObjectId,
+        ref: "serviceType",
+    },
     rideType: {
         type: Schema.Types.ObjectId,
         ref: "rideType",

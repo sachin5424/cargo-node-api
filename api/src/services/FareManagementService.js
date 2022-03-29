@@ -30,8 +30,104 @@ export default class Service {
                 { $match: search },
                 { $sort: { _id: -1 } },
                 {
+                    $lookup: {
+                        from: 'servicetypes',
+                        localField: 'serviceType',
+                        foreignField: '_id',
+                        as: 'serviceTypeDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$serviceTypeDetails" },
+                {
+                    $lookup: {
+                        from: 'ridetypes',
+                        localField: 'rideType',
+                        foreignField: '_id',
+                        as: 'rideTypeDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$rideTypeDetails" },
+                {
+                    $lookup: {
+                        from: 'vehiclecategories',
+                        localField: 'vehicleCategory',
+                        foreignField: '_id',
+                        as: 'vehicleCategoryDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$vehicleCategoryDetails" },
+                {
+                    $lookup: {
+                        from: 'states',
+                        localField: 'state',
+                        foreignField: '_id',
+                        as: 'stateDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$stateDetails" },
+                {
+                    $lookup: {
+                        from: 'districts',
+                        localField: 'district',
+                        foreignField: '_id',
+                        as: 'districtDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$districtDetails" },
+                {
+                    $lookup: {
+                        from: 'taluks',
+                        localField: 'taluk',
+                        foreignField: '_id',
+                        as: 'talukDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$talukDetails" },
+                {
                     "$project": {
-                        // serviceType: 1,
+                        serviceType: 1,
                         rideType: 1,
                         vehicleCategory: 1,
                         state: 1,
@@ -45,6 +141,12 @@ export default class Service {
                         adminCommissionType: 1,
                         adminCommissionValue: 1,
                         perKMCharges: 1,
+                        serviceTypeDetails: 1,
+                        rideTypeDetails: 1,
+                        vehicleCategoryDetails: 1,
+                        stateDetails: 1,
+                        districtDetails: 1,
+                        talukDetails: 1,
                     }
                 },
             ];
@@ -82,7 +184,7 @@ export default class Service {
         try {
             const tplData = _id ? await FareManagementModel.findById(_id) : new FareManagementModel();
 
-            // tplData.serviceType = data.serviceType;
+            tplData.serviceType = data.serviceType;
             tplData.rideType = data.rideType;
             tplData.vehicleCategory = data.vehicleCategory;
             tplData.state = data.state;
@@ -98,16 +200,6 @@ export default class Service {
             tplData.perKMCharges = data.perKMCharges;
 
             await tplData.save();
-
-            try {
-                if (_id) {
-                    await this.findOrCreateWallet(tplData._id);
-                }
-            } catch (e) {
-                tplData.remove();
-                throw e;
-            }
-
 
             response.message = _id ? "Fare management is Updated" : "A new fare management is created";
             response.statusCode = 200;

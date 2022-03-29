@@ -61,6 +61,7 @@ const routes = {
             icon: () => <CarOutlined />,
             subMenus: [
                 { name: 'Taxi Fare Management', url: '/taxi', component: TaxiFareManagement, modules: [taxiFareManagementModules.view] },
+                { name: 'Cargo Fare Management', url: '/cargo', component: ()=>{return TaxiFareManagement({activeServiceType: 'cargo'})}, modules: [taxiFareManagementModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
         { name: 'Drivers', url: '/drivers', icon: () => <TeamOutlined />, component: Driver, modules: [driverModules.view] },

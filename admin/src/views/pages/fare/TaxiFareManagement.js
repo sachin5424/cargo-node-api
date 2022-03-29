@@ -4,7 +4,7 @@ import MyTable from "../../components/MyTable";
 import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
-import service from "../../../services/admin";
+import service from "../../../services/fare";
 import commonService from "../../../services/common";
 import rideService from "../../../services/ride";
 import { AntdMsg } from "../../../utils/Antd";
@@ -36,55 +36,107 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
-            title: 'Name',
-            dataIndex: 'firstName',
-            render: (id, row) => row.firstName + ' ' + row.lastName,
-        },
-        {
-            title: 'User Type',
-            dataIndex: 'type',
-            width: 150,
-            render: (text) =>
-                <Tag
-                    color={text === 'stateAdmin'
-                        ? 'geekblue'
-                        : text === 'districtAdmin'
-                            ? 'magenta'
-                            : text === 'talukAdmin'
-                                ? 'orange'
-                                : ''}
-                >
-                    {text === 'stateAdmin'
-                        ? 'State Admin'
-                        : text === 'districtAdmin'
-                            ? 'District Admin'
-                            : text === 'talukAdmin'
-                                ? 'Taluk Admin'
-                                : ''}
-                </Tag>
-
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
+            title: 'Fares',
+            dataIndex: '',
             width: 200,
+            render: (id, row) => (
+                <>
+                    <table className="text-uppercase">
+                        <tbody>
+                            <tr className="text-success">
+                                <td>Base Fare</td>
+                                <td>: {row.baseFare}</td>
+                            </tr>
+                            <tr className="text-primary">
+                                <td>Booking Fare</td>
+                                <td>: {row.bookingFare}</td>
+                            </tr>
+                            <tr className="text-info">
+                                <td>Per Minute Fare</td>
+                                <td>: {row.perMinuteFare}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </>
+            ),
         },
         {
-            title: 'Phone No',
-            dataIndex: 'phoneNo',
+            title: 'Charges',
+            dataIndex: '',
+            width: 180,
+            render: (id, row) => (
+                <>
+                    <table className="text-uppercase">
+                        <tbody>
+                            <tr className="text-danger">
+                                <td>Cancel Charge</td>
+                                <td>: {row.cancelCharge}</td>
+                            </tr>
+                            <tr className="text-warning">
+                                <td>Waiting Charge</td>
+                                <td>: {row.waitingCharge}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </>
+            ),
+        },
+        {
+            title: 'Admin Comission',
+            dataIndex: '',
+            width: 180,
+            render: (id, row) => (
+                <>
+                    <table className="text-uppercase">
+                        <tbody>
+                            <tr className="text-danger">
+                                <td>Type</td>
+                                <td >: {row.adminCommissionType}</td>
+                            </tr>
+                            <tr className="text-warning">
+                                <td>Value</td>
+                                <td>: {row.adminCommissionValue}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </>
+            ),
+        },
+        {
+            title: 'Service Type',
+            dataIndex: 'serviceTypeDetails',
             width: 100,
+            render: (data, row) => data.name,
         },
         {
-            title: 'Status',
-            dataIndex: 'isActive',
-            width: 80,
-            render: isActive => {
-                if (isActive) {
-                    return <Tag color='green'>Active</Tag>
-                } else {
-                    return <Tag color='red'>Inactive</Tag>
-                }
-            },
+            title: 'Ride Type',
+            dataIndex: 'rideTypeDetails',
+            width: 120,
+            render: (data, row) => data.name,
+        },
+        {
+            title: 'Vehicle Category',
+            dataIndex: 'vehicleCategoryDetails',
+            width: 150,
+            render: (data, row) => data.name,
+        },
+        {
+            title: 'State',
+            dataIndex: 'stateDetails',
+            width: 150,
+            render: (data, row) => data.name,
+        },
+        {
+            title: 'District',
+            dataIndex: 'districtDetails',
+            width: 150,
+            render: (data, row) => data.name,
+        },
+        {
+            title: 'Taluk',
+            dataIndex: 'talukDetails',
+            width: 150,
+            render: (data, row) => data.name,
         },
         {
             title: 'Action',
@@ -167,6 +219,12 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
         commonService.listServiceType().then(res => setServiceTypes(res.result.data || []));
         rideService.listAllRideType({}, 'viewRideType').then(res => setRideTypes(res.result.data || []));
     }, []);
+
+    // useEffect(()=>{
+    //     if(serviceTypes){
+    //         list
+    //     }
+    // }, [serviceTypes]);
 
     return (
         <>
@@ -428,10 +486,10 @@ function PerKMCharges({ perKMCharges: data, handleChange }) {
                             {
                                 i + 1 === data.length
                                     ? <Button type="dashed" onClick={() => {
-                                        if (v.maxKM && v.maxKM > (i === 0 ? 0 : (data[i - 1].maxKM)) && v.charge ) {
+                                        if (v.maxKM && v.maxKM > (i === 0 ? 0 : (data[i - 1].maxKM)) && v.charge) {
                                             handleChange([...data, {}], 'perKMCharges');
-                                        } else{
-                                            AntdMsg(`Max KM must be greater than ${  i === 0 ? 0 : (data[i - 1].maxKM)} and Per KM charge is required`, 'error');
+                                        } else {
+                                            AntdMsg(`Max KM must be greater than ${i === 0 ? 0 : (data[i - 1].maxKM)} and Per KM charge is required`, 'error');
                                         }
                                     }}>Add</Button>
                                     : null
