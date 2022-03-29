@@ -33,7 +33,7 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
     const [rideTypes, setRideTypes] = useState([]);
 
     const formRef = useRef();
-    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
+    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, serviceTypeKey: activeServiceType });
     const columns = [
         {
             title: 'Fares',
@@ -219,12 +219,6 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
         commonService.listServiceType().then(res => setServiceTypes(res.result.data || []));
         rideService.listAllRideType({}, 'viewRideType').then(res => setRideTypes(res.result.data || []));
     }, []);
-
-    // useEffect(()=>{
-    //     if(serviceTypes){
-    //         list
-    //     }
-    // }, [serviceTypes]);
 
     return (
         <>
@@ -445,8 +439,16 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Admin Commission Value</label>
                                     <Input value={data.adminCommissionValue || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'adminCommissionValue')} />
                                 </div>
-                                <div><Divider orientation="left">Per KM Charge</Divider></div>
-                                <PerKMCharges {...{ perKMCharges: data.perKMCharges, handleChange }} />
+                                {
+                                    
+                                    ["taxi-pickup-drop", "taxi-rentals", "cargo-daily-ride", "cargo-rentals"].includes(activeRideTypes?.find(v => v._id === data.rideType)?.key)
+                                        ? <PerKMCharges {...{ perKMCharges: data.perKMCharges, handleChange }} />
+                                        : null
+                                }
+                                {
+                                    console.log(activeRideTypes?.find(v => v._id === data.rideType))
+                                }
+
                             </div>
                         </fieldset>
                     </form>
@@ -460,6 +462,7 @@ function PerKMCharges({ perKMCharges: data, handleChange }) {
 
     return (
         <>
+            <div><Divider orientation="left">Per KM Charge</Divider></div>
             <div className="col-md-2 form-group">
                 <label className="req">Min KM</label><h4></h4>
             </div>

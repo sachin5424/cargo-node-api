@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import FareManagementModel from "../data-base/models/fareManagement";
+import ServiceTypeModel from "../data-base/models/serviceType";
 import { clearSearch, getAdminFilter } from "../utls/_helper";
 
 export default class Service {
@@ -18,9 +19,12 @@ export default class Service {
         };
 
         try {
+            const serviceType = await ServiceTypeModel.findOne({key: query?.serviceTypeKey});
+
             const search = {
                 _id: query._id,
                 isDeleted: false,
+                serviceType: serviceType?._id,
                 ...getAdminFilter()
             };
 

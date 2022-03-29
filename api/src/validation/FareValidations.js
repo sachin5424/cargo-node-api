@@ -10,24 +10,24 @@ export const fareManagementValidations = [
 
     check('_id')
         .optional()
-        .custom(async (v)=>{
-            try{
+        .custom(async (v) => {
+            try {
                 const r = await FareManagementModel.findById(v);
                 if (!r) {
                     throw new Error("Data not found");
                 }
-            } catch(e){
+            } catch (e) {
                 throw new Error("This data does not exit. Please check or refresh");
             }
         }),
 
     check('rideType')
         .notEmpty().withMessage("The 'Ride Type' field is required")
-        .custom(async (value, {req}) => {
+        .custom(async (value, { req }) => {
             const result = await RideTypeModel.findById(value);
             if (!result) {
                 throw new Error("Invalid ride type");
-            } else{
+            } else {
                 req.body.serviceType = result.serviceType;
             }
         }),
@@ -59,7 +59,7 @@ export const fareManagementValidations = [
     check('district')
         .optional()
         .notEmpty().withMessage("'District' is required")
-        .custom(async (value, {req}) => {
+        .custom(async (value, { req }) => {
             try {
                 const result = await DistrictModel.findById(value);
                 if (!result) {
@@ -74,7 +74,7 @@ export const fareManagementValidations = [
     check('taluk')
         .optional()
         .notEmpty().withMessage("'Taluk' field is required")
-        .custom(async (value, {req}) => {
+        .custom(async (value, { req }) => {
             try {
                 const result = await TalukModel.findById(value);
                 if (!result) {
@@ -83,7 +83,7 @@ export const fareManagementValidations = [
                 req.body.district = result.district;
                 const resultDistrict = await DistrictModel.findById(result.district);
                 req.body.state = resultDistrict.state;
-                
+
             } catch (e) {
                 throw new Error("'Taluk' field is not valid");
             }
@@ -117,32 +117,24 @@ export const fareManagementValidations = [
         .notEmpty().withMessage("The 'Admin Commission Value' field is required")
         .isNumeric().withMessage("The 'Admin Commission Value' field must be numeric"),
 
-    // check('perKMCharges')
-    //     .custom(async (value, {req}) => {
-    //         const result = await RideTypeModel.findById(req.body.rideType);
-    //         if (!result) {
-    //             throw new Error("Invalid ride type");
-    //         } else if( ["taxi-pickup-drop", "taxi-rentals", "cargo-daily-ride", "cargo-rentals"].includes(result.key) ){
-    //             if(!value){
-    //                 throw new Error("Per KM Charges are required");
-    //             } else if(!Array.isArray(value)){
-    //                 throw new Error("Per KM Charges are not valid");
-    //             } else{
-    //                 value.forEach((v, i) => {
-    //                     console.log(i === 0 && (v?.maxKM * 1 <= 0 || !v?.chages));
-    //                     console.log("i === 0", i === 0);
-    //                     console.log("(v?.maxKM * 1 <= 0 || !v?.chages)", (v?.maxKM * 1 <= 0 || !v?.chages));
-    //                     console.log("i", typeof i, i);
-    //                     console.log("parseFloat(v?.maxKM * 1)", typeof parseFloat(v?.maxKM * 1), parseFloat(v?.maxKM * 1));
-    //                     console.log("!v?.chages", typeof !v?.chages, !v?.chages);
-    //                     if(i === 0 && (parseFloat(v?.maxKM * 1) <= 0 || !v?.chages)){
-    //                         throw new Error("All maxKM & charges of 'Per KM Charges' must be valid");
-    //                     } else if(i !== 0 && (parseFloat(v?.maxKM * 1) > parseFloat(value[i].maxKM * 1) || !v?.chages)){
-    //                         throw new Error("All maxKM & charges of 'Per KM Charges' must be valid");
-    //                     }
-    //                 });
-    //             }
-    //         }
-    //     }),
+    check('perKMCharges')
+        .custom(async (value, { req }) => {
+            const result = await RideTypeModel.findById(req.body.rideType);
+            if (!result) {
+                throw new Error("Invalid ride type");
+            } else if (["taxi-pickup-drop", "taxi-rentals", "cargo-daily-ride", "cargo-rentals"].includes(result.key)) {
+                if (!value) {
+                    throw new Error("Per KM Charges are required");
+                } else if (!Array.isArray(value)) {
+                    throw new Error("Per KM Charges are not valid");
+                } else {
+                    value.forEach((v, i) => {
+                        if ( !(parseFloat(i === 0 ? 0 : (value[i - 1].maxKM)) < parseFloat(v.maxKM)) || !v.charge ) {
+                            throw new Error("All maxKM & charges of 'Per KM Charges' must be valid");
+                        }
+                    });
+                }
+            }
+        }),
 
 ];

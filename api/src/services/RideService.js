@@ -78,7 +78,7 @@ export default class Service {
                 {
                     "$project": {
                         name: 1,
-                        // key: 1,
+                        key: 1,
                         isActive: 1,
                         serviceType: 1,
                         allowedVehicleCategories: 1,
