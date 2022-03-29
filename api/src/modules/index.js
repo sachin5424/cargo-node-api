@@ -9,6 +9,7 @@ import routerCommon from './admin/common/route';
 import routerCustomer from './admin/customer/route';
 import routerOnlyAdmin from './admin/onlyAdmin/route';
 import routerRide from './admin/ride/route';
+import routerFareManagement from './admin/fare/route';
 
 
 import routerCUser from './customers/user/route';
@@ -54,6 +55,7 @@ const api = (app) => {
     app.use('/admin/sdt', routerSDT);
     app.use('/admin/adm', jwtTokenPermission, validateSuperAdmin, routerOnlyAdmin);
     app.use('/admin/ride', jwtTokenPermission, routerRide);
+    app.use('/admin/fare-management', jwtTokenPermission, routerFareManagement);
 
     app.use('/customer/user', routerCUser);
 

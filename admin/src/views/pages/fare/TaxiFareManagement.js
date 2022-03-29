@@ -314,7 +314,7 @@ const AddForm = forwardRef((props, ref) => {
                                     />
                                 </div>
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Service Type</label>
+                                    <label className="req">Ride Type</label>
                                     <AntdSelect
                                         options={activeRideTypes}
                                         value={data.rideType}
@@ -431,7 +431,7 @@ function PerKMCharges({ perKMCharges: data, handleChange }) {
                                         if (v.maxKM && v.maxKM > (i === 0 ? 0 : (data[i - 1].maxKM)) && v.charge ) {
                                             handleChange([...data, {}], 'perKMCharges');
                                         } else{
-                                            AntdMsg(`Max KM must be greater than ${  i === 0 ? 0 : (data[i - 1].maxKM)} and per KM charge is required`, 'error');
+                                            AntdMsg(`Max KM must be greater than ${  i === 0 ? 0 : (data[i - 1].maxKM)} and Per KM charge is required`, 'error');
                                         }
                                     }}>Add</Button>
                                     : null

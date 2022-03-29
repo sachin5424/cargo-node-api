@@ -1,32 +1,32 @@
 const rideType = [
     {
         "name": "Pickup & Drop",
-        "key": "pickup-drop",
+        "key": "taxi-pickup-drop",
         "serviceType": "taxi"
     },
     {
         "name": "Rentals",
-        "key": "rentals",
+        "key": "taxi-rentals",
         "serviceType": "taxi"
     },
     {
         "name": "Out Station",
-        "key": "out-station",
+        "key": "taxi-out-station",
         "serviceType": "taxi"
     },
     {
         "name": "Daily Ride",
-        "key": "daily-ride",
+        "key": "cargo-daily-ride",
         "serviceType": "cargo"
     },
     {
         "name": "Rentals",
-        "key": "rentals",
+        "key": "cargo-rentals",
         "serviceType": "cargo"
     },
     {
         "name": "Out Station",
-        "key": "out-station",
+        "key": "cargo-out-station",
         "serviceType": "cargo"
     }
 ];
