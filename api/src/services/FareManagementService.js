@@ -25,6 +25,7 @@ export default class Service {
                 _id: query._id,
                 isDeleted: false,
                 serviceType: serviceType?._id,
+                rideType: query.rideType ? mongoose.Types.ObjectId(query.rideType) : '',
                 ...getAdminFilter()
             };
 

@@ -31,6 +31,7 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
     const [loading, setLoading] = useState(true);
     const [serviceTypes, setServiceTypes] = useState([]);
     const [rideTypes, setRideTypes] = useState([]);
+    const [filters, setFilters] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, serviceTypeKey: activeServiceType });
@@ -89,11 +90,11 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
                 <>
                     <table className="text-uppercase">
                         <tbody>
-                            <tr className="text-danger">
+                            <tr className="text-secondary">
                                 <td>Type</td>
                                 <td >: {row.adminCommissionType}</td>
                             </tr>
-                            <tr className="text-warning">
+                            <tr className="text-primary">
                                 <td>Value</td>
                                 <td>: {row.adminCommissionValue}</td>
                             </tr>
@@ -220,13 +221,26 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
         rideService.listAllRideType({}, 'viewRideType').then(res => setRideTypes(res.result.data || []));
     }, []);
 
+    useEffect(() => {
+        const tempRT =rideTypes.filter(v => v.serviceType?.key === activeServiceType);
+        if(tempRT.length){
+            setFilters([...filters, {
+                type: 'dropdown',
+                key: 'rideType',
+                placeholder: 'Ride Type',
+                className: "w200 mx-1",
+                options: tempRT
+            }]);
+        }
+    }, [rideTypes]);
+
     return (
         <>
             <div className="page-description text-white p-2" >
                 <span>Admin List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: addAccess }} />
+                <MyTable {...{ data, columns, filters,  parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Search', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, sdt, activeServiceType, serviceTypes, rideTypes }} />
         </>
