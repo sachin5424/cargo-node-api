@@ -35,7 +35,7 @@ const api = (app) => {
 
     app.all('/status', (req, res) => {
 
-        res.send(res, {
+        res.send({
             data: {
                 headers: req.headers,
                 params: req.params,
