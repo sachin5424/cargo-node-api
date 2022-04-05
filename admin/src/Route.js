@@ -17,6 +17,7 @@ import Make, {modules as makeModules} from './views/pages/vehicle/Make';
 import MakeModel, {modules as makeModelModules} from './views/pages/vehicle/MakeModel';
 import Color, {modules as colorModules} from './views/pages/vehicle/Color';
 import TaxiFareManagement, {modules as taxiFareManagementModules} from './views/pages/fare/TaxiFareManagement';
+import Template, {modules as templateModules} from './views/pages/email/Template';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -68,6 +69,15 @@ const routes = {
         { name: 'Admins', url: '/users', icon: () => <TeamOutlined />, component: User, modules: [userModules.view] },
         { name: 'Customers', url: '/customers', icon: () => <TeamOutlined />, component: Customer, modules: [customerModules.view] },
         { name: 'User Permissions', url: '/user-permissions', icon: () => <KeyOutlined />, component: AssignPermission },
+        {
+            name: 'Email',
+            baseURL: '/email',
+            modules: [templateModules.view],
+            icon: () => <CarOutlined />,
+            subMenus: [
+                { name: 'Temlate', url: '/temlate', component: Template, modules: [templateModules.view] },
+            ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
+        },
     ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
 
     topNav: [

@@ -9,7 +9,7 @@ import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
 import commonService from "../../../services/common";
-import vehicleService from "../../../services/vehicle";
+// import vehicleService from "../../../services/vehicle";
 import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
 import moment from "moment";
@@ -33,7 +33,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     const [data, setData] = useState();
     const [sdt, setSdt] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [vehicles, setVehicles] = useState([]);
+    // const [vehicles, setVehicles] = useState([]);
     const [serviceType, setServiceType] = useState([]);
     const [filters, setFilters] = useState([
         {
@@ -219,14 +219,14 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
                     </>
                     : null
             }
-            <AddForm ref={formRef} {...{ list, sdt, vehicles, setVisibleParent }} />
+            <AddForm ref={formRef} {...{ list, sdt, setVisibleParent }} />
             <WalletModal ref={walletModalRef} />
         </>
     );
 }
 
 export const AddForm = forwardRef((props, ref) => {
-    const { list, sdt, vehicles, setVisibleParent } = props;
+    const { list, sdt, setVisibleParent } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});

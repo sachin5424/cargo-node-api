@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider } from "antd";
+import { Button, Popconfirm, Input, Modal, Spin, Divider } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/fare";
@@ -170,7 +170,7 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this admin?"
+                                        title="Are you sure to delete this fare?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -237,7 +237,7 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Admin List</span>
+                <span>Fare List</span>
             </div>
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, filters,  parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Search', addNew: addAccess }} />
@@ -478,7 +478,7 @@ function PerKMCharges({ perKMCharges: data, handleChange }) {
         <>
             <div><Divider orientation="left">Per KM Charge</Divider></div>
             <div className="col-md-2 form-group">
-                <label className="req">Min KM</label><h4></h4>
+                <label className="req">Min KM</label>
             </div>
             <div className="col-md-2 form-group">
                 <label className="req">Max KM</label>

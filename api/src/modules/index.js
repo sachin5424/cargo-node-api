@@ -10,6 +10,7 @@ import routerCustomer from './admin/customer/route';
 import routerOnlyAdmin from './admin/onlyAdmin/route';
 import routerRide from './admin/ride/route';
 import routerFareManagement from './admin/fare/route';
+import routerEmail from './admin/email/route';
 
 
 import routerCUser from './customers/user/route';
@@ -35,7 +36,7 @@ const api = (app) => {
 
     app.all('/status', (req, res) => {
 
-        res.send(res, {
+        res.send({
             data: {
                 headers: req.headers,
                 params: req.params,
@@ -56,6 +57,7 @@ const api = (app) => {
     app.use('/admin/adm', jwtTokenPermission, validateSuperAdmin, routerOnlyAdmin);
     app.use('/admin/ride', jwtTokenPermission, routerRide);
     app.use('/admin/fare-management', jwtTokenPermission, routerFareManagement);
+    app.use('/admin/email', jwtTokenPermission, routerEmail);
 
     app.use('/customer/user', routerCUser);
 

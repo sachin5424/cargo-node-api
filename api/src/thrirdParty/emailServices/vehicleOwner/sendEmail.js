@@ -11,7 +11,7 @@ export async function sendSignupMail(data) {
         const url = Config.baseurls.emailVerification.vehicleOwner + "/" + encEmail;
         data = {...data, confirmURL: url};
         const html = await ejs.renderFile(path.join(__dirname, 'signup.html'), {...data});
-        return EmailService(data.email, "Account Verification Mail", html);
+        return EmailService.sendEmail(data.email, "Account Verification Mail", html);
     } catch(e){
         Logger.error(
             `
@@ -28,7 +28,7 @@ export async function sendResetPasswordMail(data) {
         const resetPasswordURL = Config.baseurls.resetPassword.vehicleOwner + "/" + data.key;
         data = {...data, resetPasswordURL: resetPasswordURL};
         const html = await ejs.renderFile(path.join(__dirname, 'resetPassword.html'), {...data});
-        return EmailService(data.email, "Reset Your Password", html);
+        return EmailService.sendEmail(data.email, "Reset Your Password", html);
     } catch(e){
         Logger.error(
             `

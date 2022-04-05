@@ -1,11 +1,10 @@
-import { validationResult } from 'express-validator';
-import Service from '../../../services/DriverService';
+import Service from '../../../services/EmailService';
 
-export default class DriverController {
+export default class TemplateController {
     
     static async list(req, res) {
         try {
-			const srvRes = await Service.listDriver(req?.query, req.__cuser._doc)
+			const srvRes = await Service.listTemplates(req?.query, req.__cuser._doc)
             return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
@@ -14,7 +13,7 @@ export default class DriverController {
 
     static async save(req, res) {
         try {
-			const srvRes = await Service.saveDriver(req.body)
+			const srvRes = await Service.saveTemplate(req.body)
             return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
@@ -23,7 +22,7 @@ export default class DriverController {
 
     static async delete(req, res) {
         try {
-			const srvRes = await Service.deleteDriver(req.params.id);
+			const srvRes = await Service.deleteTemplatePermanent(req.params.id);
             return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
