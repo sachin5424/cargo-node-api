@@ -6,6 +6,8 @@ import { LoadingOutlined, EyeOutlined, MailOutlined, SendOutlined } from "@ant-d
 import service from "../../../services/email";
 import customerService from "../../../services/customer";
 import driverService from "../../../services/driver";
+import sdtService from "../../../services/sdt";
+import commonService from "../../../services/common";
 import adminService from "../../../services/admin";
 import { AntdMsg, AntdSelect } from "../../../utils/Antd";
 import util from "../../../utils/util";
@@ -28,6 +30,8 @@ export default function Email() {
     const [customers, setCustomers] = useState([]);
     const [drivers, setDrivers] = useState([]);
     const [admins, setAdmins] = useState([]);
+    const [sdt, setSdt] = useState([]);
+    const [serviceTypes, setServiceTypes] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
@@ -100,6 +104,8 @@ export default function Email() {
         }).catch(err => {
             AntdMsg('Admin are not loaded! Contact super admin if you have any permission error', 'error');
         });
+        sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
+        commonService.listServiceType().then(res => { setServiceTypes(res.result.data); });
 
     }, []);
 
@@ -111,19 +117,22 @@ export default function Email() {
             <div className="m-2 border p-2">
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Title or Key', addNew: addAccess, addNewIcon: MailOutlined, addNewText: 'Compose Email' }} />
             </div>
-            <AddForm ref={formRef} {...{ list, templates, customers, drivers, admins }} />
+            <AddForm ref={formRef} {...{ list, templates, sdt, customers, drivers, admins, serviceTypes }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, templates, customers, drivers, admins } = props;
+    const { list, templates, sdt, customers, drivers, admins, serviceTypes } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     let [data, setData] = useState({});
     const [changeForm, setChangeForm] = useState(false);
+    const [allUsers, setAllUsers] = useState([]);
     const [users, setUsers] = useState([]);
     const [userSelectMode, setUserSelectMode] = useState('multiple');
+    const [districts, setDistricts] = useState([]);
+    const [taluks, setTaluks] = useState([]);
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -169,17 +178,25 @@ const AddForm = forwardRef((props, ref) => {
 
     useEffect(() => {
         if (data.to === 'manyCustomers') {
-            setUsers(customers.map(v => ({ _id: v.email, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})` })) || []);
+            setAllUsers(customers.map(v => (
+                { _id: v.email, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk }
+            )) || []);
         } else if (data.to === 'manyDrivers') {
-            setUsers(drivers.map(v => ({ _id: v.email, title: v.name + ` - (${v.email})` })) || []);
+            setAllUsers(drivers.map(v => (
+                { _id: v.email, title: v.name + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk, serviceType: v?.vehicleDetails?.vehicleDetails }
+            )) || []);
         } else if (data.to === 'manyAdmins') {
-            setUsers(admins.map(v => ({ _id: v.email, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})` })) || []);
+            setAllUsers(admins.map(v => (
+                { _id: v.email, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk }
+            )) || []);
         } else if (data.to === 'custom') {
-            setUsers([]);
+            setAllUsers([]);
         } else {
-            setUsers([]);
+            setAllUsers([]);
         }
     }, [data.to]);
+
+    useEffect(()=>{ setUsers(allUsers);}, [allUsers]);
 
     useEffect(() => {
         if (data.to === 'custom') {
@@ -197,13 +214,36 @@ const AddForm = forwardRef((props, ref) => {
         console.log('emailIds', data.emailIds);
     }, [data.emailIds]);
 
+    const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district);
+    const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v => v._id)?.includes(data.taluk);
+    useEffect(() => { const newDistricts = sdt.find(v => v._id === data.state)?.districts || []; setDistricts(newDistricts?.map(v => ({ value: v._id, label: v.name, taluks: v.taluks })) || []); }, [data.state]);
+    useEffect(() => { const newTaluks = districts?.find(v => v.value === data.district)?.taluks || []; setTaluks(newTaluks?.map(v => { return { value: v._id, label: v.name } })); }, [data.district, districts]);
+    useEffect(() => { if (!checkDistrictExist()) { handleChange('', 'district'); } }, [data.state]);
+    useEffect(() => { if (!checkTalukExist()) { handleChange('', 'taluk'); } }, [data.district, districts]);
+
+    useEffect(()=>{
+        if(data.taluk){
+            setUsers(allUsers.filter(v => v?.taluk === data?.taluk));
+        } else if(data.district){
+            setUsers(allUsers.filter(v => v?.district === data?.district));
+        } else if(data.state){
+            setUsers(allUsers.filter(v => v?.state === data?.state));
+        } else{
+            setUsers(allUsers);
+        }
+    }, [data.state, data.district, data.taluk, allUsers]);
+
+    // useEffect(()=>{
+
+    // }, [data.serviceType, allUsers]);
+
     return (
         <>
             <Modal
                 title={'Send Email'}
                 style={{ top: 20 }}
                 visible={visible}
-                okText={<div className="d-flex">Send <SendOutlined className="my-auto mx-1"/></div>}
+                okText={<div className="d-flex">Send <SendOutlined className="my-auto mx-1" /></div>}
                 onOk={save}
                 okButtonProps={{ disabled: ajxRequesting || (!changeForm), style: { display: !changeForm ? 'none' : 'inline-block' } }}
                 onCancel={() => { handleVisible(false); }}
@@ -227,6 +267,37 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div></div>
                                 <div className="col-md-4 form-group">
+                                    <label className="req">State</label>
+                                    <AntdSelect
+                                        placeholder="All States"
+                                        allowClear
+                                        options={sdt.map(v => ({ value: v._id, label: v.name }))}
+                                        value={data.state}
+                                        onChange={v => { handleChange(v, 'state') }}
+                                    />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">District</label>
+                                    <AntdSelect
+                                        placeholder="All Districts"
+                                        allowClear
+                                        options={districts || []}
+                                        value={data.district}
+                                        onChange={v => { handleChange(v, 'district') }}
+                                    />
+                                </div>
+                                <div className="col-md-4 form-group">
+                                    <label className="req">Taluk</label>
+                                    <AntdSelect
+                                        placeholder="All Taluks"
+                                        allowClear
+                                        options={taluks || []}
+                                        value={data.taluk}
+                                        onChange={v => { handleChange(v, 'taluk') }}
+                                    />
+                                </div>
+                                <div></div>
+                                <div className="col-md-4 form-group">
                                     <label className="req">Send To</label>
                                     <AntdSelect
                                         options={[
@@ -243,8 +314,22 @@ const AddForm = forwardRef((props, ref) => {
                                     />
                                 </div>
                                 {
+                                    ['manyDrivers', 'allDrivers'].includes(data.to)
+                                        ? <div className="col-md-4 form-group">
+                                            <label className="req">Service Type</label>
+                                            <AntdSelect
+                                                allowClear
+                                                placeholder="All Service Types"
+                                                options={serviceTypes || []}
+                                                value={data.serviceType}
+                                                onChange={v => { handleChange(v, 'serviceType') }}
+                                            />
+                                        </div>
+                                        : null
+                                }
+                                {
                                     ['manyCustomers', 'manyDrivers', 'manyAdmins', 'custom'].includes(data.to)
-                                        ? <div className="col-md-8 form-group">
+                                        ? <div className="col-md-12 form-group">
                                             <label className="req">{data.to === 'custom' ? 'Enter Emails' : 'Select Users'}</label>
                                             <AntdSelect
                                                 mode={userSelectMode}

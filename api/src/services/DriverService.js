@@ -242,7 +242,8 @@ export default class Service {
                             { $match: vehicleSearch },
                             {
                                 $project: {
-                                    name: 1
+                                    name: 1,
+                                    serviceType: 1
                                 }
                             }
                         ]
