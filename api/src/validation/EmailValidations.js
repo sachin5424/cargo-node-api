@@ -17,9 +17,9 @@ export const templateValidation = [
             }
         }),
 
-    check('title')
-        .notEmpty().withMessage("The 'Title' field is required")
-        .isString().withMessage("The 'Title' field is not valid"),
+    check('subject')
+        .notEmpty().withMessage("The 'Subject' field is required")
+        .isString().withMessage("The 'Subject' field is not valid"),
 
     check('key')
         .notEmpty().withMessage("The 'key' field is required")

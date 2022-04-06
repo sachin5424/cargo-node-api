@@ -8,7 +8,7 @@ export default class email {
         return axios.get(this.baseURL + '/template/list', { params: data, module });
     }
     static listAllTeplates(module) {
-        return axios.get(this.baseURL + "/template/list/all", { module });
+        return axios.get(this.baseURL + "/template/list/ALL", { module });
     }
     static saveTeplate(data, module) {
         return axios.post(this.baseURL + "/template/save", data, { module });

@@ -118,6 +118,7 @@ export default class Service {
     }
 
     static async listCustomer(query, params) {
+        const isAll = params.isAll === 'ALL';
         const response = {
             statusCode: 400,
             message: 'Data not found!',
@@ -127,7 +128,7 @@ export default class Service {
                 limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
                 total: 0,
             },
-            status: false
+            isActive: (query?.isActive ? query.isActive ? true : false : '')
         };
 
         try {
@@ -136,18 +137,16 @@ export default class Service {
                 isDeleted: false,
                 $or: [
                     {
-                        firstName: { $regex: '.*' + query?.key + '.*' }
+                        firstName: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                     {
-                        lastName: { $regex: '.*' + query?.key + '.*' }
+                        lastName: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
-
                 ...getAdminFilter()
             };
+
             clearSearch(search);
-            // const driverFilter ={isDeleted: false, ...getAdminFilter()};
-            // clearSearch(driverFilter);
 
             const $aggregate = [
                 { $match: search },
@@ -173,19 +172,24 @@ export default class Service {
                 },
             ];
 
-
+            const counter = await CustomerModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
 
             response.result.data = await CustomerModel.aggregate(
                 [
                     ...$aggregate,
                     { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
                     { $skip: response.result.limit * (response.result.page - 1) }
-                ])
-                .then(async function (data) {
-                    await CustomerModel.aggregate([...$aggregate, { $count: "total" }]).then(count => { response.result.total = count[0].total }).catch(err => { response.result.total = 0 })
-                    return data;
-                })
-                .catch(err => { throw new Error(err.message) })
+                ]);
 
             if (response.result.data.length) {
                 response.message = "Data fetched";
@@ -196,7 +200,7 @@ export default class Service {
             return response;
 
         } catch (e) {
-            throw new Error(e)
+            throw new Error(e);
         }
     }
 

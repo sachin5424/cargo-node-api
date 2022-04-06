@@ -7,7 +7,7 @@ import { AntdSelect } from '../../utils/Antd';
 
 
 export default function MyTable(props) {
-    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder, addNew = true } = props;
+    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder, addNew = true, addNewIcon = PlusOutlined, addNewText = 'Add New' } = props;
     let [sdata, setSData] = useState({ ...parentSData });
     const handleSData = (v, k) => {
         if (k === 'key') {
@@ -37,7 +37,7 @@ export default function MyTable(props) {
         bordered: true,
         loading,
         size: 'small',
-        title: () => <><Search {...{ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew }} /></>,
+        title: () => <><Search {...{ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew, addNewIcon, addNewText }} /></>,
         showHeader: true,
         footer: () => <MyPagination {...{ sdata, handleSData, setSData }} />,
         scroll: undefined,
@@ -74,7 +74,7 @@ export default function MyTable(props) {
 }
 
 
-const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew }) => {
+const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew, addNewIcon: AddNewIcon, addNewText }) => {
     return <>
         <div className="d-flex">
             {
@@ -102,8 +102,8 @@ const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder,
                 addNew
                     ? <Button type="primary" className="ml-auto">
                         <span className="d-flex" onClick={() => { formRef.current.openForm() }}>
-                            <PlusOutlined className="my-auto mx-1" />
-                            Add New
+                            {<AddNewIcon className="my-auto mx-1" />}
+                            {addNewText}
                         </span>
                     </Button>
                     : null

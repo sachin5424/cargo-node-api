@@ -1,5 +1,5 @@
 /* eslint no-extend-native: ["error", { "exceptions": ["Array"] }] */
-import { DashboardOutlined, TeamOutlined, KeyOutlined, CarOutlined } from '@ant-design/icons';
+import { DashboardOutlined, TeamOutlined, KeyOutlined, CarOutlined, MailOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import Dashboard from './views/pages/Dashboard';
 import Profile from './views/pages/user/Profile';
@@ -18,6 +18,7 @@ import MakeModel, {modules as makeModelModules} from './views/pages/vehicle/Make
 import Color, {modules as colorModules} from './views/pages/vehicle/Color';
 import TaxiFareManagement, {modules as taxiFareManagementModules} from './views/pages/fare/TaxiFareManagement';
 import Template, {modules as templateModules} from './views/pages/email/Template';
+import Email, {modules as emailModules} from './views/pages/email/Email';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -72,10 +73,11 @@ const routes = {
         {
             name: 'Email',
             baseURL: '/email',
-            modules: [templateModules.view],
-            icon: () => <CarOutlined />,
+            modules: [templateModules.view, emailModules.view],
+            icon: () => <MailOutlined />,
             subMenus: [
-                { name: 'Temlate', url: '/temlate', component: Template, modules: [templateModules.view] },
+                { name: 'Template', url: '/template', component: Template, modules: [templateModules.view] },
+                { name: 'Email', url: '/email', component: Email, modules: [emailModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
     ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),

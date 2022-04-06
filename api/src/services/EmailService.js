@@ -71,10 +71,10 @@ export default class Service {
                 _id: query._id,
                 $or: [
                     {
-                        title: { $regex: '.*' + query?.key + '.*' }
+                        subject: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                     {
-                        key: { $regex: '.*' + query?.key + '.*' }
+                        key: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
             };
@@ -86,7 +86,7 @@ export default class Service {
                 { $sort: { _id: -1 } },
                 {
                     "$project": {
-                        title: 1,
+                        subject: 1,
                         key: 1,
                         html: 1,
                         deletable: 1,
@@ -95,6 +95,11 @@ export default class Service {
             ];
 
             const counter = await EmailTemplateModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
             response.result.total = counter[0]?.total;
             if (isAll) {
                 response.result.page = 1;
@@ -127,7 +132,7 @@ export default class Service {
         try {
             const tplData = _id ? await EmailTemplateModel.findById(_id) : new EmailTemplateModel();
 
-            tplData.title = data.title;
+            tplData.subject = data.subject;
             tplData.key = data.key;
             tplData.html = data.html;
 

@@ -74,10 +74,10 @@ export default class Service {
                 type: { $ne: 'superAdmin' },
                 $or: [
                     {
-                        firstName: { $regex: '.*' + query?.key + '.*' }
+                        firstName: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                     {
-                        lastName: { $regex: '.*' + query?.key + '.*' }
+                        lastName: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
 

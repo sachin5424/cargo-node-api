@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 const EmailTemplateSchema = new Schema({
-    title: String,
+    subject: String,
     key: {
         type: String,
         unique: true

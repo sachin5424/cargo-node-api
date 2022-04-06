@@ -8,7 +8,7 @@ export default class customer {
         return axios.get(this.baseURL + '/list', { params: data, module });
     }
     static listAll(module) {
-        return axios.get(this.baseURL + "/list/all", { module });
+        return axios.get(this.baseURL + "/list/ALL", { module });
     }
     static listAllIgnoreStatus(module) {
         return axios.get(this.baseURL + "/all/ignore-status", { module });

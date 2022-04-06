@@ -4,7 +4,7 @@ export default class TemplateController {
     
     static async list(req, res) {
         try {
-			const srvRes = await Service.listTemplates(req?.query, req.__cuser._doc)
+			const srvRes = await Service.listTemplates(req?.query, req.params)
             return res.status(srvRes.statusCode).json({ ...srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});

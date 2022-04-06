@@ -69,7 +69,7 @@ export function AntdSelect(props) {
                 value={(value !== null && typeof value !== "undefined") ? (value) : undefined}
                 filterOption={
                     (input, option) => {
-                        return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        return option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                     }
                 }
 

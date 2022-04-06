@@ -8,6 +8,7 @@ import { jwtTokenPermission } from "../../../middleware/jwtToken";
 const router = Router({ mergeParams: true });
 
 router.get('/list', jwtTokenPermission, checkCustomerListAccess, CustomerController.list);
+router.get('/list/:isAll', jwtTokenPermission, checkCustomerListAccess, CustomerController.list);
 router.post('/save', jwtTokenPermission, checkCustomerSaveAccess, customerValidation, CustomerController.save);
 router.delete("/delete/:id", jwtTokenPermission, CheckCustomerDeleteAccess, CustomerController.delete);
 

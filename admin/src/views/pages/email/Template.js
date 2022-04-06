@@ -30,8 +30,8 @@ export default function Template() {
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
-            title: 'Title',
-            dataIndex: 'title',
+            title: 'Subject',
+            dataIndex: 'subject',
         },
         {
             title: 'Key',
@@ -179,7 +179,7 @@ const AddForm = forwardRef((props, ref) => {
         });
     }
 
-    useEffect(() => { !data.deletable || handleChange(util.removeSpecialChars(data.title || ''), 'key'); }, [data.title]);
+    useEffect(() => { !data.deletable || handleChange(util.removeSpecialChars(data.subject || ''), 'key'); }, [data.subject]);
 
     return (
         <>
@@ -201,8 +201,8 @@ const AddForm = forwardRef((props, ref) => {
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
                                 <div className="col-md-6 form-group">
-                                    <label className="req">Title</label>
-                                    <Input value={data.title || ''} onChange={e => { handleChange(e.target.value, 'title') }} />
+                                    <label className="req">Subject</label>
+                                    <Input value={data.subject || ''} onChange={e => { handleChange(e.target.value, 'subject') }} />
                                 </div>
                                 <div className="col-md-6 form-group">
                                     <label className="req">Key</label>
