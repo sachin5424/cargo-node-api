@@ -65,7 +65,7 @@ export default function Template() {
                     }
 
                     {
-                        deleteAccess
+                        row.deletable && deleteAccess
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
@@ -143,7 +143,7 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            setData(dt ? { ...dt } : { isActive: true });
+            setData(dt ? { ...dt } : { deletable: true });
             handleVisible(true);
             if (!dt?._id && addAccess) {
                 setChangeForm(true);
@@ -179,7 +179,7 @@ const AddForm = forwardRef((props, ref) => {
         });
     }
 
-    useEffect(() => { handleChange(util.removeSpecialChars(data.title || ''), 'key'); }, [data.title]);
+    useEffect(() => { !data.deletable || handleChange(util.removeSpecialChars(data.title || ''), 'key'); }, [data.title]);
 
     return (
         <>
@@ -206,7 +206,7 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div className="col-md-6 form-group">
                                     <label className="req">Key</label>
-                                    <Input value={data.key || ''} onChange={e => { handleChange(e.target.value, 'key') }} />
+                                    <Input value={data.key || ''} disabled={!data.deletable} onChange={e => { !data.deletable || handleChange(util.removeSpecialChars(e.target.value), 'key') }} />
                                 </div>
                                 <div className="col-md-12 form-group">
                                     <label className="req">Template Design</label>

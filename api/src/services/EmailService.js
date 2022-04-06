@@ -130,7 +130,6 @@ export default class Service {
             tplData.title = data.title;
             tplData.key = data.key;
             tplData.html = data.html;
-            tplData.deletable = data.deletable;
 
             await tplData.save();
 
