@@ -47,13 +47,13 @@ export const driverValidation = [
             }
         }),
 
-    check('name')
+    check('firstName')
         .notEmpty().withMessage("The 'First Name' field is required")
         .isString().withMessage("The 'First Name' field is not valid"),
 
-    // check('lastName')
-    //     .notEmpty().withMessage("The 'Last Name' field is required")
-    //     .isString().withMessage("The 'Last Name' field is not valid"),
+    check('lastName')
+        .notEmpty().withMessage("The 'Last Name' field is required")
+        .isString().withMessage("The 'Last Name' field is not valid"),
 
     check('driverId')
         .notEmpty().withMessage("The 'Driver ID' field is required")

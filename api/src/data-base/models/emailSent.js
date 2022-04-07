@@ -5,9 +5,25 @@ const EmailSentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "emailTemplate",
     },
+    state: {
+        type: Schema.Types.ObjectId,
+        ref: "state",
+    },
+    district: {
+        type: Schema.Types.ObjectId,
+        ref: "district",
+    },
+    taluk: {
+        type: Schema.Types.ObjectId,
+        ref: "taluk",
+    },
+    serviceType: {
+        type: Schema.Types.ObjectId,
+        ref: "serviceType",
+    },
     to: {
         type: String,
-        enum: ['manyCustomers, manyDrivers, manyAdmins, allCustomers, allDrivers, allAdmins, custom'],
+        enum: ['manyCustomers', 'manyDrivers', 'manyAdmins', 'allCustomers', 'allDrivers', 'allAdmins', 'custom'],
     },
     emailIds: [{
         type: String

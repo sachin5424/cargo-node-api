@@ -1,8 +1,14 @@
 import nodemailer from 'nodemailer';
+import ejs from "ejs";
+import mongoose from "mongoose";
 import Config from '../utls/config';
-import Logger from '../utls/Logger';
+// import Logger from '../utls/Logger';
 import EmailTemplateModel from '../data-base/models/emailTemplate';
-import { clearSearch } from '../utls/_helper';
+import EmailSentModel from '../data-base/models/emailSent';
+import DriverModel from '../data-base/models/driver';
+import CustomerModel from '../data-base/models/customer';
+import {UserModel} from '../data-base/models/userModel';
+import { clearSearch, mailer } from '../utls/_helper';
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -14,6 +20,7 @@ const transporter = nodemailer.createTransport({
 
 export default class Service {
 
+    /*
     static async sendEmail(to, subject, html) {
 
         const mailOptions = {
@@ -51,6 +58,8 @@ export default class Service {
             });
         })
     }
+    */
+
 
     static async listTemplates(query, params) {
         const isAll = params.isAll === 'ALL';
@@ -164,8 +173,158 @@ export default class Service {
             throw new Error("Can not delete. Something went wrong.");
         }
     }
-    // static async deleteDriverPermanent(cond) {
-    //     await EmailTemplateModel.deleteOne({ ...cond });
-    // }
+
+    static async sendEmail(data) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+        let emailIds = [];
+        try {
+            if (data.template !== 'custom') {
+                const template = await EmailTemplateModel.findById(data.template);
+                data.subject = template.subject;
+                data.html = template.html;
+            }
+            data.html = data.html.replace(/&lt;%=/g, "<%=");
+            data.html = data.html.replace(/%&gt;/g, "%>");
+
+            if (data.to === 'manyCustomers' || data.to === 'allCustomers') {
+                emailIds = await this.sendMailToCustomers(data);
+            }
+            if (data.to === 'manyDrivers' || data.to === 'allDrivers') {
+                emailIds = await this.sendMailToDrivers(data);
+            }
+            if (data.to === 'manyAdmins' || data.to === 'allAdmins') {
+                emailIds = await this.sendMailToAdmins(data);
+            }
+            if (data.to === 'custom') {
+                emailIds = await this.sendMailToEmailIds(data);
+            }
+
+            const tplData = new EmailSentModel();
+
+            if(data.template !== 'custom'){
+                tplData.template = data.template;
+            } else{
+                tplData.emailContent.subject = data.subject;
+                tplData.emailContent.html = data.html;
+            }
+            if(data.state){
+                tplData.state = data.state;
+            }
+            if(data.district){
+                tplData.district = data.district;
+            }
+            if(data.taluk){
+                tplData.taluk = data.taluk;
+            }
+            if(data.serviceType){
+                tplData.serviceType = data.serviceType;
+            }
+
+            tplData.to = data.to;
+            tplData.emailIds = emailIds;
+
+            await tplData.save();
+
+            response.statusCode = 400;
+            response.message = "Email sent";
+            response.emailIds = emailIds;
+
+            return response;
+            
+        } catch (e) {
+            throw new Error("Error while sending email! Please check email template or composed mail");
+        }
+    }
+
+    static async sendMailToCustomers(data) {
+        if (data.to === 'allDrivers') {
+            const search = {
+                isDeleted: false,
+                state: data.state ? mongoose.Types.ObjectId(data.state) : '',
+                district: data.district ? mongoose.Types.ObjectId(data.district) : '',
+                taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
+            };
+
+            clearSearch(search);
+            const userDatas = await CustomerModel.find(search);
+            data.emailIds = userDatas.map(v => v.email);
+        }
+
+        if (data.html.includes('<%= firstName %>') || data.html.includes('<%= lastName %>') || data.html.includes('<%= email %>')) {
+            data.emailIds?.forEach(async (v) => {
+                const userData = await CustomerModel.findOne({ email: v, isDeleted: false });
+
+                const html = await ejs.render(data.html, { ...userData._doc });
+                await mailer(v, data.subject, html);
+            });
+        } else {
+            await mailer(data.emailIds, data.subject, data.html);
+        }
+
+        return data.emailIds;
+    }
+
+    static async sendMailToDrivers(data) {
+        if (data.to === 'allDrivers') {
+            const search = {
+                isDeleted: false,
+                state: data.state ? mongoose.Types.ObjectId(data.state) : '',
+                district: data.district ? mongoose.Types.ObjectId(data.district) : '',
+                taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
+                serviceType: data.serviceType ? mongoose.Types.ObjectId(data.serviceType) : '',
+            };
+
+            clearSearch(search);
+            const userDatas = await DriverModel.find(search);
+            data.emailIds = userDatas.map(v => v.email);
+        }
+
+        if (data.html.includes('<%= firstName %>') || data.html.includes('<%= lastName %>') || data.html.includes('<%= email %>')) {
+            data.emailIds?.forEach(async (v) => {
+                const userData = await DriverModel.findOne({ email: v, isDeleted: false });
+
+                const html = await ejs.render(data.html, { ...userData._doc });
+                await mailer(v, data.subject, html);
+            });
+        } else {
+            await mailer(data.emailIds, data.subject, data.html);
+        }
+
+        return data.emailIds;
+    }
+
+    static async sendMailToAdmins(data) {
+        if (data.to === 'allDrivers') {
+            const search = {
+                isDeleted: false,
+                state: data.state ? mongoose.Types.ObjectId(data.state) : '',
+                district: data.district ? mongoose.Types.ObjectId(data.district) : '',
+                taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
+            };
+
+            clearSearch(search);
+            const userDatas = await UserModel.find(search);
+            data.emailIds = userDatas.map(v => v.email);
+        }
+
+        if (data.html.includes('<%= firstName %>') || data.html.includes('<%= lastName %>') || data.html.includes('<%= email %>')) {
+            data.emailIds?.forEach(async (v) => {
+                const userData = await UserModel.findOne({ email: v, isDeleted: false });
+
+                const html = await ejs.render(data.html, { ...userData._doc });
+                await mailer(v, data.subject, html);
+            });
+        } else {
+            await mailer(data.emailIds, data.subject, data.html);
+        }
+
+        return data.emailIds;
+    }
+
+    static async sendMailToEmailIds(data) {
+        await mailer(data.emailIds, data.subject, data.html);
+
+        return data.emailIds;
+    }
 
 }

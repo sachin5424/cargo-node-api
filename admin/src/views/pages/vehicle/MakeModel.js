@@ -221,7 +221,7 @@ const AddForm = forwardRef((props, ref) => {
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
                                 <div className="col-md-12 form-group">
-                                    <label className="req">Status</label>
+                                    <label className="req">Make</label>
                                     <AntdSelect options={makes} value={data.make} onChange={v => { handleChange(v, 'make') }} />
                                 </div>
                                 <div className="col-md-12 form-group">

@@ -143,9 +143,17 @@ export default class Service {
             const search = {
                 _id: query._id,
                 isDeleted: false,
-                name: {
-                    $regex: '.*' + (query?.key || '') + '.*'
-                },
+                // name: {
+                //     $regex: '.*' + (query?.key || '') + '.*'
+                // },
+                $or: [
+                    {
+                        firstName: { $regex: '.*' + (query?.key || '') + '.*' }
+                    },
+                    {
+                        lastName: { $regex: '.*' + (query?.key || '') + '.*' }
+                    },
+                ],
                 isApproved: query.isApproved ? (query.isApproved === '1' ? true : false) : '',
                 vehicle: query.vehicleId ? mongoose.Types.ObjectId(query.vehicleId) : '',
                 ...getAdminFilter()
@@ -179,9 +187,9 @@ export default class Service {
                         district: 1,
                         taluk: 1,
                         driverId: 1,
-                        name: 1,
-                        // firstName: 1,
-                        // lastName: 1,
+                        // name: 1,
+                        firstName: 1,
+                        lastName: 1,
                         phoneNo: 1,
                         email: 1,
                         otpVerified: 1,
@@ -292,8 +300,8 @@ export default class Service {
             tplData.district = data.district;
             tplData.taluk = data.taluk;
             tplData.driverId = data.driverId;
-            tplData.name = data.name;
-            // tplData.lastName = data.lastName;
+            tplData.firstName = data.firstName;
+            tplData.lastName = data.lastName;
             tplData.phoneNo = data.phoneNo;
             tplData.email = data.email;
             !data.password || (tplData.password = data.password);

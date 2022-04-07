@@ -251,9 +251,10 @@ const AddForm = forwardRef((props, ref) => {
     useEffect(() => { handleChange(util.removeSpecialChars(data.name || ''), 'slug'); }, [data.name]);
     useEffect(() => {
         const newRideTypes = parRideTypes?.filter(v => {
-            if (v.serviceType._id === data.serviceType) {
-                return v.serviceType
-            }
+            // if (v.serviceType._id === data.serviceType) {
+            //     return v.serviceType
+            // }
+            return v.serviceType._id === data.serviceType;
         });
 
         setRideTypes(newRideTypes || []);

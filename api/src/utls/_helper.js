@@ -1,8 +1,12 @@
 import crypto from "crypto";
+import sendGridMail from '@sendgrid/mail';
+import Logger from "./Logger";
 import { UserModel } from "../data-base/index";
 import mime from "mime";
 import fs from "fs";
 import Config from "./config";
+
+sendGridMail.setApiKey(Config.sendGrid.apiKey);
 
 let matchPassword = (email, password) => {
     return new Promise((resolve, reject) => {
@@ -61,8 +65,6 @@ export function getAdminFilter(...keys) {
     clearSearch(search);
     return search;
 }
-
-
 
 export function decodeBase64Image(dataString) {
     var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/), response = {};
@@ -166,5 +168,33 @@ export function decryptData(text) {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted.toString();
 }
+
+export async function mailer(to, subject, html) {
+
+    const mailOptions = {
+        to,
+        from: Config.sendGrid.senderEmail,
+        subject,
+        html,
+    };
+
+
+    return new Promise(async (resolve, reject) => {
+        try {
+            // const info = await sendGridMail.send(mailOptions);
+            resolve('info');
+        } catch (error) {
+            Logger.error(
+                `
+                    Error while sending mail
+                    To   			- ${to}
+                    Subject   		- ${subject}
+                    Reason   	    - ${error.message}
+                `
+            );
+            reject(error);
+        }
+    })
+} 
 
 export { matchPassword, slug };

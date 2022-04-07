@@ -22,9 +22,9 @@ const DriverSchema = new Schema({
         type: Number,
         unique: true,
     },
-    name: String,
-    // firstName: String,
-    // lastName: String,
+    // name: String,
+    firstName: String,
+    lastName: String,
     phoneNo: String,
     email: String,
     otpVerified: { 

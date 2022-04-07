@@ -17,4 +17,17 @@ export default class email {
         return axios.delete(`${this.baseURL}/template/delete/${id}`, { module });
     }
 
+    static list(data, module) {
+        return axios.get(this.baseURL + '/list', { params: data, module });
+    }
+    static listAll(module) {
+        return axios.get(this.baseURL + "/list/ALL", { module });
+    }
+    static save(data, module) {
+        return axios.post(this.baseURL + "/save", data, { module });
+    }
+    static delete(id, module) {
+        return axios.delete(`${this.baseURL}/delete/${id}`, { module });
+    }
+
 }

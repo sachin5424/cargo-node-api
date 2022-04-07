@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Input, Modal, Spin } from "antd";
-import { LoadingOutlined, EyeOutlined, MailOutlined, SendOutlined } from "@ant-design/icons";
+import { Button, Input, Modal, Spin, Tooltip } from "antd";
+import { LoadingOutlined, EyeOutlined, MailOutlined, SendOutlined, InfoOutlined } from "@ant-design/icons";
 import service from "../../../services/email";
 import customerService from "../../../services/customer";
 import driverService from "../../../services/driver";
@@ -160,7 +160,7 @@ const AddForm = forwardRef((props, ref) => {
 
     const save = () => {
         setAjxRequesting(true);
-        service.saveTeplate(data, addAccess).then((res) => {
+        service.save(data, addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
             list();
@@ -183,7 +183,7 @@ const AddForm = forwardRef((props, ref) => {
             )) || []);
         } else if (data.to === 'manyDrivers') {
             setAllUsers(drivers.map(v => (
-                { _id: v.email, title: v.name + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk, serviceType: v?.vehicleDetails?.vehicleDetails }
+                { _id: v.email, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk, serviceType: v?.vehicleDetails?.serviceType }
             )) || []);
         } else if (data.to === 'manyAdmins') {
             setAllUsers(admins.map(v => (
@@ -196,7 +196,7 @@ const AddForm = forwardRef((props, ref) => {
         }
     }, [data.to]);
 
-    useEffect(()=>{ setUsers(allUsers);}, [allUsers]);
+    useEffect(() => { setUsers(allUsers); }, [allUsers]);
 
     useEffect(() => {
         if (data.to === 'custom') {
@@ -221,21 +221,43 @@ const AddForm = forwardRef((props, ref) => {
     useEffect(() => { if (!checkDistrictExist()) { handleChange('', 'district'); } }, [data.state]);
     useEffect(() => { if (!checkTalukExist()) { handleChange('', 'taluk'); } }, [data.district, districts]);
 
-    useEffect(()=>{
-        if(data.taluk){
-            setUsers(allUsers.filter(v => v?.taluk === data?.taluk));
-        } else if(data.district){
-            setUsers(allUsers.filter(v => v?.district === data?.district));
-        } else if(data.state){
-            setUsers(allUsers.filter(v => v?.state === data?.state));
-        } else{
+    useEffect(() => {
+        if (data.taluk) {
+            setUsers(allUsers.filter(v => {
+                if (data.serviceType && v.serviceType) {
+                    return v?.taluk === data?.taluk && v.serviceType === data.serviceType;
+                } else {
+                    return v?.taluk === data?.taluk
+                }
+            }));
+        } else if (data.district) {
+            setUsers(allUsers.filter(v => {
+                if (data.serviceType && v.serviceType) {
+                    return v?.district === data?.district && v.serviceType === data.serviceType;
+                } else {
+                    return v?.district === data?.district;
+                }
+            }));
+        } else if (data.state) {
+            setUsers(allUsers.filter(v => {
+                if (data.serviceType && v.serviceType) {
+                    return v?.state === data?.state && v.serviceType === data.serviceType;
+                } else {
+                    return v?.state === data?.state;
+                }
+            }));
+        } else if (data.serviceType) {
+            setUsers(allUsers.filter(v => {
+                if (v.serviceType) {
+                    return v.serviceType === data.serviceType;
+                } else {
+                    return true;
+                }
+            }));
+        } else {
             setUsers(allUsers);
         }
-    }, [data.state, data.district, data.taluk, allUsers]);
-
-    // useEffect(()=>{
-
-    // }, [data.serviceType, allUsers]);
+    }, [data.serviceType, data.state, data.district, data.taluk, allUsers]);
 
     return (
         <>
@@ -352,14 +374,34 @@ const AddForm = forwardRef((props, ref) => {
                                                 <Input value={data.subject || ''} onChange={e => { handleChange(e.target.value, 'subject') }} />
                                             </div>
                                             <div className="col-md-12 form-group">
-                                                <label className="req">Template Design</label>
+                                                <label className="req">
+                                                    Template Design
+                                                    <Tooltip title={
+                                                        <table>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>First Name: </td>
+                                                                    <td>{`<%= firstName %>`}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Last Name: </td>
+                                                                    <td>{`<%= lastName %>`}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Email: </td>
+                                                                    <td>{`<%= email %>`}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    } color="cyan">
+                                                        <Button size="small" shape="circle" icon={<InfoOutlined />} />
+                                                    </Tooltip>
+                                                </label>
                                                 <TinyMce {...{ height: 700 }} initialValue={data.html || ''} onChange={v => { handleChange(v, 'html', false) }} />
                                             </div>
                                         </>
                                         : null
                                 }
-
-
                             </div>
                         </fieldset>
                     </form>

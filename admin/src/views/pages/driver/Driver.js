@@ -59,7 +59,8 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
         },
         {
             title: 'Name',
-            dataIndex: 'name',
+            dataIndex: 'firstName',
+            render: (text, row) => (text + ' ' + row.lastName)
         },
         {
             title: 'Email',
@@ -353,16 +354,15 @@ export const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Driver Id</label>
                                     <Input value={data.driverId || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'driverId')} />
                                 </div>
-                                {/* <div></div> */}
-                                <div className="col-md-9 form-group">
-                                    <label className="req">Name</label>
-                                    <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} />
-                                </div>
                                 <div></div>
-                                {/* <div className="col-md-6 form-group">
+                                <div className="col-md-6 form-group">
+                                    <label className="req">First Name</label>
+                                    <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />
+                                </div>
+                                <div className="col-md-6 form-group">
                                     <label className="req">Last Name</label>
                                     <Input value={data.lastName || ''} onChange={e => handleChange(e.target.value, 'lastName')} />
-                                </div> */}
+                                </div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Email</label>
                                     <Input value={data.email || ''} onChange={e => handleChange(e.target.value, 'email')} />

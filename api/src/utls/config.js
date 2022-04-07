@@ -103,6 +103,11 @@ const config = {
                     ? process.env.APPLICATION_API_BASE_URL + '/driver/user/reset-password'
                     : `http://localhost:${parseInt(process.env.PORT, 10) || 3003}/driver/user/reset-password`
         }, 
+    },
+
+    sendGrid: {
+        apiKey: process.env.SENDGRID_API_KEY,
+        senderEmail: process.env.SENDGRID_SENDER_EMAIL,
     }
 }
 
