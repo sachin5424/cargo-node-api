@@ -2,8 +2,15 @@ import { Router } from "express";
 import UserController from "./UserConteroller";
 import { customerResetPasswordValidation } from "../../../validation/CustomerValidations";
 import { customerLoginValidation } from "../../../validation/CustomerValidations";
-import {userRegister,userOtpVerification,userLoginWithMobile,userForgetPassword} from './userAuthController';
-import {validationMiddleware,userRegisterValidation,otpVerified,userLoginMobileNumberValidation,userForgetPasswordValidation} from './userValidations'
+import {userRegister,userOtpVerification,userLoginWithMobile,userForgetPassword,chnagePassword} from './userAuthController';
+import {
+    validationMiddleware,
+    userRegisterValidation,
+    otpVerified,
+    userLoginMobileNumberValidation,
+    userForgetPasswordValidation,
+    chnagePasswordValidation
+} from './userValidations'
 const router = Router({ mergeParams: true });
 
 
@@ -17,4 +24,5 @@ router.post('/auth/user-register', userRegisterValidation,validationMiddleware,u
 router.post('/auth/user-otp-verify', otpVerified,validationMiddleware,userOtpVerification);
 router.post('/auth/user-login-phone', userLoginMobileNumberValidation,validationMiddleware,userLoginWithMobile);
 router.post('/auth/user-forget-password', userForgetPasswordValidation,validationMiddleware,userForgetPassword);
+router.post('/auth/user-change-password',chnagePasswordValidation,validationMiddleware, chnagePassword)
 export default router;

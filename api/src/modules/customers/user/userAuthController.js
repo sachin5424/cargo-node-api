@@ -1,6 +1,6 @@
 import customerModel from '../../../data-base/models/customer';
 import jwtToken from 'jsonwebtoken'
-
+import bcrypt from 'bcryptjs'
 
 const userRegister = async (req, res) => {
     try {
@@ -98,14 +98,27 @@ const  userForgetPassword = async (req, res) => {
            
         }
         const user = await customerModel.findOneAndUpdate(options,{emailOtp:"1234"});
-       return res.status(200).json({status: 200, message: "otp sent",data:user})
+       return res.status(200).json({status: 200, message: "otp sent"})
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: error.message})
+    }
+}
+
+const chnagePassword = async (req,res) =>{
+    try {
+        const payload = req.body;
+        const salt = await bcrypt.genSalt(10);
+        const password = await bcrypt.hash(payload.password, salt);
+       await customerModel.updateOne({phoneNo: payload.phoneNo},{password})
+        
+        
+        return res.status(200).json({status: 200, message:"password change successfully"})
     } catch (error) {
         return res.status(500).json({ status: 500, message: error.message})
     }
 }
 
 
-
 export {
-    userRegister, userOtpVerification,userLoginWithMobile,userForgetPassword
+    userRegister, userOtpVerification,userLoginWithMobile,userForgetPassword,chnagePassword
 }

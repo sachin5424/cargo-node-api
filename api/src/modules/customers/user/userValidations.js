@@ -132,7 +132,53 @@ const userForgetPasswordValidation = [
         })
     })
 ]
+
+// old: payload.old,
+// newPassword: payload.newPassword,
+// confirmPassword: payload.confirmPassword
+const chnagePasswordValidation = [
+    check('phoneNo').notEmpty().withMessage(errorMessage.required)
+        .isLength({ min: 10, max: 10 }).withMessage(errorMessage.minLength + ' 10 ' + errorMessage.minField).custom(async(value) => {
+            return customerModel.findOne({ phoneNo: value, isDeleted: false }).then((data) => {
+                if (!data) {
+                    throw new Error('Phone number not match')
+                }
+
+            })
+        }),
+    check('old_password').notEmpty().withMessage("This field is required").custom(async(value,{ req})=>{
+        return customerModel.findOne({phoneNo:req.body.phoneNo}).then(async(data)=>{
+           console.log(data,"???");
+            if(!data){
+                throw new Error('Password not match')
+            }
+            if(data){
+                const password = await bcrypt.compare(value, data.password);
+                console.log(password,"password");
+                if (!password) {
+                    throw new Error('please enter a valid password')
+                }
+            }
+          
+
+            // if()
+        })
+    }),
+    check('password').notEmpty().withMessage(errorMessage.required).isStrongPassword({
+        minLength: 8,
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1,
+
+    }).withMessage('Please enter a strong password'),
+    check('confirm_password').notEmpty().withMessage(errorMessage.required).custom(async (value, { req }) => {
+        if (value !== req.body.password) {
+            throw new Error('password and confirm password do not match');
+        }
+    })
+]
 export {
-    validationMiddleware, userRegisterValidation, otpVerified, userLoginMobileNumberValidation,userForgetPasswordValidation
+    validationMiddleware, userRegisterValidation, otpVerified, userLoginMobileNumberValidation,userForgetPasswordValidation,chnagePasswordValidation
 }
 
