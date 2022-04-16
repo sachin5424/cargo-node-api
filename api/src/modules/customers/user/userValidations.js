@@ -177,8 +177,31 @@ const chnagePasswordValidation = [
             throw new Error('password and confirm password do not match');
         }
     })
+];
+
+
+const profileUpdateValidation = [
+    check('phoneNo').notEmpty().withMessage(errorMessage.required)
+        .isLength({ min: 10, max: 10 }).withMessage(errorMessage.minLength + ' 10 ' + errorMessage.minField).custom(async(value,{req}) => {
+            return customerModel.findOne({ _id:{$ne:req.userId}, phoneNo: value, isDeleted: false }).then((data) => {
+                if (data) {
+                    throw new Error('Phone number already exists');
+                }
+
+            })
+        }),
+
+    check('email').notEmpty().withMessage(errorMessage.required).isEmail().withMessage(errorMessage.email).custom(async (value,{req})=>{
+        const data = await customerModel.findOne({ _id: { $ne: req.userId }, email: value });
+        if (data) {
+            throw new Error('email  already exists');
+        }
+    }),
+    check('gender').notEmpty().withMessage(errorMessage.required).isIn(['male','female','other'])
 ]
 export {
-    validationMiddleware, userRegisterValidation, otpVerified, userLoginMobileNumberValidation,userForgetPasswordValidation,chnagePasswordValidation
+    validationMiddleware, userRegisterValidation, 
+    otpVerified, userLoginMobileNumberValidation,
+    userForgetPasswordValidation,chnagePasswordValidation,profileUpdateValidation
 }
 

@@ -27,7 +27,7 @@ const CustomerSchema = new Schema({
         ref: "taluk",
     },
     zipcode: String,
-
+    gender:String,
     isDeleted: {
         type: Boolean,
         default: false

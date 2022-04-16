@@ -119,6 +119,25 @@ const chnagePassword = async (req,res) =>{
 }
 
 
+const profileUpdate = async(req, res) => {
+    try {
+        const payload = req.body;
+        const userId = req.userId;
+        await customerModel.updateOne({_id: userId}, payload);
+        return res.status(200).json({ status: 200, message:"profile updated successfully"})
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: error.message})
+    }
+}
+const profileDetails = async (req, res) => {
+    try {
+        const data = await customerModel.findOne({_id:req.userId}).select('email gender phoneNo');
+        return res.status(200).json({ status:200,data})
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: error.message})
+    }
+}
+
 export {
-    userRegister, userOtpVerification,userLoginWithMobile,userForgetPassword,chnagePassword
+    userRegister, userOtpVerification,userLoginWithMobile,userForgetPassword,chnagePassword,profileUpdate,profileDetails
 }
