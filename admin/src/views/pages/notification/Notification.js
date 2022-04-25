@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Input, Modal, Spin, Tooltip } from "antd";
-import { LoadingOutlined, EyeOutlined, MailOutlined, SendOutlined, InfoOutlined } from "@ant-design/icons";
-import service from "../../../services/email";
+import { Button, Input, Modal, Spin, Popconfirm } from "antd";
+import { EditOutlined, LoadingOutlined, EyeOutlined, DeleteOutlined, SendOutlined } from "@ant-design/icons";
+import service from "../../../services/notification";
 import customerService from "../../../services/customer";
 import driverService from "../../../services/driver";
 import sdtService from "../../../services/sdt";
@@ -11,22 +11,24 @@ import commonService from "../../../services/common";
 import adminService from "../../../services/admin";
 import { AntdMsg, AntdSelect } from "../../../utils/Antd";
 import util from "../../../utils/util";
-import TinyMce from "../../components/TinyMce";
 
 export const modules = {
-    view: util.getModules('viewSentEmail'),
-    add: util.getModules('sendEmail'),
+    view: util.getModules('viewNotification'),
+    add: util.getModules('addNotification'),
+    edit: util.getModules('editNotification'),
+    delete: util.getModules('deleteNotification'),
 };
 
 const viewAccess = modules.view;
 const addAccess = modules.add;
+const editAccess = modules.edit;
+const deleteAccess = modules.delete;
 
 
-export default function Email() {
+export default function Notification() {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [templates, setTemplates] = useState([]);
     const [customers, setCustomers] = useState([]);
     const [drivers, setDrivers] = useState([]);
     const [admins, setAdmins] = useState([]);
@@ -37,22 +39,43 @@ export default function Email() {
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
-            title: 'Subject',
-            dataIndex: 'subject',
+            title: 'To',
+            dataIndex: 'to',
         },
         {
-            title: 'Key',
-            dataIndex: 'key',
+            title: 'State',
+            dataIndex: 'stateDetails',
+            width: 200,
+            render: (data) => data?.name
+        },
+        {
+            title: 'District',
+            dataIndex: 'district',
+            width: 200,
+        },
+        {
+            title: 'Taluk',
+            dataIndex: 'taluk',
             width: 200,
         },
         {
             title: 'Action',
-            width: 60,
-            hidden: !addAccess && !viewAccess,
+            width: 100,
+            hidden: !addAccess && !editAccess && !deleteAccess && !viewAccess,
             render: (text, row) => (
                 <>
                     {
-                        viewAccess
+                        editAccess
+                            ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm({ ...text }) }}>
+                                <span className="d-flex">
+                                    <EditOutlined />
+                                </span>
+                            </Button>
+                            : null
+                    }
+
+                    {
+                        !editAccess && viewAccess
                             ? <Button size="small" className="mx-1" onClick={() => { formRef.current.openForm({ ...text }) }}>
                                 <span className="d-flex">
                                     <EyeOutlined />
@@ -60,6 +83,25 @@ export default function Email() {
                             </Button>
                             : null
                     }
+
+                    {
+                        row.deletable && deleteAccess
+                            ? <Button type="danger" size="small">
+                                <span className="d-flex">
+                                    <Popconfirm
+                                        title="Are you sure to delete this email template?"
+                                        onConfirm={() => deleteConfirm(row._id)}
+                                        okText="Yes"
+                                        cancelText="No"
+                                    >
+                                        <DeleteOutlined />
+                                    </Popconfirm>
+                                </span>
+                            </Button>
+                            : null
+                    }
+
+
                 </>
             ),
         },
@@ -70,7 +112,7 @@ export default function Email() {
             data = sdata;
         }
         setLoading(true);
-        service.listTeplates(data, viewAccess).then(res => {
+        service.list(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -79,16 +121,20 @@ export default function Email() {
             AntdMsg(err.message, 'error');
         }).finally(() => {
             setLoading(false);
-        });
+        })
+    }
+
+    const deleteConfirm = (id) => {
+        service.delete(id, deleteAccess).then(res => {
+            AntdMsg(res.message);
+            list();
+        }).catch(err => {
+            AntdMsg(err.message, 'error');
+        })
     }
 
     useEffect(() => {
         list();
-        service.listAllTeplates('viewEmailTemplate').then(res => {
-            setTemplates([...(res.result.data || []), { _id: 'custom', subject: 'Custom' }]);
-        }).catch(err => {
-            AntdMsg('Email templates are not loaded! Contact super admin if you have any permission error', 'error');
-        });
         customerService.listAll('viewCustomer').then(res => {
             setCustomers(res.result.data || []);
         }).catch(err => {
@@ -106,21 +152,21 @@ export default function Email() {
         });
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
         commonService.listServiceType().then(res => { setServiceTypes(res.result.data); });
-
     }, []);
 
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Sent Email List</span>
+                <span>Email Template List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Title or Key', addNew: addAccess, addNewIcon: MailOutlined, addNewText: 'Compose Email' }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Title or Key', addNew: addAccess, addNewIcon: SendOutlined, addNewText: 'Send New' }} />
             </div>
-            <AddForm ref={formRef} {...{ list, templates, sdt, customers, drivers, admins, serviceTypes }} />
+            <AddForm ref={formRef} {...{ list, sdt, customers, drivers, admins, serviceTypes }} />
         </>
     );
 }
+
 
 const AddForm = forwardRef((props, ref) => {
     const { list, templates, sdt, customers, drivers, admins, serviceTypes } = props;
@@ -130,7 +176,6 @@ const AddForm = forwardRef((props, ref) => {
     const [changeForm, setChangeForm] = useState(false);
     const [allUsers, setAllUsers] = useState([]);
     const [users, setUsers] = useState([]);
-    const [userSelectMode, setUserSelectMode] = useState('multiple');
     const [districts, setDistricts] = useState([]);
     const [taluks, setTaluks] = useState([]);
 
@@ -179,18 +224,16 @@ const AddForm = forwardRef((props, ref) => {
     useEffect(() => {
         if (data.to === 'manyCustomers') {
             setAllUsers(customers.map(v => (
-                { _id: v.email, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk }
+                { _id: v._id, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk }
             )) || []);
         } else if (data.to === 'manyDrivers') {
             setAllUsers(drivers.map(v => (
-                { _id: v.email, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk, serviceType: v?.vehicleDetails?.serviceType }
+                { _id: v._id, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk, serviceType: v?.vehicleDetails?.serviceType }
             )) || []);
         } else if (data.to === 'manyAdmins') {
             setAllUsers(admins.map(v => (
-                { _id: v.email, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk }
+                { _id: v._id, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk }
             )) || []);
-        } else if (data.to === 'custom') {
-            setAllUsers([]);
         } else {
             setAllUsers([]);
         }
@@ -199,23 +242,15 @@ const AddForm = forwardRef((props, ref) => {
     useEffect(() => { setUsers(allUsers); }, [allUsers]);
 
     useEffect(() => {
-        if (data.to === 'custom') {
-            setUserSelectMode('tags');
-        } else {
-            setUserSelectMode('multiple');
-        }
-    }, [data.to]);
-
-    useEffect(() => {
-        handleChange(null, 'emailIds');
+        handleChange(null, 'userIds');
     }, [users]);
 
     const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district);
     const checkTalukExist = () => sdt?.find(v => v._id === data.state)?.districts.find(v => v._id === data.district)?.taluks?.map(v => v._id)?.includes(data.taluk);
     useEffect(() => { const newDistricts = sdt.find(v => v._id === data.state)?.districts || []; setDistricts(newDistricts?.map(v => ({ value: v._id, label: v.name, taluks: v.taluks })) || []); }, [data.state]);
     useEffect(() => { const newTaluks = districts?.find(v => v.value === data.district)?.taluks || []; setTaluks(newTaluks?.map(v => { return { value: v._id, label: v.name } })); }, [data.district, districts]);
-    useEffect(() => { if (!checkDistrictExist()) { handleChange('', 'district'); } }, [data.state]);
-    useEffect(() => { if (!checkTalukExist()) { handleChange('', 'taluk'); } }, [data.district, districts]);
+    useEffect(() => { if (!checkDistrictExist()) { handleChange(null, 'district'); } }, [data.state]);
+    useEffect(() => { if (!checkTalukExist()) { handleChange(null, 'taluk'); } }, [data.district, districts]);
 
     useEffect(() => {
         if (data.taluk) {
@@ -276,15 +311,6 @@ const AddForm = forwardRef((props, ref) => {
                             <div className="row mingap">
 
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Email Template</label>
-                                    <AntdSelect
-                                        options={templates.map(v => ({ _id: v._id, title: v.subject })) || []}
-                                        value={data.template}
-                                        onChange={v => { handleChange(v, 'template') }}
-                                    />
-                                </div>
-                                <div></div>
-                                <div className="col-md-4 form-group">
                                     <label className="req">State</label>
                                     <AntdSelect
                                         placeholder="All States"
@@ -325,7 +351,6 @@ const AddForm = forwardRef((props, ref) => {
                                             { _id: 'allCustomers', title: 'All Customers' },
                                             { _id: 'allDrivers', title: 'All Drivers' },
                                             { _id: 'allAdmins', title: 'All Admins' },
-                                            { _id: 'custom', title: 'Custom' }
                                         ]}
                                         value={data.to}
                                         onChange={v => { handleChange(v, 'to') }}
@@ -346,58 +371,23 @@ const AddForm = forwardRef((props, ref) => {
                                         : null
                                 }
                                 {
-                                    ['manyCustomers', 'manyDrivers', 'manyAdmins', 'custom'].includes(data.to)
+                                    ['manyCustomers', 'manyDrivers', 'manyAdmins'].includes(data.to)
                                         ? <div className="col-md-12 form-group">
-                                            <label className="req">{data.to === 'custom' ? 'Enter Emails' : 'Select Users'}</label>
+                                            <label className="req">Select Users</label>
                                             <AntdSelect
-                                                mode={userSelectMode}
-                                                placeholder={data.to === 'custom' ? 'Enter Emails' : 'Select Users'}
+                                                mode={'multiple'}
+                                                placeholder={'Select Users'}
                                                 options={users || []}
-                                                value={data.emailIds}
-                                                onChange={v => { handleChange(v, 'emailIds') }}
+                                                value={data.userIds}
+                                                onChange={v => { handleChange(v, 'userIds') }}
                                             />
                                         </div>
                                         : null
                                 }
-
-
-                                {
-                                    data.template === 'custom'
-                                        ? <>
-                                            <div></div>
-                                            <div className="col-md-12 form-group">
-                                                <label className="req">Subject</label>
-                                                <Input value={data.subject || ''} onChange={e => { handleChange(e.target.value, 'subject') }} />
-                                            </div>
-                                            <div className="col-md-12 form-group">
-                                                <label className="req">
-                                                    Template Design
-                                                    <Tooltip title={
-                                                        <table>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>First Name: </td>
-                                                                    <td>{`<%= firstName %>`}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Last Name: </td>
-                                                                    <td>{`<%= lastName %>`}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Email: </td>
-                                                                    <td>{`<%= email %>`}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    } color="cyan">
-                                                        <Button size="small" shape="circle" icon={<InfoOutlined />} />
-                                                    </Tooltip>
-                                                </label>
-                                                <TinyMce {...{ height: 700 }} initialValue={data.html || ''} onChange={v => { handleChange(v, 'html', false) }} />
-                                            </div>
-                                        </>
-                                        : null
-                                }
+                                <div className="col-md-12 form-group">
+                                    <label className="req">Content</label>
+                                    <Input.TextArea value={data.content} onChange={e => { handleChange(e.target.value, 'content') }} />
+                                </div>
                             </div>
                         </fieldset>
                     </form>

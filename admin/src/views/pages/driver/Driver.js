@@ -498,11 +498,6 @@ export const WalletModal = forwardRef((props, ref) => {
         }
     }));
 
-    useEffect(()=>{
-        console.log('data--', data);
-    }, [data]);
-
-
     return (
         <>
             <Modal

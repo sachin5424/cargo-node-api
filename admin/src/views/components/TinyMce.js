@@ -45,6 +45,7 @@ export default function TinyMce(props) {
                         };
                         input.click();
                     },
+                    deprecation_warnings: false
                 }}
                 onSelectionChange={editorContent}
             />

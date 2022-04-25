@@ -459,9 +459,6 @@ const AddForm = forwardRef((props, ref) => {
                                         ? <PerKMCharges {...{ perKMCharges: data.perKMCharges, handleChange }} />
                                         : null
                                 }
-                                {
-                                    console.log(activeRideTypes?.find(v => v._id === data.rideType))
-                                }
 
                             </div>
                         </fieldset>

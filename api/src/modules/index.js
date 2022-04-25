@@ -11,6 +11,7 @@ import routerOnlyAdmin from './admin/onlyAdmin/route';
 import routerRide from './admin/ride/route';
 import routerFareManagement from './admin/fare/route';
 import routerEmail from './admin/email/route';
+import routerNotification from './admin/notification/route';
 
 
 import routerCUser from './customers/user/route';
@@ -58,6 +59,7 @@ const api = (app) => {
     app.use('/admin/ride', jwtTokenPermission, routerRide);
     app.use('/admin/fare-management', jwtTokenPermission, routerFareManagement);
     app.use('/admin/email', jwtTokenPermission, routerEmail);
+    app.use('/admin/notification', jwtTokenPermission, routerNotification);
 
     app.use('/customer/user', routerCUser);
 

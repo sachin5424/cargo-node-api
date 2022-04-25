@@ -1,5 +1,5 @@
 /* eslint no-extend-native: ["error", { "exceptions": ["Array"] }] */
-import { DashboardOutlined, TeamOutlined, KeyOutlined, CarOutlined, MailOutlined } from '@ant-design/icons';
+import { DashboardOutlined, TeamOutlined, KeyOutlined, CarOutlined, MailOutlined, NotificationOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import Dashboard from './views/pages/Dashboard';
 import Profile from './views/pages/user/Profile';
@@ -19,6 +19,7 @@ import Color, {modules as colorModules} from './views/pages/vehicle/Color';
 import TaxiFareManagement, {modules as taxiFareManagementModules} from './views/pages/fare/TaxiFareManagement';
 import Template, {modules as templateModules} from './views/pages/email/Template';
 import Email, {modules as emailModules} from './views/pages/email/Email';
+import Notification, {modules as notificationModules} from './views/pages/notification/Notification';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -80,6 +81,7 @@ const routes = {
                 { name: 'Email', url: '/email', component: Email, modules: [emailModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
+        { name: 'Notifications', url: '/notifications', icon: () => <NotificationOutlined />, component: Notification, modules: [notificationModules.view] },
     ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
 
     topNav: [
