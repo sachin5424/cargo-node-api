@@ -50,13 +50,15 @@ export default function Notification() {
         },
         {
             title: 'District',
-            dataIndex: 'district',
+            dataIndex: 'districtDetails',
             width: 200,
+            render: (data) => data?.name
         },
         {
             title: 'Taluk',
-            dataIndex: 'taluk',
+            dataIndex: 'talukDetails',
             width: 200,
+            render: (data) => data?.name
         },
         {
             title: 'Action',
@@ -169,7 +171,7 @@ export default function Notification() {
 
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, templates, sdt, customers, drivers, admins, serviceTypes } = props;
+    const { list, sdt, customers, drivers, admins, serviceTypes } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     let [data, setData] = useState({});

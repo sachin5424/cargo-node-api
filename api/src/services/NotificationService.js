@@ -5,6 +5,9 @@ import CustomerModel from '../data-base/models/customer';
 import DriverModel from '../data-base/models/driver';
 import { UserModel } from '../data-base/models/userModel';
 import { clearSearch } from '../utls/_helper';
+import UserService from "./UserService";
+import DriverService from "./DriverService";
+import CustomerService from "./CustomerService";
 
 export default class Service {
 
@@ -52,39 +55,39 @@ export default class Service {
                         ]
                     }
                 },
-                { $unwind: "$stateDetails" },
-                // {
-                //     $lookup: {
-                //         from: 'districts',
-                //         localField: 'district',
-                //         foreignField: '_id',
-                //         as: 'districtDetails',
-                //         pipeline: [
-                //             {
-                //                 $project: {
-                //                     name: 1
-                //                 }
-                //             }
-                //         ]
-                //     }
-                // },
-                // { $unwind: "$districtDetails" },
-                // {
-                //     $lookup: {
-                //         from: 'taluks',
-                //         localField: 'taluk',
-                //         foreignField: '_id',
-                //         as: 'talukDetails',
-                //         pipeline: [
-                //             {
-                //                 $project: {
-                //                     name: 1
-                //                 }
-                //             }
-                //         ]
-                //     }
-                // },
-                // { $unwind: "$talukDetails" },
+                { $unwind: {path: "$stateDetails", preserveNullAndEmptyArrays: true} },
+                {
+                    $lookup: {
+                        from: 'districts',
+                        localField: 'district',
+                        foreignField: '_id',
+                        as: 'districtDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1,
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: { path: "$districtDetails", preserveNullAndEmptyArrays: true} },
+                {
+                    $lookup: {
+                        from: 'taluks',
+                        localField: 'taluk',
+                        foreignField: '_id',
+                        as: 'talukDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: { path: "$talukDetails", preserveNullAndEmptyArrays: true} },
                 {
                     "$project": {
                         state: 1,
@@ -148,13 +151,18 @@ export default class Service {
             tplData.content = data.content;
 
             if (data.to === 'allCustomers') {
-                data.userIds = await this.getCustomerIds(data);
+                const users = await (await CustomerService.listCustomer({}, {isAll: 'ALL'})).result.data;// await this.getCustomerIds(data);
+                console.log(users);
+                data.userIds = users.map(v => v._id);
             }
             if (data.to === 'allDrivers') {
-                data.userIds = await this.getDriverIds(data);
+                const users = await DriverService.listDriver({}, {isAll: 'ALL'}).result?.data || [];//await this.getDriverIds(data);
+                console.log(users);
+                data.userIds = users.map(v => v._id);
             }
             if (data.to === 'allAdmins') {
-                data.userIds = await this.getAdminIds(data);
+                const users = await UserService.listUser({}, {isAll: 'ALL'}).result.data; // await this.getAdminIds(data);
+                data.userIds = users.map(v => v._id);
             }
 
             tplData.userIds = data.userIds;
@@ -188,47 +196,47 @@ export default class Service {
         }
     }
 
-    static async getCustomerIds(data) {
-        const search = {
-            isDeleted: false,
-            state: data.state ? mongoose.Types.ObjectId(data.state) : '',
-            district: data.district ? mongoose.Types.ObjectId(data.district) : '',
-            taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
-        };
+    // static async getCustomerIds(data) {
+    //     const search = {
+    //         isDeleted: false,
+    //         state: data.state ? mongoose.Types.ObjectId(data.state) : '',
+    //         district: data.district ? mongoose.Types.ObjectId(data.district) : '',
+    //         taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
+    //     };
 
-        clearSearch(search);
-        const userDatas = await CustomerModel.find(search);
-        data.userIds = userDatas.map(v => v._id);
-        return data.userIds;
-    }
-    static async getDriverIds(data) {
-        const search = {
-            isDeleted: false,
-            state: data.state ? mongoose.Types.ObjectId(data.state) : '',
-            district: data.district ? mongoose.Types.ObjectId(data.district) : '',
-            taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
-            serviceType: data.serviceType ? mongoose.Types.ObjectId(data.serviceType) : '',
-        };
+    //     clearSearch(search);
+    //     const userDatas = await CustomerModel.find(search);
+    //     data.userIds = userDatas.map(v => v._id);
+    //     return data.userIds;
+    // }
+    // static async getDriverIds(data) {
+    //     const search = {
+    //         isDeleted: false,
+    //         state: data.state ? mongoose.Types.ObjectId(data.state) : '',
+    //         district: data.district ? mongoose.Types.ObjectId(data.district) : '',
+    //         taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
+    //         serviceType: data.serviceType ? mongoose.Types.ObjectId(data.serviceType) : '',
+    //     };
 
-        clearSearch(search);
-        const userDatas = await DriverModel.find(search);
-        data.userIds = userDatas.map(v => v._id);
+    //     clearSearch(search);
+    //     const userDatas = await DriverModel.find(search);
+    //     data.userIds = userDatas.map(v => v._id);
 
-        return data.userIds;
-    }
-    static async getAdminIds(data) {
-        const search = {
-            isDeleted: false,
-            state: data.state ? mongoose.Types.ObjectId(data.state) : '',
-            district: data.district ? mongoose.Types.ObjectId(data.district) : '',
-            taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
-        };
+    //     return data.userIds;
+    // }
+    // static async getAdminIds(data) {
+    //     const search = {
+    //         isDeleted: false,
+    //         state: data.state ? mongoose.Types.ObjectId(data.state) : '',
+    //         district: data.district ? mongoose.Types.ObjectId(data.district) : '',
+    //         taluk: data.taluk ? mongoose.Types.ObjectId(data.taluk) : '',
+    //     };
 
-        clearSearch(search);
-        const userDatas = await UserModel.find(search);
-        data.userIds = userDatas.map(v => v._id);
+    //     clearSearch(search);
+    //     const userDatas = await UserModel.find(search);
+    //     data.userIds = userDatas.map(v => v._id);
 
-        return data.userIds;
-    }
+    //     return data.userIds;
+    // }
 
 }
