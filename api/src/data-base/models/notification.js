@@ -19,7 +19,7 @@ const NotificationSchema = new Schema({
     },
     to: {
         type: String,
-        enum: ['manyCustomers', 'manyDrivers', 'manyAdmins', 'allCustomers', 'allDrivers', 'allAdmins', 'custom'],
+        enum: ['manyCustomers', 'manyDrivers', 'manyAdmins', 'allCustomers', 'allDrivers', 'allAdmins'],
     },
     userIds: [{
         type: Schema.Types.ObjectId

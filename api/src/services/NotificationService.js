@@ -1,13 +1,7 @@
 import mongoose from "mongoose";
 // import Logger from '../utls/Logger';
 import NotificationModel from '../data-base/models/notification';
-import CustomerModel from '../data-base/models/customer';
-import DriverModel from '../data-base/models/driver';
-import { UserModel } from '../data-base/models/userModel';
 import { clearSearch } from '../utls/_helper';
-import UserService from "./UserService";
-import DriverService from "./DriverService";
-import CustomerService from "./CustomerService";
 
 export default class Service {
 
@@ -149,21 +143,6 @@ export default class Service {
             tplData.serviceType = data.serviceType;
             tplData.to = data.to;
             tplData.content = data.content;
-
-            if (data.to === 'allCustomers') {
-                const users = await (await CustomerService.listCustomer({}, {isAll: 'ALL'})).result.data;// await this.getCustomerIds(data);
-                console.log(users);
-                data.userIds = users.map(v => v._id);
-            }
-            if (data.to === 'allDrivers') {
-                const users = await DriverService.listDriver({}, {isAll: 'ALL'}).result?.data || [];//await this.getDriverIds(data);
-                console.log(users);
-                data.userIds = users.map(v => v._id);
-            }
-            if (data.to === 'allAdmins') {
-                const users = await UserService.listUser({}, {isAll: 'ALL'}).result.data; // await this.getAdminIds(data);
-                data.userIds = users.map(v => v._id);
-            }
 
             tplData.userIds = data.userIds;
 

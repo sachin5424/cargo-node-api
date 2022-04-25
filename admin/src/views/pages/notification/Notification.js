@@ -41,23 +41,45 @@ export default function Notification() {
         {
             title: 'To',
             dataIndex: 'to',
+            width: 150,
+            render: (text) => {
+                if (text === 'manyCustomers') {
+                    return "Many Customers";
+                } else if (text === 'manyDrivers') {
+                    return "Many Drivers";
+                } else if (text === 'manyAdmins') {
+                    return "Many Admins";
+                } else if (text === 'allCustomers') {
+                    return "All Customers";
+                } else if (text === 'allDrivers') {
+                    return "All Drivers";
+                } else if (text === 'allAdmins') {
+                    return "All Admins";
+                } else {
+                    return text;
+                }
+            }
+        },
+        {
+            title: 'Content',
+            dataIndex: 'content',
         },
         {
             title: 'State',
             dataIndex: 'stateDetails',
-            width: 200,
+            width: 250,
             render: (data) => data?.name
         },
         {
             title: 'District',
             dataIndex: 'districtDetails',
-            width: 200,
+            width: 250,
             render: (data) => data?.name
         },
         {
             title: 'Taluk',
             dataIndex: 'talukDetails',
-            width: 200,
+            width: 250,
             render: (data) => data?.name
         },
         {
@@ -87,7 +109,7 @@ export default function Notification() {
                     }
 
                     {
-                        row.deletable && deleteAccess
+                        deleteAccess
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
@@ -150,7 +172,7 @@ export default function Notification() {
         adminService.listAll({}, 'viewAdmin').then(res => {
             setAdmins(res.result.data || []);
         }).catch(err => {
-            AntdMsg('Admin are not loaded! Contact super admin if you have any permission error', 'error');
+            AntdMsg('Admins are not loaded! Contact super admin if you have any permission error', 'error');
         });
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
         commonService.listServiceType().then(res => { setServiceTypes(res.result.data); });
@@ -224,15 +246,15 @@ const AddForm = forwardRef((props, ref) => {
     }
 
     useEffect(() => {
-        if (data.to === 'manyCustomers') {
+        if (data.to === 'manyCustomers' || data.to === 'allCustomers') {
             setAllUsers(customers.map(v => (
                 { _id: v._id, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk }
             )) || []);
-        } else if (data.to === 'manyDrivers') {
+        } else if (data.to === 'manyDrivers' || data.to === 'allDrivers') {
             setAllUsers(drivers.map(v => (
                 { _id: v._id, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk, serviceType: v?.vehicleDetails?.serviceType }
             )) || []);
-        } else if (data.to === 'manyAdmins') {
+        } else if (data.to === 'manyAdmins' || data.to === 'allAdmins') {
             setAllUsers(admins.map(v => (
                 { _id: v._id, title: v.firstName + ' ' + v?.lastName + ` - (${v.email})`, state: v.state, district: v.district, taluk: v.taluk }
             )) || []);
@@ -244,7 +266,12 @@ const AddForm = forwardRef((props, ref) => {
     useEffect(() => { setUsers(allUsers); }, [allUsers]);
 
     useEffect(() => {
-        handleChange(null, 'userIds');
+        if (data.to === 'allCustomers' || data.to === 'allDrivers' || data.to === 'allAdmins') {
+            const tempUserIds = users.map(v => v._id);
+            handleChange(tempUserIds, 'userIds');
+        } else {
+            handleChange(null, 'userIds');
+        }
     }, [users]);
 
     const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district);
