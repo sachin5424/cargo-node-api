@@ -11,8 +11,8 @@ router.get('/list/:isAll', checkNotificationListAccess, NotificationController.l
 router.post('/save', checkNotificationSaveAccess, notificationValidation, formValidation, NotificationController.save);
 router.delete("/delete/:id", CheckNotificationDeleteAccess, NotificationController.delete);
 
-async function checkNotificationListAccess (req, res, next) { checkAdminPermission(req, res, next, 'viewEmailTemplate'); };
-async function checkNotificationSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'editEmailTemplate' : 'addEmailTemplate'); };
-async function CheckNotificationDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'deleteEmailTemplate'); };
+async function checkNotificationListAccess (req, res, next) { checkAdminPermission(req, res, next, 'viewNotification'); };
+async function checkNotificationSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'editNotification' : 'addNotification'); };
+async function CheckNotificationDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'deleteNotification'); };
 
 export default router;

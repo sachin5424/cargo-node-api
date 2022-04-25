@@ -102,7 +102,7 @@ export default function Email() {
         adminService.listAll({}, 'viewAdmin').then(res => {
             setAdmins(res.result.data || []);
         }).catch(err => {
-            AntdMsg('Admin are not loaded! Contact super admin if you have any permission error', 'error');
+            AntdMsg('Admins are not loaded! Contact super admin if you have any permission error', 'error');
         });
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
         commonService.listServiceType().then(res => { setServiceTypes(res.result.data); });

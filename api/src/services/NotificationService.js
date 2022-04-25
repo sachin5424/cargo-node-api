@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 // import Logger from '../utls/Logger';
 import NotificationModel from '../data-base/models/notification';
-import { clearSearch } from '../utls/_helper';
+import { clearSearch, getAdminFilter } from '../utls/_helper';
 
 export default class Service {
 
@@ -27,6 +27,7 @@ export default class Service {
                         content: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
+                ...getAdminFilter()
             };
 
             clearSearch(search);
