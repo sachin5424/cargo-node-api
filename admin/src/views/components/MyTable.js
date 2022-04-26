@@ -31,7 +31,7 @@ export default function MyTable(props) {
     }, [sdata.page, sdata.limit]);
 
     data = data?.map((v, i) => { return { index: i + 1, key: i, ...v } })
-    columns = [{ title: 'SN', dataIndex: 'index', width: 40 }, ...columns]
+    columns = [{ title: 'S/N', dataIndex: 'index', width: 45 }, ...columns]
 
     const state = {
         bordered: true,

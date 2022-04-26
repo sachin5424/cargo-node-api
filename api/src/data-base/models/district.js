@@ -5,6 +5,14 @@ const DistrictSchema = new Schema({
     state: {
         type: Schema.Types.ObjectId,
         ref: "state",
+    },
+    isActive: {
+        type: Boolean,
+        default: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: false });
 

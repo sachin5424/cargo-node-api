@@ -32,8 +32,8 @@ export default function Sider() {
                 mode="horizontal"
             // theme="dark"
             >
-                <Menu.Item id="menu-bar-logo" key="mail" style={{ width: 256 }}>
-                    <Image preview={false} style={{ height: '24px' }} src="images/logo-thumb.png" />
+                <Menu.Item id="menu-bar-logo" className='d-flex' key="mail" style={{ width: 256 }}>
+                    <Image preview={false} style={{ height: '24px', width: '36px' }} src="images/logo-thumb.png" />
                 </Menu.Item>
                 <Menu.Item key="menu" className="mr-auto" onClick={() => {
                     document.querySelector('#left-menu-bar')?.classList?.toggle('d-none')

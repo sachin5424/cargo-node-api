@@ -36,7 +36,7 @@ export default function Login() {
                     <form onSubmit={e => { e.preventDefault(); login() }} autoComplete="off" spellCheck="false">
                         <h5 className="text-secondary text-center">Cargo Admin Panel</h5>
                         <div className="ant-image w-100 mb-3">
-                            <img className="ant-image-img w-100 mx-auto" src="images/logo-thumb.png" alt="Logo" />
+                            <img className="ant-image-img w60 h40 mx-auto" src="images/logo-thumb.png" alt="Logo" />
                         </div>
                         <Input className="mb-2"
                             prefix={<UserOutlined className="site-form-item-icon" />}

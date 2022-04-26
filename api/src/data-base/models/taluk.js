@@ -5,6 +5,14 @@ const TalukSchema = new Schema({
     district: {
         type: Schema.Types.ObjectId,
         ref: "district",
+    },
+    isActive: {
+        type: Boolean,
+        default: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: false });
 

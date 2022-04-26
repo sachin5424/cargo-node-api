@@ -1,5 +1,5 @@
 /* eslint no-extend-native: ["error", { "exceptions": ["Array"] }] */
-import { DashboardOutlined, TeamOutlined, KeyOutlined, CarOutlined, MailOutlined, NotificationOutlined } from '@ant-design/icons';
+import { DashboardOutlined, TeamOutlined, KeyOutlined, CarOutlined, MailOutlined, NotificationOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import Dashboard from './views/pages/Dashboard';
 import Profile from './views/pages/user/Profile';
@@ -20,6 +20,9 @@ import TaxiFareManagement, {modules as taxiFareManagementModules} from './views/
 import Template, {modules as templateModules} from './views/pages/email/Template';
 import Email, {modules as emailModules} from './views/pages/email/Email';
 import Notification, {modules as notificationModules} from './views/pages/notification/Notification';
+import State, {modules as sdtModules} from './views/pages/sdt/State';
+import District from './views/pages/sdt/District';
+import Taluk from './views/pages/sdt/Taluk';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -35,6 +38,17 @@ const routes = {
         { name: 'Dashboard', icon: () => <DashboardOutlined />, url: '/', component: Dashboard },
         { name: 'Modules', icon: () => <DashboardOutlined />, url: '/modules', component: Module },
         { name: 'Tabs', url: '/vehicles', icon: () => <CarOutlined />, component: TabsVehicle },
+        {
+            name: 'States, Districts & Taluks',
+            baseURL: '/sdt',
+            modules: [colorModules.view, makeModules.view, makeModelModules.view, categoryModules.view, vehicleModules.view ],
+            icon: () => <EnvironmentOutlined />,
+            subMenus: [
+                { name: 'States', url: '/states', component: State, modules: [sdtModules.view] },
+                { name: 'Districts', url: '/districts', component: District, modules: [sdtModules.view] },
+                { name: 'Taluks', url: '/taluks', component: Taluk, modules: [sdtModules.view] },
+            ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
+        },
         {
             name: 'Vehicle',
             baseURL: '/vehicle',
