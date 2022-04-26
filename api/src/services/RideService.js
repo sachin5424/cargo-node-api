@@ -39,7 +39,7 @@ export default class Service {
 
             const $aggregate = [
                 { $match: search },
-                { $sort: { _id: -1 } },
+                { $sort: { serviceType: -1 } },
                 {
                     $lookup: {
                         from: 'servicetypes',

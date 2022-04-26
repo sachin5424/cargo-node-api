@@ -113,7 +113,7 @@ export default function Notification() {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this email template?"
+                                        title="Are you sure to delete this notification?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -181,10 +181,10 @@ export default function Notification() {
     return (
         <>
             <div className="page-description text-white p-2" >
-                <span>Email Template List</span>
+                <span>Notification List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Title or Key', addNew: addAccess, addNewIcon: SendOutlined, addNewText: 'Send New' }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Content', addNew: addAccess, addNewIcon: SendOutlined, addNewText: 'Send New' }} />
             </div>
             <AddForm ref={formRef} {...{ list, sdt, customers, drivers, admins, serviceTypes }} />
         </>
@@ -322,7 +322,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={'Send Email'}
+                title={'Send Notification'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText={<div className="d-flex">Send <SendOutlined className="my-auto mx-1" /></div>}

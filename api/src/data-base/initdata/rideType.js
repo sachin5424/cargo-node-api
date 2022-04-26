@@ -15,6 +15,11 @@ const rideType = [
         "serviceType": "taxi"
     },
     {
+        "name": "Out Station One Way",
+        "key": "taxi-out-station-one-way",
+        "serviceType": "taxi"
+    },
+    {
         "name": "Daily Ride",
         "key": "cargo-daily-ride",
         "serviceType": "cargo"
@@ -27,6 +32,11 @@ const rideType = [
     {
         "name": "Out Station",
         "key": "cargo-out-station",
+        "serviceType": "cargo"
+    },
+    {
+        "name": "Out Station One Way",
+        "key": "cargo-out-station-one-way",
         "serviceType": "cargo"
     }
 ];
