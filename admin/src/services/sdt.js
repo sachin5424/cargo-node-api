@@ -7,10 +7,10 @@ export default class sdt {
         return axios.get(this.baseURL + 'sdt', { module });
     }
 
-    static listState(data, module) {
+    static listState(data, module="viewState") {
         return axios.get(this.baseURL + 'state/list', { params: data, module });
     }
-    static listAllState(data, module) {
+    static listAllState(data, module="viewState") {
         return axios.get(this.baseURL + 'state/list/ALL', { params: data, module });
     }
     static saveState(data, module) {
@@ -20,10 +20,10 @@ export default class sdt {
         return axios.delete(`${this.baseURL}/state/delete/${id}`, { module });
     }
 
-    static listDistrict(data, module) {
+    static listDistrict(data, module="viewDistrict") {
         return axios.get(this.baseURL + 'district/list', { params: data, module });
     }
-    static listAllDistrict(data, module) {
+    static listAllDistrict(data, module="viewDistrict") {
         return axios.get(this.baseURL + 'district/list/ALL', { params: data, module });
     }
     static saveDistrict(data, module) {
@@ -33,10 +33,10 @@ export default class sdt {
         return axios.delete(`${this.baseURL}/district/delete/${id}`, { module });
     }
 
-    static listTaluk(data, module) {
+    static listTaluk(data, module="viewTaluk") {
         return axios.get(this.baseURL + 'taluk/list', { params: data, module });
     }
-    static listAllTaluk(data, module) {
+    static listAllTaluk(data, module="viewTaluk") {
         return axios.get(this.baseURL + 'taluk/list/ALL', { params: data, module });
     }
     static saveTaluk(data, module) {

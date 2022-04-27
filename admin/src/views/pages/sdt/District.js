@@ -10,10 +10,10 @@ import util from "../../../utils/util";
 import Taluk from "./Taluk";
 
 export const modules = {
-    view: util.getModules('viewSDT'),
-    add: util.getModules('addSDT'),
-    edit: util.getModules('editSDT'),
-    delete: util.getModules('deleteSDT'),
+    view: util.getModules('viewDistrict'),
+    add: util.getModules('addDistrict'),
+    edit: util.getModules('editDistrict'),
+    delete: util.getModules('deleteDistrict'),
 };
 
 const viewAccess = modules.view;

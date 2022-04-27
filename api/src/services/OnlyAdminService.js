@@ -101,7 +101,7 @@ export default class AdminService {
         try {
             await ModuleModel.findById( _id).remove();
 
-            response.message = "Deleted successfully";
+            response.message = "Deleted successfully1111";
             response.statusCode = 200;
             response.status = true;
 

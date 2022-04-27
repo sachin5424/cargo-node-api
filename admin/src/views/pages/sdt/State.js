@@ -10,10 +10,10 @@ import util from "../../../utils/util";
 import District from "./District";
 
 export const modules = {
-    view: util.getModules('viewSDT'),
-    add: util.getModules('addSDT'),
-    edit: util.getModules('editSDT'),
-    delete: util.getModules('deleteSDT'),
+    view: util.getModules('viewState'),
+    add: util.getModules('addState'),
+    edit: util.getModules('editState'),
+    delete: util.getModules('deleteState'),
 };
 
 const viewAccess = modules.view;

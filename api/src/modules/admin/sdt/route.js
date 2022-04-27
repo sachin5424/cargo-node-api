@@ -7,28 +7,37 @@ import TalukController from "./TalukController";
 import { checkAdminPermission } from "../../../middleware/validateAdmin";
 import { stateValidation, districtValidation, talukValidation } from "../../../validation/SDTValidation";
 import { formValidation } from "../../../middleware/others";
+import { validateSuperAdmin, validateSuperAdminORStateAdmin, validateSuperAdminORStateAdminORDistrict } from "../../../middleware/validateAdmin";
 
 const router = Router({ mergeParams: true });
 
 router.get('/sdt', jwtTokenPermission, SDTController.sdtList);
 
-router.get('/state/list', jwtTokenPermission, checkSDTViewAccess, StateController.list);
-router.get('/state/list/:isAll', jwtTokenPermission, checkSDTViewAccess, StateController.list);
-router.post("/state/save", jwtTokenPermission, checkSDTSaveAccess, stateValidation, formValidation, StateController.save );
-router.delete("/state/delete/:id", jwtTokenPermission, CheckSDTDeleteAccess, StateController.delete);
+router.get('/state/list', jwtTokenPermission, checkStateViewAccess, StateController.list);
+router.get('/state/list/:isAll', jwtTokenPermission, checkStateViewAccess, StateController.list);
+router.post("/state/save", jwtTokenPermission, validateSuperAdmin, checkStateSaveAccess, stateValidation, formValidation, StateController.save );
+router.delete("/state/delete/:id", jwtTokenPermission, validateSuperAdmin, CheckStateDeleteAccess, StateController.delete);
 
-router.get('/district/list', jwtTokenPermission, checkSDTViewAccess, DistrictController.list);
-router.get('/district/list/:isAll', jwtTokenPermission, checkSDTViewAccess, DistrictController.list);
-router.post("/district/save", jwtTokenPermission, checkSDTSaveAccess, districtValidation, formValidation, DistrictController.save );
-router.delete("/district/delete/:id", jwtTokenPermission, CheckSDTDeleteAccess, DistrictController.delete);
+router.get('/district/list', jwtTokenPermission, checkDistrictViewAccess, DistrictController.list);
+router.get('/district/list/:isAll', jwtTokenPermission, checkDistrictViewAccess, DistrictController.list);
+router.post("/district/save", jwtTokenPermission, validateSuperAdminORStateAdmin, checkDistrictSaveAccess, districtValidation, formValidation, DistrictController.save );
+router.delete("/district/delete/:id", jwtTokenPermission, validateSuperAdminORStateAdmin, CheckDistrictDeleteAccess, DistrictController.delete);
 
-router.get('/taluk/list', jwtTokenPermission, checkSDTViewAccess, TalukController.list);
-router.get('/taluk/list/:isAll', jwtTokenPermission, checkSDTViewAccess, TalukController.list);
-router.post("/taluk/save", jwtTokenPermission, checkSDTSaveAccess, talukValidation, formValidation, TalukController.save );
-router.delete("/taluk/delete/:id", jwtTokenPermission, CheckSDTDeleteAccess, TalukController.delete);
+router.get('/taluk/list', jwtTokenPermission, checkTalukViewAccess, TalukController.list);
+router.get('/taluk/list/:isAll', jwtTokenPermission, checkTalukViewAccess, TalukController.list);
+router.post("/taluk/save", jwtTokenPermission, validateSuperAdminORStateAdminORDistrict, checkTalukSaveAccess, talukValidation, formValidation, TalukController.save );
+router.delete("/taluk/delete/:id", jwtTokenPermission, validateSuperAdminORStateAdminORDistrict, CheckTalukDeleteAccess, TalukController.delete);
 
-async function checkSDTViewAccess (req, res, next) { checkAdminPermission(req, res, next, 'viewSDT'); };
-async function checkSDTSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'editSDT' : 'addSDT', true); };
-async function CheckSDTDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'deleteSDT'); };
+async function checkStateViewAccess (req, res, next) { checkAdminPermission(req, res, next, 'viewState'); };
+async function checkStateSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'editState' : 'addState', true); };
+async function CheckStateDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'deleteState'); };
+
+async function checkDistrictViewAccess (req, res, next) { checkAdminPermission(req, res, next, 'viewDistrict'); };
+async function checkDistrictSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'editDistrict' : 'addDistrict', true); };
+async function CheckDistrictDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'deleteDistrict'); };
+
+async function checkTalukViewAccess (req, res, next) { checkAdminPermission(req, res, next, 'viewTaluk'); };
+async function checkTalukSaveAccess (req, res, next) { checkAdminPermission(req, res, next, req.body._id ? 'editTaluk' : 'addTaluk', true); };
+async function CheckTalukDeleteAccess (req, res, next) { checkAdminPermission(req, res, next, 'deleteTaluk'); };
 
 export default router;

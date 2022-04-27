@@ -36,7 +36,7 @@ export default function Module() {
                     <Button type="danger" size="small">
                         <span className="d-flex">
                             <Popconfirm
-                                title="Are you sure to delete this admin?"
+                                title="Are you sure to delete this module?"
                                 onConfirm={() => deleteConfirm(row._id)}
                                 okText="Yes"
                                 cancelText="No"

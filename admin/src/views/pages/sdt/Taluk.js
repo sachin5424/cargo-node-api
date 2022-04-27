@@ -9,10 +9,10 @@ import { AntdMsg } from "../../../utils/Antd";
 import util from "../../../utils/util";
 
 export const modules = {
-    view: util.getModules('viewSDT'),
-    add: util.getModules('addSDT'),
-    edit: util.getModules('editSDT'),
-    delete: util.getModules('deleteSDT'),
+    view: util.getModules('viewTaluk'),
+    add: util.getModules('addTaluk'),
+    edit: util.getModules('editTaluk'),
+    delete: util.getModules('deleteTaluk'),
 };
 
 const viewAccess = modules.view;
@@ -161,11 +161,11 @@ const AddForm = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         openForm(dt) {
             if(dt){
-                dt.state = parentDistricts.find(v => v._id === dt.district).state;
+                dt.state = parentDistricts.find(v => v._id === dt.district)?.state;
             } else{
                 dt = {};
                 dt.isActive = true;
-                dt.state = parentDistricts.find(v => v._id === districtId).state;
+                dt.state = parentDistricts.find(v => v._id === districtId)?.state;
                 dt.district = districtId;
             }
             setData({ ...dt });

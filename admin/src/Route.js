@@ -20,9 +20,9 @@ import TaxiFareManagement, {modules as taxiFareManagementModules} from './views/
 import Template, {modules as templateModules} from './views/pages/email/Template';
 import Email, {modules as emailModules} from './views/pages/email/Email';
 import Notification, {modules as notificationModules} from './views/pages/notification/Notification';
-import State, {modules as sdtModules} from './views/pages/sdt/State';
-import District from './views/pages/sdt/District';
-import Taluk from './views/pages/sdt/Taluk';
+import State, {modules as stateModules} from './views/pages/sdt/State';
+import District, {modules as districtModules} from './views/pages/sdt/District';
+import Taluk, {modules as talukModules} from './views/pages/sdt/Taluk';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -44,9 +44,9 @@ const routes = {
             modules: [colorModules.view, makeModules.view, makeModelModules.view, categoryModules.view, vehicleModules.view ],
             icon: () => <EnvironmentOutlined />,
             subMenus: [
-                { name: 'States', url: '/states', component: State, modules: [sdtModules.view] },
-                { name: 'Districts', url: '/districts', component: District, modules: [sdtModules.view] },
-                { name: 'Taluks', url: '/taluks', component: Taluk, modules: [sdtModules.view] },
+                { name: 'States', url: '/states', component: State, modules: [stateModules.view] },
+                { name: 'Districts', url: '/districts', component: District, modules: [districtModules.view] },
+                { name: 'Taluks', url: '/taluks', component: Taluk, modules: [talukModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
         },
         {

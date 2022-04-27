@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { clearSearch } from "../utls/_helper";
+import { clearSearch, getAdminFilter } from "../utls/_helper";
 import StateModel from "../data-base/models/state";
 import DistrictModel from "../data-base/models/district";
 import TalukModel from "../data-base/models/taluk";
@@ -19,9 +19,9 @@ export default class Service {
         };
 
         try {
-            const searchState = global.state ? {_id: global.state} : {};
-            const searchDistrict = global.district ? {_id: global.district} : {};
-            const searchTaluk = global.taluk ? {_id: global.taluk} : {};
+            const searchState = global.state ? {_id: global.state, isActive: true, isDeleted: false} : { isActive: true, isDeleted: false };
+            const searchDistrict = global.district ? {_id: global.district, isActive: true, isDeleted: false} : { isActive: true, isDeleted: false };
+            const searchTaluk = global.taluk ? {_id: global.taluk, isActive: true, isDeleted: false} : { isActive: true, isDeleted: false};
             clearSearch(searchState);
             clearSearch(searchDistrict);
             clearSearch(searchTaluk);
@@ -116,6 +116,7 @@ export default class Service {
                         name: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
+                ...getAdminFilter(['_id'])
             };
 
             clearSearch(search);

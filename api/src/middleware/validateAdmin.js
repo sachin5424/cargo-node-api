@@ -4,6 +4,8 @@ export const validateSuperAdmin = async (req, res, next) => { validateCustomAdmi
 export const validateStateAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 4); }
 export const validateDistrictAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 2); }
 export const validateTehsilAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 1); }
+export const validateSuperAdminORStateAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 12); }
+export const validateSuperAdminORStateAdminORDistrict = async (req, res, next) => { validateCustomAdmin(req, res, next, 14); }
 export const validateAnyOneAdmin = async (req, res, next) => { validateCustomAdmin(req, res, next, 15); }
 
 
