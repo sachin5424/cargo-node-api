@@ -9,10 +9,10 @@ import { AntdMsg } from "../../../utils/Antd";
 import util from "../../../utils/util";
 
 export const modules = {
-    view: util.getModules('viewColor'),
-    add: util.getModules('addColor'),
-    edit: util.getModules('editColor'),
-    delete: util.getModules('deleteColor'),
+    view: util.getModules('viewSDT'),
+    add: util.getModules('addSDT'),
+    edit: util.getModules('editSDT'),
+    delete: util.getModules('deleteSDT'),
 };
 
 const viewAccess = modules.view;
@@ -21,7 +21,7 @@ const editAccess = modules.edit;
 const deleteAccess = modules.delete;
 
 
-export default function District() {
+export default function Taluk({ districtId = null }) {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function District() {
     const [districts, setDistricts] = useState([]);
 
     const formRef = useRef();
-    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
+    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, district: districtId });
     const columns = [
         {
             title: 'Name',
@@ -78,7 +78,7 @@ export default function District() {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this color?"
+                                        title="Are you sure to delete this taluk?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -130,25 +130,29 @@ export default function District() {
 
     return (
         <>
-            {/* <div className="page-description text-white p-2" >
-                <span>Color List</span>
-            </div> */}
+            {
+                !districtId
+                    ? <div className="page-description text-white p-2" >
+                        <span>Taluk List</span>
+                    </div>
+                    : null
+            }
+
             <div className="m-2 p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Code', addNew: addAccess }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, states, districts }} />
+            <AddForm ref={formRef} {...{ list, states, districts, districtId }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, states, districts: parentDistricts } = props;
+    const { list, states, districts: parentDistricts, districtId } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
     const [districts, setDistricts] = useState([]);
     const [changeForm, setChangeForm] = useState(false);
-    const imgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -156,8 +160,15 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            imgRef.current = {};
-            setData(dt ? { ...dt } : { isActive: true });
+            if(dt){
+                dt.state = parentDistricts.find(v => v._id === dt.district).state;
+            } else{
+                dt = {};
+                dt.isActive = true;
+                dt.state = parentDistricts.find(v => v._id === districtId).state;
+                dt.district = districtId;
+            }
+            setData({ ...dt });
             handleVisible(true);
             if (!dt?._id && addAccess) {
                 setChangeForm(true);
@@ -173,17 +184,16 @@ const AddForm = forwardRef((props, ref) => {
 
     useEffect(() => { handleChange(util.removeSpecialChars(data.name || ''), 'key'); }, [data.name]);
 
-    useEffect(()=>{
-        if(data.state){
+    useEffect(() => {
+        if (data.state) {
             setDistricts(parentDistricts?.filter(v => v.state === data.state))
-        } else{
+        } else {
             setDistricts([]);
         }
     }, [data.state]);
 
     const save = () => {
         setAjxRequesting(true);
-        data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
         service.saveTaluk(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
@@ -204,7 +214,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Color'}
+                title={(!data._id ? 'Add' : 'Edit') + ' Taluk'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -227,6 +237,7 @@ const AddForm = forwardRef((props, ref) => {
                                 <div className="col-md-12 form-group">
                                     <label className="req">State</label>
                                     <AntdSelect
+                                        disabled={districtId}
                                         options={states || []}
                                         value={data.state}
                                         onChange={v => { handleChange(v, 'state') }}
@@ -235,6 +246,7 @@ const AddForm = forwardRef((props, ref) => {
                                 <div className="col-md-12 form-group">
                                     <label className="req">District</label>
                                     <AntdSelect
+                                        disabled={districtId}
                                         options={districts || []}
                                         value={data.district}
                                         onChange={v => { handleChange(v, 'district') }}

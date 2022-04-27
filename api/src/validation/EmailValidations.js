@@ -50,7 +50,6 @@ export const sendEmailValidation = [
         .notEmpty().withMessage("The 'Template' field is required")
         .custom(async (value, { req }) => {
             if (value === 'custom') {
-                console.log('yes');
                 if (!req.body?.subject) {
                     throw new Error("The 'Subject' field is required");
                 }

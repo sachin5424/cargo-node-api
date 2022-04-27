@@ -7,12 +7,13 @@ import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant
 import service from "../../../services/sdt";
 import { AntdMsg } from "../../../utils/Antd";
 import util from "../../../utils/util";
+import Taluk from "./Taluk";
 
 export const modules = {
-    view: util.getModules('viewColor'),
-    add: util.getModules('addColor'),
-    edit: util.getModules('editColor'),
-    delete: util.getModules('deleteColor'),
+    view: util.getModules('viewSDT'),
+    add: util.getModules('addSDT'),
+    edit: util.getModules('editSDT'),
+    delete: util.getModules('deleteSDT'),
 };
 
 const viewAccess = modules.view;
@@ -21,18 +22,25 @@ const editAccess = modules.edit;
 const deleteAccess = modules.delete;
 
 
-export default function District() {
+export default function District({ stateId = null }) {
 
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [states, setStates] = useState([]);
 
     const formRef = useRef();
-    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
+    const talukModalRef = useRef();
+    let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, state: stateId });
     const columns = [
         {
             title: 'Name',
             dataIndex: 'name',
+        },
+        {
+            title: 'Taluks',
+            dataIndex: 'name',
+            width: 100,
+            render: (text, row) => <Button size="small" className="mx-1" onClick={() => { talukModalRef.current.openForm(row) }}>Taluks</Button>
         },
         {
             title: 'Status',
@@ -77,7 +85,7 @@ export default function District() {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this color?"
+                                        title="Are you sure to delete this district?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -128,24 +136,29 @@ export default function District() {
 
     return (
         <>
-            {/* <div className="page-description text-white p-2" >
-                <span>Color List</span>
-            </div> */}
+            {
+                !stateId
+                    ? <div className="page-description text-white p-2" >
+                        <span>District List</span>
+                    </div>
+                    : null
+            }
+
             <div className="m-2 p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Code', addNew: addAccess }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, states }} />
+            <AddForm ref={formRef} {...{ list, states, stateId }} />
+            <TalukModal ref={talukModalRef} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, states } = props;
+    const { list, states, stateId } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
     const [changeForm, setChangeForm] = useState(false);
-    const imgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -153,8 +166,7 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            imgRef.current = {};
-            setData(dt ? { ...dt } : { isActive: true });
+            setData(dt ? { ...dt } : { isActive: true, state: stateId });
             handleVisible(true);
             if (!dt?._id && addAccess) {
                 setChangeForm(true);
@@ -172,7 +184,6 @@ const AddForm = forwardRef((props, ref) => {
 
     const save = () => {
         setAjxRequesting(true);
-        data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
         service.saveDistrict(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
@@ -193,7 +204,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Color'}
+                title={(!data._id ? 'Add' : 'Edit') + ' District'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -216,6 +227,7 @@ const AddForm = forwardRef((props, ref) => {
                                 <div className="col-md-12 form-group">
                                     <label className="req">State</label>
                                     <AntdSelect
+                                        disabled={stateId}
                                         options={states || []}
                                         value={data.state}
                                         onChange={v => { handleChange(v, 'state') }}
@@ -233,6 +245,40 @@ const AddForm = forwardRef((props, ref) => {
                         </fieldset>
                     </form>
                 </Spin>
+            </Modal>
+        </>
+    );
+});
+
+const TalukModal = forwardRef((props, ref) => {
+    const [visible, setVisible] = useState(false);
+    const [data, setData] = useState({});
+
+    const handleVisible = (val) => {
+        setVisible(val);
+    }
+
+    useImperativeHandle(ref, () => ({
+        openForm(dt) {
+            setData(dt ? { ...dt } : { isActive: true });
+            handleVisible(true);
+        }
+    }));
+
+    return (
+        <>
+            <Modal
+                title={<>Taluk list of <span className="text-danger">{data.name}</span></> }
+                style={{ top: 20 }}
+                visible={visible}
+                footer={null}
+                onCancel={() => { handleVisible(false); }}
+                destroyOnClose
+                maskClosable={false}
+                width={1200}
+                className="app-modal-body-overflow"
+            >
+                <Taluk districtId={data._id} />
             </Modal>
         </>
     );

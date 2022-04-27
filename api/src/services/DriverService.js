@@ -377,7 +377,6 @@ export default class Service {
         try {
             let wallet = await WalletModel.findOne({ driver: mongoose.Types.ObjectId(driverId) });
             if (!wallet) {
-                console.log('yes');
                 wallet = new WalletModel();
                 wallet.amount = 0;
                 wallet.driver = driverId;
@@ -385,8 +384,6 @@ export default class Service {
             }
             return wallet;
         } catch (e) {
-            console.log(driverId);
-            console.log(e.message);
             throw new Error("Error! Either wallet does not exist or can not be created");
         }
 

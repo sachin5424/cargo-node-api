@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { clearSearch } from "../utls/_helper";
 import StateModel from "../data-base/models/state";
 import DistrictModel from "../data-base/models/district";
@@ -151,7 +152,6 @@ export default class Service {
             response.statusCode = 200;
             response.status = true;
 
-            console.log("res", response);
             return response;
 
         } catch (e) {
@@ -217,11 +217,9 @@ export default class Service {
                 $or: [
                     {
                         name: { $regex: '.*' + (query?.key || '') + '.*' }
-                    },
-                    {
-                        state: query.state ? mongoose.Types.ObjectId(query.state) : '',
                     }
                 ],
+                state: query.state ? mongoose.Types.ObjectId(query.state) : '',
             };
 
             clearSearch(search);
@@ -229,6 +227,20 @@ export default class Service {
             const $aggregate = [
                 { $match: search },
                 { $sort: { _id: -1 } },
+                // {
+                //     $lookup: {
+                //         from: 'states',
+                //         localField: 'state',
+                //         foreignField: '_id',
+                //         as: 'stateDetails',
+                //         pipeline: [
+                //             {
+                //                 $match: {isDeleted: false}
+                //             }
+                //         ]
+                //     }
+                // },
+                // { $unwind: { path: "$stateDetails", preserveNullAndEmptyArrays: false} },
                 {
                     "$project": {
                         name: 1,
@@ -326,11 +338,9 @@ export default class Service {
                 $or: [
                     {
                         name: { $regex: '.*' + (query?.key || '') + '.*' }
-                    },
-                    {
-                        district: query.district ? mongoose.Types.ObjectId(query.district) : '',
                     }
                 ],
+                district: query.district ? mongoose.Types.ObjectId(query.district) : '',
             };
 
             clearSearch(search);

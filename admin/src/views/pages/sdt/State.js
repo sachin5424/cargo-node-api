@@ -7,12 +7,13 @@ import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant
 import service from "../../../services/sdt";
 import { AntdMsg } from "../../../utils/Antd";
 import util from "../../../utils/util";
+import District from "./District";
 
 export const modules = {
-    view: util.getModules('viewColor'),
-    add: util.getModules('addColor'),
-    edit: util.getModules('editColor'),
-    delete: util.getModules('deleteColor'),
+    view: util.getModules('viewSDT'),
+    add: util.getModules('addSDT'),
+    edit: util.getModules('editSDT'),
+    delete: util.getModules('deleteSDT'),
 };
 
 const viewAccess = modules.view;
@@ -27,11 +28,18 @@ export default function State() {
     const [loading, setLoading] = useState(true);
 
     const formRef = useRef();
+    const districtModalRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
             title: 'Name',
             dataIndex: 'name',
+        },
+        {
+            title: 'Districts',
+            dataIndex: 'name',
+            width: 100,
+            render: (text, row) => <Button size="small" className="mx-1" onClick={() => { districtModalRef.current.openForm(row) }}>Districts</Button>
         },
         {
             title: 'Status',
@@ -76,7 +84,7 @@ export default function State() {
                             ? <Button type="danger" size="small">
                                 <span className="d-flex">
                                     <Popconfirm
-                                        title="Are you sure to delete this color?"
+                                        title="Are you sure to delete this state?"
                                         onConfirm={() => deleteConfirm(row._id)}
                                         okText="Yes"
                                         cancelText="No"
@@ -126,13 +134,14 @@ export default function State() {
 
     return (
         <>
-            {/* <div className="page-description text-white p-2" >
-                <span>Color List</span>
-            </div> */}
+            <div className="page-description text-white p-2" >
+                <span>State List</span>
+            </div>
             <div className="m-2 p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Code', addNew: addAccess }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list }} />
+            <DistrictModal ref={districtModalRef} />
         </>
     );
 }
@@ -143,7 +152,6 @@ const AddForm = forwardRef((props, ref) => {
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
     const [changeForm, setChangeForm] = useState(false);
-    const imgRef = useRef();
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -151,7 +159,6 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            imgRef.current = {};
             setData(dt ? { ...dt } : { isActive: true });
             handleVisible(true);
             if (!dt?._id && addAccess) {
@@ -170,7 +177,6 @@ const AddForm = forwardRef((props, ref) => {
 
     const save = () => {
         setAjxRequesting(true);
-        data.photo = imgRef?.current?.uploadingFiles?.[0]?.base64;
         service.saveState(data, data._id ? editAccess : addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
@@ -191,7 +197,7 @@ const AddForm = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={(!data._id ? 'Add' : 'Edit') + ' Color'}
+                title={(!data._id ? 'Add' : 'Edit') + ' State'}
                 style={{ top: 20 }}
                 visible={visible}
                 okText="Save"
@@ -223,6 +229,40 @@ const AddForm = forwardRef((props, ref) => {
                         </fieldset>
                     </form>
                 </Spin>
+            </Modal>
+        </>
+    );
+});
+
+const DistrictModal = forwardRef((props, ref) => {
+    const [visible, setVisible] = useState(false);
+    const [data, setData] = useState({});
+
+    const handleVisible = (val) => {
+        setVisible(val);
+    }
+
+    useImperativeHandle(ref, () => ({
+        openForm(dt) {
+            setData(dt ? { ...dt } : { isActive: true });
+            handleVisible(true);
+        }
+    }));
+
+    return (
+        <>
+            <Modal
+                title={<>District list of <span className="text-danger">{data.name}</span></> }
+                style={{ top: 20 }}
+                visible={visible}
+                footer={null}
+                onCancel={() => { handleVisible(false); }}
+                destroyOnClose
+                maskClosable={false}
+                width={1600}
+                className="app-modal-body-overflow"
+            >
+                <District stateId={data._id} />
             </Modal>
         </>
     );
