@@ -42,6 +42,15 @@ class util {
     isSuperAdmin(){
         return window.localStorage['userType'] === 'superAdmin' ? true : false;
     }
+    isStateAdmin(){
+        return window.localStorage['userType'] === 'stateAdmin' ? true : false;
+    }
+    isDistrictAdmin(){
+        return window.localStorage['userType'] === 'districtAdmin' ? true : false;
+    }
+    isTalukAdmin(){
+        return window.localStorage['userType'] === 'talukAdmin' ? true : false;
+    }
 
     setTheme($theme = 'light') {
         window.localStorage.setItem('theme', $theme);

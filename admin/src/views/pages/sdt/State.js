@@ -56,7 +56,7 @@ export default function State() {
         {
             title: 'Action',
             width: 90,
-            hidden: !addAccess && !editAccess && !deleteAccess && !viewAccess,
+            hidden: (!addAccess && !editAccess && !deleteAccess && !viewAccess) || !util.isSuperAdmin(),
             render: (text, row) => (
                 <>
                     {
@@ -138,7 +138,7 @@ export default function State() {
                 <span>State List</span>
             </div>
             <div className="m-2 p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
+                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess && util.isSuperAdmin() }} />
             </div>
             <AddForm ref={formRef} {...{ list }} />
             <DistrictModal ref={districtModalRef} />
