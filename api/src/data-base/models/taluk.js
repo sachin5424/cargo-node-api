@@ -2,6 +2,10 @@ import { Schema, model } from 'mongoose';
 
 const TalukSchema = new Schema({
     name: String,
+    state: {
+        type: Schema.Types.ObjectId,
+        ref: "state",
+    },
     district: {
         type: Schema.Types.ObjectId,
         ref: "district",

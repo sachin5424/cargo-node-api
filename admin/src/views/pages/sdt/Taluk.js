@@ -161,7 +161,7 @@ const AddForm = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         openForm(dt) {
             if(dt){
-                dt.state = parentDistricts.find(v => v._id === dt.district)?.state;
+                // dt.state = parentDistricts.find(v => v._id === dt.district)?.state;
             } else{
                 dt = {};
                 dt.isActive = true;

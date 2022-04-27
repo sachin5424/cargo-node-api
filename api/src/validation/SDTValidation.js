@@ -88,6 +88,20 @@ export const talukValidation = [
         .notEmpty().withMessage("The 'Name' field is required")
         .isString().withMessage("The 'Name' field is not valid"),
 
+    check('state')
+        .optional()
+        .notEmpty().withMessage("'State' field is required")
+        .custom(async (value) => {
+            try {
+                const result = await StateModel.findById(value);
+                if (!result) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("'State' field is not valid");
+            }
+        }),
+
     check('district')
         .optional()
         .notEmpty().withMessage("'District' is required")

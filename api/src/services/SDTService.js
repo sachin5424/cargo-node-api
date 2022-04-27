@@ -116,7 +116,7 @@ export default class Service {
                         name: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
-                ...getAdminFilter(['_id'])
+                ...getAdminFilter('_id')
             };
 
             clearSearch(search);
@@ -221,6 +221,7 @@ export default class Service {
                     }
                 ],
                 state: query.state ? mongoose.Types.ObjectId(query.state) : '',
+                ...getAdminFilter('state', '_id')
             };
 
             clearSearch(search);
@@ -342,16 +343,19 @@ export default class Service {
                     }
                 ],
                 district: query.district ? mongoose.Types.ObjectId(query.district) : '',
+                ...getAdminFilter('state', 'district', '_id')
             };
 
             clearSearch(search);
-
+            console.log(search);
+            
             const $aggregate = [
                 { $match: search },
                 { $sort: { _id: -1 } },
                 {
                     "$project": {
                         name: 1,
+                        state: 1,
                         district: 1,
                         isActive: 1,
                     }
@@ -393,8 +397,9 @@ export default class Service {
             const tplData = _id ? await TalukModel.findById(_id) : new TalukModel();
 
             tplData.name = data.name;
-            tplData.isActive = data.isActive;
+            tplData.state = data.state;
             tplData.district = data.district;
+            tplData.isActive = data.isActive;
 
             await tplData.save();
 
