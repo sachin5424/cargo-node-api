@@ -3,7 +3,7 @@ import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } f
 import MyTable from "../../components/MyTable";
 import { Button, Popconfirm, Input, Modal, Tag, Spin, Image, Divider } from "antd";
 import { AntdSelect, MultiChechBox, AntdDatepicker } from "../../../utils/Antd";
-import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import service from "../../../services/vehicle";
 import commonService from "../../../services/common";
 import rideService from "../../../services/ride";
@@ -51,26 +51,62 @@ export default function Vehicle() {
         {
             title: 'Vehicle Id',
             dataIndex: 'vehicleId',
-            width: 150,
+            width: 80,
+        },
+        {
+            title: 'Vehicle Number',
+            dataIndex: 'vehicleNumber',
+            width: 120,
         },
         {
             title: 'Name',
             dataIndex: 'name',
         },
         {
-            title: 'Vehicle Number',
-            dataIndex: 'vehicleNumber',
-            width: 200,
+            title: 'Capacity',
+            dataIndex: 'availableCapacity',
+            width: 80,
+            render: (text, row) => {
+                if(text){
+                    return text + " Tons";
+                } else {
+                    return row.availableSeats + " Seats";
+                }
+            }
+        },
+        {
+            title: 'State',
+            dataIndex: 'stateDetails',
+            width: 120,
+            render: data => data?.name
+        },
+        {
+            title: 'District',
+            dataIndex: 'districtDetails',
+            width: 120,
+            render: data => data?.name
+        },
+        {
+            title: 'Taluk',
+            dataIndex: 'talukDetails',
+            width: 120,
+            render: data => data?.name
+        },
+        {
+            title: 'Created At',
+            dataIndex: 'createdAt',
+            render: text => moment(text).format("MMMM D, YYYY")
         },
         {
             title: 'Driver',
             dataIndex: '',
-            width: 80,
+            width: 120,
             hidden: !util.getModules('viewDriver'),
             render: (isActive, row) => {
                 return <Button size="small" className="mx-1" onClick={() => { driverFormRef.current.openForm(row) }}>
                     <span className="d-flex">
-                        Driver
+                        <span>Driver</span>
+                        <span className="d-flex mx-1 text-success"> <CheckCircleOutlined className="my-auto" /></span>
                     </span>
                 </Button>
             },
@@ -189,7 +225,7 @@ export default function Vehicle() {
                 <span>Vehicle List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name', addNew: addAccess }} />
+                <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Vehicle id or Name or Number', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, serviceType, rideTypes, makes, colors, sdt }} />
             <AddFormDriver ref={driverFormRef} />
@@ -234,7 +270,7 @@ const AddForm = forwardRef((props, ref) => {
             dt.insuranceExpiryDate = moment(dt.insuranceExpiryDate).format('YYYY-MM-DD');
             dt.permitExpiryDate = moment(dt.permitExpiryDate).format('YYYY-MM-DD');
             dt.pollutionExpiryDate = moment(dt.pollutionExpiryDate).format('YYYY-MM-DD');
-            setData(dt ? { ...dt } : { isActive: true });
+            setData(dt._id ? { ...dt } : { isActive: true, addedBy: 'admin', isApproved: false });
             handleVisible(true);
             if (!dt?._id && addAccess) {
                 setChangeForm(true);
@@ -366,6 +402,24 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Added By</label>
+                                    <AntdSelect
+                                        disabled
+                                        options={[{ value: 'admin', label: "Admin" }, { value: 'driver', label: "Driver" }]}
+                                        value={data.addedBy}
+                                        onChange={v => { handleChange(v, 'addedBy') }}
+                                    />
+                                </div>
+                                <div className="col-md-6 form-group"></div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Approved</label>
+                                    <AntdSelect
+                                        options={[{ value: true, label: "Yes" }, { value: false, label: "No" }]}
+                                        value={data.isApproved}
+                                        onChange={v => { handleChange(v, 'isApproved') }}
+                                    />
+                                </div>
                                 <div><Divider orientation="left" className="text-danger">Vehicle Id</Divider></div>
 
                                 <div className="col-md-3 form-group">
@@ -530,7 +584,6 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Pollution Certificate Image</label>
                                     <UploadImage ref={pollutionImgRef} {...{ fileCount: 1, files: data.pollutionImage ? [data.pollutionImage] : [] }} />
                                 </div>
-
 
                                 <div></div>
                                 <div className="col-md-4 form-group">

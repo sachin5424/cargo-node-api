@@ -71,7 +71,16 @@ const VehicleSchema = new Schema({
     pollutionNumber: String,
     pollutionExpiryDate: Date,
     pollutionPhoto: String,
-    
+
+    isApproved: {
+        type: Boolean,
+        default: false
+    },    
+    addedBy: {
+        type: String,
+        enum: ['admin', 'driver'],
+        default: 'driver'
+    },    
     isDeleted: {
         type: Boolean,
         default: false

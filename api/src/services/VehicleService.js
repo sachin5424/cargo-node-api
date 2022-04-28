@@ -632,26 +632,94 @@ export default class Service {
         };
 
         try {
+            query.key = typeof parseInt(query.key) === 'number' && !isNaN(parseInt(query.key)) ? parseInt(query.key) : query.key;
             const search = {
                 _id: query._id,
                 isDeleted: false,
                 $or: [
                     {
-                        name: { $regex: '.*' + (query?.key || '') + '.*' }
+                        name: typeof query.key === 'string' ? { $regex: '.*' + (query?.key || '') + '.*' } : ''
                     },
                     {
                         vehicleNumber: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
+                vehicleId: typeof query.key === 'number' ? query.key : '',
                 serviceType: query.serviceType ? mongoose.Types.ObjectId(query.serviceType) : '',
                 ...getAdminFilter()
             };
+
+
 
             clearSearch(search);
 
             const $aggregate = [
                 { $match: search },
                 { $sort: { _id: -1 } },
+                {
+                    $lookup: {
+                        from: 'states',
+                        localField: 'state',
+                        foreignField: '_id',
+                        as: 'stateDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$stateDetails" },
+                {
+                    $lookup: {
+                        from: 'districts',
+                        localField: 'district',
+                        foreignField: '_id',
+                        as: 'districtDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$districtDetails" },
+                {
+                    $lookup: {
+                        from: 'taluks',
+                        localField: 'taluk',
+                        foreignField: '_id',
+                        as: 'talukDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$talukDetails" },
+                {
+                    $lookup: {
+                        from: 'drivers',
+                        localField: '_id',
+                        foreignField: 'vehicle',
+                        as: 'driverDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    isApproved: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$driverDetails" },
                 {
                     "$project": {
                         vehicleId: 1,
@@ -716,6 +784,12 @@ export default class Service {
                             url: { $concat: [config.applicationFileUrl + 'vehicle/document/', "$pollutionPhoto"] },
                             name: "$primaryPhoto"
                         },
+                        addedBy: 1,
+                        createdAt: 1,
+                        stateDetails: 1,
+                        districtDetails: 1,
+                        talukDetails: 1,
+                        driverDetails: 1
                     }
                 },
             ];
@@ -789,6 +863,8 @@ export default class Service {
             tplData.pollutionExpiryDate = data.pollutionExpiryDate;
             tplData.pollutionPhoto = await uploadFile(data.pollutionPhoto, config.uploadPaths.vehicle.document, VehicleModel, 'pollutionPhoto', _id);
 
+            tplData.isApproved = data.isApproved;
+            tplData.addedBy = data.addedBy;
             tplData.isActive = data.isActive;
 
             await tplData.save();
