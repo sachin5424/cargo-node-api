@@ -5,6 +5,7 @@ import { Button, Popconfirm, Input, Modal, Tag, Spin, Image } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/vehicle";
+import commonService from "../../../services/common";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import util from "../../../utils/util";
@@ -25,7 +26,9 @@ const deleteAccess = modules.delete;
 export default function Category() {
 
     const [data, setData] = useState([]);
+    const [serviceTypes, setServiceTypes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [filters, setFilters] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
@@ -44,6 +47,20 @@ export default function Category() {
             title: 'Slug',
             dataIndex: 'slug',
             width: 200,
+        },
+        {
+            title: 'Service Type',
+            dataIndex: 'serviceTypeDetails',
+            width: 100,
+            render: (data, row) => {
+                if(data?.key === 'cargo'){
+                    return <Tag color='cyan'>{data?.name}</Tag>
+                } else if(data?.key === 'taxi'){
+                    return <Tag color='purple'>{data?.name}</Tag>
+                } else {
+                    return <Tag>{data?.name}</Tag>
+                }
+            },
         },
         {
             title: 'Status',
@@ -133,7 +150,20 @@ export default function Category() {
     }
 
     useEffect(() => {
+        setFilters([
+            {
+                type: 'dropdown',
+                key: 'serviceType',
+                placeholder: 'Service Type',
+                className: "w200 mx-1",
+                options: serviceTypes
+            },
+        ]);
+    }, [serviceTypes]);
+
+    useEffect(() => {
         list();
+        commonService.listServiceType().then(res => { setServiceTypes(res.result.data); });
     }, []);
 
     return (
@@ -142,15 +172,15 @@ export default function Category() {
                 <span>Vehicle Category List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
+                <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Name or Slug', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list }} />
+            <AddForm ref={formRef} {...{ list, serviceTypes }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list } = props;
+    const { list, serviceTypes } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -219,6 +249,10 @@ const AddForm = forwardRef((props, ref) => {
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
+                                <div className="col-md-12 form-group">
+                                    <label className="req">Service Type</label>
+                                    <AntdSelect options={serviceTypes} value={data.serviceType} onChange={v => { handleChange(v, 'serviceType') }} />
+                                </div>
                                 <div className="col-md-12 form-group">
                                     <label className="req">Name</label>
                                     <Input value={data.name || ''} onChange={e => handleChange(e.target.value, 'name')} />

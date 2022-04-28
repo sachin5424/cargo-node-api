@@ -14,6 +14,7 @@ import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
 import moment from "moment";
 import Wallet from "./Wallet";
+import {AddForm as SendEmail} from "../email/Email";
 
 export const modules = {
     view: util.getModules('viewDriver'),
@@ -50,6 +51,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
 
     const formRef = useRef();
     const walletModalRef = useRef();
+    const emailModalRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, vehicleId: vehicleData?._id });
     const columns = [
         {
@@ -220,14 +222,15 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
                     </>
                     : null
             }
-            <AddForm ref={formRef} {...{ list, sdt, setVisibleParent }} />
+            <AddForm ref={formRef} {...{ list, sdt, setVisibleParent, emailModalRef }} />
             <WalletModal ref={walletModalRef} />
+            <EmailModal ref={emailModalRef} />
         </>
     );
 }
 
 export const AddForm = forwardRef((props, ref) => {
-    const { list, sdt, setVisibleParent } = props;
+    const { list, sdt, setVisibleParent, emailModalRef } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -338,17 +341,22 @@ export const AddForm = forwardRef((props, ref) => {
                 maskClosable={false}
                 width={1200}
                 className="app-modal-body-overflow"
+                footer={[
+                    <Button key="sendEmail" type="dashed" onClick={()=>{emailModalRef.current.openForm(data)}}>Send Email</Button>,
+                    <Button key="cancel" onClick={() => { handleVisible(false); }}>Cancel</Button>,
+                    <Button key="save" type="primary" onClick={save}>Save</Button>,
+                ]}
             >
                 <Spin spinning={ajxRequesting} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>
                     <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
                         <fieldset className="" disabled={!changeForm}>
                             <div className="row mingap">
-                                <div><Divider orientation="left" className="text-danger">Vehicle</Divider></div>
+                                {/* <div><Divider orientation="left" className="text-danger">Vehicle</Divider></div>
                                 <div className="col-md-3 form-group">
-                                    <label className="req">Vehicle</label>
-                                    {/* <AntdSelect options={vehicles} disabled value={data.vehicle} onChange={v => { handleChange(v, 'vehicle') }} /> */}
-                                    <Input value={data?.vehicleDetails?.name || ''} disabled />
-                                </div>
+                                    <label className="req">Vehicle</label> */}
+                                {/* <AntdSelect options={vehicles} disabled value={data.vehicle} onChange={v => { handleChange(v, 'vehicle') }} /> */}
+                                {/* <Input value={data?.vehicleDetails?.name || ''} disabled />
+                                </div> */}
                                 <div><Divider orientation="left" className="text-danger">Personal Details </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Driver Id</label>
@@ -493,7 +501,7 @@ export const WalletModal = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            setData({...dt});
+            setData({ ...dt });
             handleVisible(true);
         }
     }));
@@ -512,6 +520,43 @@ export const WalletModal = forwardRef((props, ref) => {
                 className="app-modal-body-overflow"
             >
                 <Wallet driverId={data._id} />
+            </Modal>
+        </>
+    );
+});
+
+export const EmailModal = forwardRef((props, ref) => {
+    const [visible, setVisible] = useState(false);
+    const [data, setData] = useState({});
+
+    const formRef = useRef();
+
+    const handleVisible = (val) => {
+        setVisible(val);
+    }
+
+    useImperativeHandle(ref, () => ({
+        openForm(dt) {
+            setData({ ...dt });
+            handleVisible(true);
+            // formRef.current.openForm({outerData: {...data, to: 'manyDrivers', emailIds: [data._id]}});
+        }
+    }));
+
+    return (
+        <>
+            <Modal
+                title="Send Email"
+                style={{ top: 50 }}
+                visible={visible}
+                onCancel={() => { handleVisible(false); }}
+                destroyOnClose
+                maskClosable={false}
+                width={1200}
+                footer={null}
+                className="app-modal-body-overflow"
+            >
+                {/* <SendEmail ref={formRef} /> */}
             </Modal>
         </>
     );

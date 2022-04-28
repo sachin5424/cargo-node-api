@@ -1,5 +1,9 @@
-import mongoose from 'mongoose';
+import mongoose, {Schema} from 'mongoose';
 const vehicleCategoryScheam = new mongoose.Schema({
+    serviceType: {
+        type: Schema.Types.ObjectId,
+        ref: "serviceType",
+    },
     name: {
         type: String,
         required: true,

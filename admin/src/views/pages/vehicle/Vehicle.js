@@ -3,7 +3,7 @@ import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } f
 import MyTable from "../../components/MyTable";
 import { Button, Popconfirm, Input, Modal, Tag, Spin, Image, Divider } from "antd";
 import { AntdSelect, MultiChechBox, AntdDatepicker } from "../../../utils/Antd";
-import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined, CheckCircleOutlined, CloseCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import service from "../../../services/vehicle";
 import commonService from "../../../services/common";
 import rideService from "../../../services/ride";
@@ -67,7 +67,7 @@ export default function Vehicle() {
             dataIndex: 'availableCapacity',
             width: 80,
             render: (text, row) => {
-                if(text){
+                if (text) {
                     return text + " Tons";
                 } else {
                     return row.availableSeats + " Seats";
@@ -106,7 +106,22 @@ export default function Vehicle() {
                 return <Button size="small" className="mx-1" onClick={() => { driverFormRef.current.openForm(row) }}>
                     <span className="d-flex">
                         <span>Driver</span>
-                        <span className="d-flex mx-1 text-success"> <CheckCircleOutlined className="my-auto" /></span>
+                        <span
+                            className={"d-flex mx-1 " + (
+                                ! row?.driverDetails
+                                    ? "text-danger"
+                                    : row?.driverDetails?.isApproved ? "text-success" : "text-warning"
+                            )}
+                        >
+                            {
+                                ! row?.driverDetails
+                                    ? <PlusCircleOutlined className="my-auto" />
+                                    : row?.driverDetails?.isApproved
+                                        ? <CheckCircleOutlined className="my-auto" />
+                                        : <CloseCircleOutlined className="my-auto" />
+                            }
+
+                        </span>
                     </span>
                 </Button>
             },
@@ -207,7 +222,7 @@ export default function Vehicle() {
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
     }, []);
 
-    useEffect(()=>{
+    useEffect(() => {
         setFilters([
             {
                 type: 'dropdown',
@@ -215,6 +230,13 @@ export default function Vehicle() {
                 placeholder: 'Service Type',
                 className: "w200 mx-1",
                 options: serviceType
+            },
+            {
+                type: 'dropdown',
+                key: 'driverApproved',
+                placeholder: 'Driver Status',
+                className: "w200 mx-1",
+                options: [{ value: true, label: "Approved" }, { value: false, label: "Not Approved" }/* , { value: 'withoutDriver', label: "Without Driver" } */]
             }
         ]);
     }, [serviceType]);
@@ -257,7 +279,7 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            if(!dt){
+            if (!dt) {
                 dt = {};
             }
             primaryImgRef.current = {};

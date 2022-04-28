@@ -168,6 +168,15 @@ export const vehicleCategoryValidation = [
             }
         }),
 
+    check('serviceType')
+        .notEmpty().withMessage("The 'Service Type' field is required")
+        .custom(async (value, { req }) => {
+            const result = await ServiceTypeModel.findById(value);
+            if (!result) {
+                throw new Error("Invalid service type");
+            }
+        }),
+
     check('name')
         .notEmpty().withMessage("The 'name' field is required")
         .isString().withMessage("The 'name' field is not valid"),

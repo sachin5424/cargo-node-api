@@ -528,6 +528,7 @@ export default class Service {
                         slug: { $regex: '.*' + (query?.key || '') + '.*' }
                     },
                 ],
+                serviceType: query.serviceType ? mongoose.Types.ObjectId(query.serviceType) : '',
             };
 
             clearSearch(search);
@@ -536,7 +537,26 @@ export default class Service {
                 { $match: search },
                 { $sort: { _id: -1 } },
                 {
+                    $lookup: {
+                        from: 'servicetypes',
+                        localField: 'serviceType',
+                        foreignField: '_id',
+                        as: 'serviceTypeDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1,
+                                    key: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$serviceTypeDetails" },
+                {
                     "$project": {
+                        serviceType: 1,
+                        serviceTypeDetails: 1,
                         name: 1,
                         slug: 1,
                         isActive: 1,
@@ -582,6 +602,7 @@ export default class Service {
         try {
             const tplData = _id ? await VehicleCategoryModel.findById(_id) : new VehicleCategoryModel();
 
+            tplData.serviceType = data.serviceType;
             tplData.name = data.name;
             tplData.slug = data.slug;
             tplData.photo = await uploadFile(data.photo, config.uploadPaths.vehicle.category, VehicleCategoryModel, 'photo', _id);
@@ -649,9 +670,17 @@ export default class Service {
                 ...getAdminFilter()
             };
 
-
-
             clearSearch(search);
+
+            const driverSearch = {
+                isApproved:
+                    query.driverApproved == 'true'
+                        ? true
+                        : query.driverApproved == 'false'
+                            ? false
+                            : ''
+            }
+            clearSearch(driverSearch);
 
             const $aggregate = [
                 { $match: search },
@@ -711,6 +740,7 @@ export default class Service {
                         foreignField: 'vehicle',
                         as: 'driverDetails',
                         pipeline: [
+                            { $match: driverSearch },
                             {
                                 $project: {
                                     isApproved: 1
@@ -719,7 +749,12 @@ export default class Service {
                         ]
                     }
                 },
-                { $unwind: "$driverDetails" },
+                {
+                    $unwind: {
+                        path: "$driverDetails",
+                        preserveNullAndEmptyArrays: typeof query.driverApproved == 'undefined'
+                    }
+                },
                 {
                     "$project": {
                         vehicleId: 1,
