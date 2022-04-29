@@ -6,8 +6,8 @@ import { AntdMsg } from '../utils/Antd';
 import util from '../utils/util';
 
 export default function Login() {
-    const [userName, setUserName] = useState('superadmin@test.com');
-    const [password, setPassword] = useState('123456');
+    const [userName, setUserName] = useState(/* 'superadmin@test.com' */);
+    const [password, setPassword] = useState(/* '123456' */);
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
 
