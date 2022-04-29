@@ -1,0 +1,294 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.walletValidationAdmin = exports.driverValidation = exports.driverResetPasswordValidation = exports.driverLoginValidation = void 0;
+
+var _import = require("../settings/import");
+
+var _driver = _interopRequireDefault(require("../data-base/models/driver"));
+
+var _state = _interopRequireDefault(require("../data-base/models/state"));
+
+var _district = _interopRequireDefault(require("../data-base/models/district"));
+
+var _taluk = _interopRequireDefault(require("../data-base/models/taluk"));
+
+var _helper = require("../utls/_helper");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+const driverLoginValidation = [(0, _import.check)('email').notEmpty().withMessage("Email is required").isEmail().withMessage("Provide a valid email").custom(async v => {
+  try {
+    const r = await _driver.default.findOne({
+      email: v,
+      isDeleted: false
+    });
+
+    if (!r) {
+      throw new Error("Data not found");
+    }
+  } catch (e) {
+    throw new Error("Email is not registered");
+  }
+}), (0, _import.check)('password').notEmpty().withMessage("Password is required")];
+exports.driverLoginValidation = driverLoginValidation;
+const driverValidation = [(0, _import.check)('_id').optional().notEmpty().withMessage("Provide / Select a valid data").custom(async (v, {
+  req
+}) => {
+  try {
+    const permissionFilter = cuser.type == 'vehicleOwner' ? {
+      owner: cuser._id
+    } : _objectSpread({}, (0, _helper.getAdminFilter)());
+
+    const search = _objectSpread({
+      _id: v,
+      isDeleted: false
+    }, permissionFilter);
+
+    (0, _helper.clearSearch)(search);
+    const r = await _driver.default.findOne(search);
+
+    if (!r) {
+      throw new Error("Data not found");
+    }
+  } catch (e) {
+    throw new Error("This data does not exit. Please check or refresh");
+  }
+}), (0, _import.check)('firstName').notEmpty().withMessage("The 'First Name' field is required").isString().withMessage("The 'First Name' field is not valid"), (0, _import.check)('lastName').notEmpty().withMessage("The 'Last Name' field is required").isString().withMessage("The 'Last Name' field is not valid"), (0, _import.check)('driverId').notEmpty().withMessage("The 'Driver ID' field is required").custom(async (value, {
+  req
+}) => {
+  const body = req.body;
+  const result = await _driver.default.findOne({
+    driverId: value
+  });
+
+  if (result) {
+    if (body._id) {
+      if (result._id != body._id) {
+        throw new Error("A driver already exist with this Driver ID");
+      }
+    } else {
+      throw new Error("A driver already exist with this Driver ID");
+    }
+  }
+}), (0, _import.check)('phoneNo').notEmpty().withMessage("The 'Phone Number' field is required").matches(/^[3-9]{1}[0-9]{9}$/).withMessage("The 'Phone Number' field is not valid").custom(async (value, {
+  req
+}) => {
+  const body = req.body;
+  const result = await _driver.default.findOne({
+    phoneNo: value
+  });
+
+  if (result) {
+    if (body._id) {
+      if (result._id != body._id) {
+        throw new Error("A driver already exist with this phone number");
+      }
+    } else {
+      throw new Error("A driver already exist with this phone number");
+    }
+  }
+}), (0, _import.check)('email').notEmpty().withMessage("The 'Email' field is required").isEmail().withMessage("The 'Email' field is not valid").custom(async (value, {
+  req
+}) => {
+  const body = req.body;
+  const result = await _driver.default.findOne({
+    email: value
+  });
+
+  if (result) {
+    if (body._id) {
+      if (result._id != body._id) {
+        throw new Error("A driver already exist with this email");
+      }
+    } else {
+      throw new Error("A driver already exist with this email");
+    }
+  }
+}), (0, _import.check)('password').custom((v, {
+  req
+}) => {
+  if (!req.body._id) {
+    if (!req.body.password) {
+      throw new Error("The 'Password' field is required");
+    }
+  }
+
+  return true;
+}), (0, _import.check)('dob').notEmpty().withMessage("The 'Date of Birth' field is required").matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Date of Birth' field is not valid"), (0, _import.check)('photo').custom((v, {
+  req
+}) => {
+  if (!req.body._id) {
+    if (!req.body.photo) {
+      throw new Error("The 'Photo' field is required");
+    }
+  }
+
+  return true;
+}).optional().matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Photo is not an image"), (0, _import.check)('drivingLicenceNumber').notEmpty().withMessage("The 'Driving Licence Number' field is required").isString().withMessage("The 'Driving Licence Number' field is must be a valid") // .matches(/^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/).withMessage("'Driving Licence Number' is not valid")
+.custom(async (value, {
+  req
+}) => {
+  const body = req.body;
+  const result = await _driver.default.findOne({
+    drivingLicenceNumber: value
+  });
+
+  if (result) {
+    if (body._id) {
+      if (result._id != body._id) {
+        throw new Error("A driver already exist with this licence number");
+      }
+    } else {
+      throw new Error("A driver already exist with this licence number");
+    }
+  }
+}), (0, _import.check)('drivingLicenceNumberExpiryDate').notEmpty().withMessage("The 'Driving Licence Expiry Date' field is required").matches(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/).withMessage("The 'Driving Licence Expiry Date' field is not valid"), (0, _import.check)('drivingLicencePhoto').custom((v, {
+  req
+}) => {
+  if (!req.body._id) {
+    if (!req.body.drivingLicencePhoto) {
+      throw new Error("The 'Driving Licence Photo' field is required");
+    }
+  }
+
+  return true;
+}).optional().matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Driving Licence Photo is not an image"), (0, _import.check)('adharNo').notEmpty().withMessage("The 'Adhar Number' field is required") // .matches(/^[2-9]{1}[0-9]{3}[0-9]{4}[0-9]{4}$/).withMessage("The 'Adhar Number' field is not valid")
+.custom(async (value, {
+  req
+}) => {
+  const body = req.body;
+  const result = await _driver.default.findOne({
+    adharNo: value
+  });
+
+  if (result) {
+    if (body._id) {
+      if (result._id != body._id) {
+        throw new Error("A driver already exist with this adhar number");
+      }
+    } else {
+      throw new Error("A driver already exist with this adhar number");
+    }
+  }
+}), (0, _import.check)('adharCardPhoto').custom((v, {
+  req
+}) => {
+  if (!req.body._id) {
+    if (!req.body.adharCardPhoto) {
+      throw new Error("The 'Adhar Card Photo' field is required");
+    }
+  }
+
+  return true;
+}).optional().matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Adhar Card Photo is not an image"), (0, _import.check)('panNo').notEmpty().withMessage("The 'Pan Number' field is required") // .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}$/).withMessage("The 'Pan Number' field is not valid")
+.custom(async (value, {
+  req
+}) => {
+  const body = req.body;
+  const result = await _driver.default.findOne({
+    panNo: value
+  });
+
+  if (result) {
+    if (body._id) {
+      if (result._id != body._id) {
+        throw new Error("A driver already exist with this pan number");
+      }
+    } else {
+      throw new Error("A driver already exist with this pan number");
+    }
+  }
+}), (0, _import.check)('panCardPhoto').custom((v, {
+  req
+}) => {
+  if (!req.body._id) {
+    if (!req.body.panCardPhoto) {
+      throw new Error("The 'Pan Card Photo' field is required");
+    }
+  }
+
+  return true;
+}).optional().matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Pan Card Photo is not an image"), (0, _import.check)('badgeNo').notEmpty().withMessage("The 'Badge Number' field is required") // .matches(/[A-Z]{5}[0-9]{4}[A-Z]{1}$/).withMessage("The 'Badge Number' field is not valid")
+.custom(async (value, {
+  req
+}) => {
+  const body = req.body;
+  const result = await _driver.default.findOne({
+    badgeNo: value
+  });
+
+  if (result) {
+    if (body._id) {
+      if (result._id != body._id) {
+        throw new Error("A driver already exist with this badge number");
+      }
+    } else {
+      throw new Error("A driver already exist with this badge number");
+    }
+  }
+}), (0, _import.check)('badgePhoto').custom((v, {
+  req
+}) => {
+  if (!req.body._id) {
+    if (!req.body.badgePhoto) {
+      throw new Error("The 'Badge Photo' field is required");
+    }
+  }
+
+  return true;
+}).optional().matches(/data:image\/[^;]+;base64[^"]+/).withMessage("Badge Photo is not an image"), (0, _import.check)('address').notEmpty().withMessage("The 'Address' field is required").isString().withMessage("The 'Address' field is not valid"), (0, _import.check)('state').notEmpty().withMessage("The 'State' field is required").isString().withMessage("The 'State' field is not valid").custom(async value => {
+  try {
+    const result = await _state.default.findById(value);
+
+    if (!result) {
+      throw new Error("Data not found");
+    }
+  } catch (e) {
+    throw new Error("State is not valid");
+  }
+}), (0, _import.check)('district').notEmpty().withMessage("The 'District' field is required").isString().withMessage("The 'District' field is not valid").custom(async value => {
+  try {
+    const result = await _district.default.findById(value);
+
+    if (!result) {
+      throw new Error("Data not found");
+    }
+  } catch (e) {
+    throw new Error("District is not valid");
+  }
+}), (0, _import.check)('taluk').notEmpty().withMessage("The 'Taluk' field is required").isString().withMessage("The 'Taluk' field is not valid").custom(async value => {
+  try {
+    const result = await _taluk.default.findById(value);
+
+    if (!result) {
+      throw new Error("Data not found");
+    }
+  } catch (e) {
+    throw new Error("Taluk is not valid");
+  }
+}), (0, _import.check)('zipcode').notEmpty().withMessage("The 'Zipcode' field is required").matches(/^[1-9]{1}[0-9]{5}$/).withMessage("The 'Zipcode' field is not valid"), (0, _import.check)('isApproved').notEmpty().withMessage("The 'Approval Status' field is required").toBoolean(1 ? true : false), (0, _import.check)('isActive').notEmpty().withMessage("The 'active' field is required").toBoolean(1 ? true : false)];
+exports.driverValidation = driverValidation;
+const walletValidationAdmin = [(0, _import.check)('transactionType').notEmpty().withMessage("The 'Transaction Type' field is required").isIn(['debit', 'credit']).withMessage('This transaction type is not valid'), (0, _import.check)('amount').notEmpty().withMessage("The 'Amount' field is required").isNumeric({
+  min: 0
+}).withMessage("The 'Amount' field must be numeric")];
+exports.walletValidationAdmin = walletValidationAdmin;
+const driverResetPasswordValidation = [(0, _import.check)('password').notEmpty().withMessage("Fill the password"), (0, _import.check)('confirmPassword').notEmpty().withMessage("Fill the confirm password").custom(async (value, {
+  req
+}) => {
+  const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+
+  if (password !== confirmPassword) {
+    throw new Error("Both password does not match");
+  }
+})];
+exports.driverResetPasswordValidation = driverResetPasswordValidation;
