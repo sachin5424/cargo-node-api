@@ -6,7 +6,7 @@ const isSuperAdmin = util.isSuperAdmin();
 
 const axiosInstance = axios.create({
     baseURL: window.location.hostname !== 'localhost'
-        ? 'https://demoaanaxagorasr.net/rupiloan/admin-api/public/api/admin/'
+        ? 'http://65.0.236.48:3003/admin/'
         : 'http://localhost:3003/admin/'
 });
 

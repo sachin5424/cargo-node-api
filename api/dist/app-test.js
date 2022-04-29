@@ -10,9 +10,9 @@ app.get('/', (req, res)=>{
     res.send("Root url")
 })
 
-app.listen(3005, (err)=>{
+app.listen(3003, (err)=>{
     if(!err){
-        console.log('Server running on 3005');
+        console.log('Server running on 3003');
     } else{
         console.log('Error while starting the server');
         console.log('Reason:', err.message);
