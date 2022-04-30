@@ -58,7 +58,7 @@ export default class UserController {
             const html = await renderCustomerResetPasswordForm({originalUrl, callbackUrl, callbackUrlText});
             res.setHeader('Content-Type', 'text/html').send(html)
         } catch (e) {
-			return res.status(400).send({message: 'Error try again!'});
+			return res.status(400).send({message: 'Error try again!' + e.message});
 		}
     }
 
