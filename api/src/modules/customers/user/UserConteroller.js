@@ -55,8 +55,8 @@ export default class UserController {
             const callbackUrl = config.applicationBaseUrl;
             const callbackUrlText = 'Login Here';
 
-            const html = await renderCustomerResetPasswordForm({originalUrl, callbackUrl, callbackUrlText});
-            res.setHeader('Content-Type', 'text/html').send(html)
+            // const html = await renderCustomerResetPasswordForm({originalUrl, callbackUrl, callbackUrlText});
+            res.setHeader('Content-Type', 'text/html').send("html")
         } catch (e) {
 			return res.status(400).send({message: 'Error try again!' + e.message});
 		}
