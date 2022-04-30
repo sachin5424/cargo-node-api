@@ -63,7 +63,7 @@ class UserController {
 
   static async genForgetPasswordUrl(req, res) {
     try {
-      const email = req.params.email;
+      const email = req.body.email;
       const srvRes = await _CustomerService.default.genForgetPasswordUrl(email);
       return res.status(srvRes.statusCode).json({
         srvRes

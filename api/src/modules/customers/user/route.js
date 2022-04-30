@@ -18,7 +18,7 @@ import {jwtTokenPermission} from './jwt'
 
 router.post("/login", customerLoginValidation, UserController.login);
 router.get("/email-verify/:email", UserController.verifyEmail);
-router.get("/forget-pasword/:email", UserController.genForgetPasswordUrl);
+router.post("/forget-pasword", UserController.genForgetPasswordUrl);
 router.get("/reset-password/:key", UserController.resetPasswordForm);
 router.post("/reset-password/:key", customerResetPasswordValidation, UserController.resetPAssword);
 // router.post('/auth/user-register', userRegisterValidation,validationMiddleware,userRegister);

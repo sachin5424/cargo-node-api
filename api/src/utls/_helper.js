@@ -181,8 +181,8 @@ export async function mailer(to, subject, html) {
 
     return new Promise(async (resolve, reject) => {
         try {
-            // const info = await sendGridMail.send(mailOptions);
-            resolve('info');
+            const info = await sendGridMail.send(mailOptions);
+            resolve(info);
         } catch (error) {
             Logger.error(
                 `

@@ -210,8 +210,8 @@ class Service {
     let emailIds = [];
 
     try {
-      if (data.template !== 'custom') {
-        const template = await _emailTemplate.default.findById(data.template);
+      if (data.emailTemplate !== 'custom') {
+        const template = await _emailTemplate.default.findById(data.emailTemplate);
         data.subject = template.subject;
         data.html = template.html;
       }
@@ -237,8 +237,8 @@ class Service {
 
       const tplData = new _emailSent.default();
 
-      if (data.template !== 'custom') {
-        tplData.template = data.template;
+      if (data.emailTemplate !== 'custom') {
+        tplData.emailTemplate = data.emailTemplate;
       } else {
         tplData.emailContent.subject = data.subject;
         tplData.emailContent.html = data.html;
@@ -273,7 +273,7 @@ class Service {
   }
 
   static async sendMailToCustomers(data) {
-    if (data.to === 'allDrivers') {
+    if (data.to === 'allCustomers') {
       const search = {
         isDeleted: false,
         state: data.state ? _mongoose.default.Types.ObjectId(data.state) : '',
@@ -285,13 +285,13 @@ class Service {
       data.emailIds = userDatas.map(v => v.email);
     }
 
-    if (data.html.includes('<%= firstName %>') || data.html.includes('<%= lastName %>') || data.html.includes('<%= email %>')) {
+    if (data.html.includes('<%=') && data.html.includes('%>')) {
       data.emailIds?.forEach(async v => {
         const userData = await _customer.default.findOne({
           email: v,
           isDeleted: false
         });
-        const html = await _ejs.default.render(data.html, _objectSpread({}, userData._doc));
+        const html = await _ejs.default.render(data.html, _objectSpread(_objectSpread({}, userData._doc), data?.emailData));
         await (0, _helper.mailer)(v, data.subject, html);
       });
     } else {
@@ -363,6 +363,86 @@ class Service {
   static async sendMailToEmailIds(data) {
     await (0, _helper.mailer)(data.emailIds, data.subject, data.html);
     return data.emailIds;
+  }
+
+  static async listSentEmails(query, params) {
+    const isAll = params.isAll === 'ALL';
+    const response = {
+      statusCode: 400,
+      message: 'Data not found!',
+      result: {
+        data: [],
+        page: query.page * 1 > 0 ? query.page * 1 : 1,
+        limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+        total: 0
+      },
+      status: false
+    };
+
+    try {
+      const search = {
+        _id: query._id // $or: [
+        //     {
+        //         subject: { $regex: '.*' + (query?.key || '') + '.*' }
+        //     },
+        //     {
+        //         key: { $regex: '.*' + (query?.key || '') + '.*' }
+        //     },
+        // ],
+
+      };
+      (0, _helper.clearSearch)(search);
+      const $aggregate = [{
+        $match: search
+      }, {
+        $sort: {
+          _id: -1
+        }
+      }, {
+        "$project": {
+          emailTemplate: 1,
+          state: 1,
+          district: 1,
+          taluk: 1,
+          serviceType: 1,
+          to: 1,
+          emailIds: 1,
+          emailContent: 1
+        }
+      }];
+      const counter = await _emailSent.default.aggregate([...$aggregate, {
+        $count: "total"
+      }]);
+      response.result.total = counter[0]?.total;
+
+      if (isAll) {
+        response.result.page = 1;
+        response.result.limit = response.result.total;
+      }
+
+      response.result.total = counter[0]?.total;
+
+      if (isAll) {
+        response.result.page = 1;
+        response.result.limit = response.result.total;
+      }
+
+      response.result.data = await _emailSent.default.aggregate([...$aggregate, {
+        $limit: response.result.limit + response.result.limit * (response.result.page - 1)
+      }, {
+        $skip: response.result.limit * (response.result.page - 1)
+      }]);
+
+      if (response.result.data.length) {
+        response.message = "Data fetched";
+      }
+
+      response.statusCode = 200;
+      response.status = true;
+      return response;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
 }

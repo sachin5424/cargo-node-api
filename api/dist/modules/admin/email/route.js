@@ -25,9 +25,9 @@ const router = (0, _express.Router)({
 router.get('/template/list', checkEmailTemplateListAccess, _TemplateController.default.list);
 router.get('/template/list/:isAll', checkEmailTemplateListAccess, _TemplateController.default.list);
 router.post('/template/save', checkEmailTemplateSaveAccess, _EmailValidations.templateValidation, _others.formValidation, _TemplateController.default.save);
-router.delete("/template/delete/:id", CheckEmailTemplateDeleteAccess, _TemplateController.default.delete); // router.get('/list', checkSentEmailListAccess, EmailController.list);
-// router.get('/list/:isAll', checkSentEmailListAccess, EmailController.list);
-
+router.delete("/template/delete/:id", CheckEmailTemplateDeleteAccess, _TemplateController.default.delete);
+router.get('/list', checkSentEmailListAccess, _EmailController.default.list);
+router.get('/list/:isAll', checkSentEmailListAccess, _EmailController.default.list);
 router.post('/save', checkSendEmailAccess, _EmailValidations.sendEmailValidation, _others.formValidation, _EmailController.default.save); // router.delete("/delete/:id", EmailController.delete);
 
 async function checkEmailTemplateListAccess(req, res, next) {

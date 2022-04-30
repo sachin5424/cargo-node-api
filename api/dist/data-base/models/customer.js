@@ -37,6 +37,7 @@ const CustomerSchema = new _mongoose.Schema({
     ref: "taluk"
   },
   zipcode: String,
+  gender: String,
   isDeleted: {
     type: Boolean,
     default: false
@@ -44,6 +45,9 @@ const CustomerSchema = new _mongoose.Schema({
   isActive: {
     type: Boolean,
     default: false
+  },
+  emailOtp: {
+    type: Number
   }
 }, {
   timestamps: true

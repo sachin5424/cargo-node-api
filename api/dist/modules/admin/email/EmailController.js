@@ -16,14 +16,17 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 class EmailController {
-  // static async list(req, res) {
-  //     try {
-  // 		const srvRes = await Service.listTemplates(req?.query, req.params);
-  //         return res.status(srvRes.statusCode).json({ ...srvRes });
-  //     } catch (e) {
-  // 		return res.status(400).send({message: e.message});
-  // 	}
-  // }
+  static async list(req, res) {
+    try {
+      const srvRes = await _EmailService.default.listSentEmails(req?.query, req.params);
+      return res.status(srvRes.statusCode).json(_objectSpread({}, srvRes));
+    } catch (e) {
+      return res.status(400).send({
+        message: e.message
+      });
+    }
+  }
+
   static async save(req, res) {
     try {
       const srvRes = await _EmailService.default.sendEmail(req.body);

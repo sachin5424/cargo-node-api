@@ -178,8 +178,8 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
         let emailIds = [];
         try {
-            if (data.template !== 'custom') {
-                const template = await EmailTemplateModel.findById(data.template);
+            if (data.emailTemplate !== 'custom') {
+                const template = await EmailTemplateModel.findById(data.emailTemplate);
                 data.subject = template.subject;
                 data.html = template.html;
             }
@@ -201,8 +201,8 @@ export default class Service {
 
             const tplData = new EmailSentModel();
 
-            if(data.template !== 'custom'){
-                tplData.template = data.template;
+            if(data.emailTemplate !== 'custom'){
+                tplData.emailTemplate = data.emailTemplate;
             } else{
                 tplData.emailContent.subject = data.subject;
                 tplData.emailContent.html = data.html;
@@ -220,7 +220,6 @@ export default class Service {
                 tplData.serviceType = data.serviceType;
             }
 
-            tplData.emailTemplate = data.emailTemplate;
             tplData.to = data.to;
             tplData.emailIds = emailIds;
 
@@ -238,7 +237,7 @@ export default class Service {
     }
 
     static async sendMailToCustomers(data) {
-        if (data.to === 'allDrivers') {
+        if (data.to === 'allCustomers') {
             const search = {
                 isDeleted: false,
                 state: data.state ? mongoose.Types.ObjectId(data.state) : '',
@@ -251,11 +250,11 @@ export default class Service {
             data.emailIds = userDatas.map(v => v.email);
         }
 
-        if (data.html.includes('<%= firstName %>') || data.html.includes('<%= lastName %>') || data.html.includes('<%= email %>')) {
+        if (data.html.includes('<%=') && data.html.includes('%>')) {
             data.emailIds?.forEach(async (v) => {
                 const userData = await CustomerModel.findOne({ email: v, isDeleted: false });
 
-                const html = await ejs.render(data.html, { ...userData._doc });
+                const html = await ejs.render(data.html, { ...userData._doc, ...data?.emailData });
                 await mailer(v, data.subject, html);
             });
         } else {

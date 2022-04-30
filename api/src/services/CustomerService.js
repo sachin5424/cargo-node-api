@@ -6,6 +6,8 @@ import { clearSearch, getAdminFilter, encryptData, decryptData } from "../utls/_
 import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
 import { sendResetPasswordMail } from "../thrirdParty/emailServices/customer/sendEmail";
+import EmailServices from "./EmailService";
+import EmailTemplateModel from '../data-base/models/emailTemplate';
 
 export default class Service {
 
@@ -75,12 +77,34 @@ export default class Service {
         try {
             const tplData = await CustomerModel.findOne({ email: email, isDeleted: false });
             if (tplData) {
-                const timeStamp = new Date().getTime() + config.forgetPassExpTime * 60 * 1000;
-                const encKey = encryptData(encryptData(timeStamp + '-----' + email));
-                await sendResetPasswordMail({ key: encKey, email: email, validFor: config.forgetPassExpTime });
-                response.message = "A reset password link has been sent to your email. Please check and reset your password.";
-                response.statusCode = 200;
-                response.status = true;
+                try {
+                    const timeStamp = new Date().getTime() + config.forgetPassExpTime * 60 * 1000;
+                    const encKey = encryptData(encryptData(timeStamp + '-----' + email));
+                    const emailTemplate = await EmailTemplateModel.findOne({ key: 'reset-password-customer' });
+                    const resetPasswordURL = config.baseurls.resetPassword.customer + "/" + encKey;
+                    // data = { ...data, resetPasswordURL: resetPasswordURL };
+                    await EmailServices.sendEmail({
+                        emailIds: [email],
+                        state: tplData.state,
+                        district: tplData.district,
+                        taluk: tplData.taluk,
+                        emailTemplate: emailTemplate._id,
+                        to: 'manyCustomers',
+                        emailData: {
+                            key: encKey,
+                            validFor: config.forgetPassExpTime,
+                            resetPasswordURL: resetPasswordURL
+                        },
+
+                    });
+                    // await sendResetPasswordMail({ key: encKey, email: email, validFor: config.forgetPassExpTime });
+                    response.message = "A reset password link has been sent to your email. Please check and reset your password.";
+                    response.statusCode = 200;
+                    response.status = true;
+                } catch (e) {
+                    throw new Error("Email can not be sent");
+                }
+
             } else {
                 throw new Error("This email is not registered with any account");
             }
