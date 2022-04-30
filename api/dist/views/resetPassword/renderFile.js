@@ -20,13 +20,13 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 async function renderCustomerResetPasswordForm(data) {
-  return await _ejs.default.renderFile(_path.default.join(__dirname, 'customer.html'), _objectSpread({}, data));
+  return await _ejs.default.renderFile(_path.default.join(__dirname, 'customer.txt'), _objectSpread({}, data));
 }
 
 async function renderDriverResetPasswordForm(data) {
-  return await _ejs.default.renderFile(_path.default.join(__dirname, 'driver.html'), _objectSpread({}, data));
+  return await _ejs.default.renderFile(_path.default.join(__dirname, 'driver.txt'), _objectSpread({}, data));
 }
 
 async function renderVehicleOwnerResetPasswordForm(data) {
-  return await _ejs.default.renderFile(_path.default.join(__dirname, 'vehicleOwner.html'), _objectSpread({}, data));
+  return await _ejs.default.renderFile(_path.default.join(__dirname, 'vehicleOwner.txt'), _objectSpread({}, data));
 }
