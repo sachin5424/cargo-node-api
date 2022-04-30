@@ -2,14 +2,14 @@ import Service from '../../../services/EmailService';
 
 export default class EmailController {
     
-    // static async list(req, res) {
-    //     try {
-	// 		const srvRes = await Service.listTemplates(req?.query, req.params);
-    //         return res.status(srvRes.statusCode).json({ ...srvRes });
-    //     } catch (e) {
-	// 		return res.status(400).send({message: e.message});
-	// 	}
-    // }
+    static async list(req, res) {
+        try {
+			const srvRes = await Service.listSentEmails(req?.query, req.params);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
 
     static async save(req, res) {
         try {

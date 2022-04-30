@@ -70,7 +70,7 @@ export default function Email() {
             data = sdata;
         }
         setLoading(true);
-        service.listTeplates(data, viewAccess).then(res => {
+        service.list(data, viewAccess).then(res => {
             let dt = data;
             dt.total = res.result?.total || 0;
             setSData({ ...dt });
@@ -207,7 +207,9 @@ const AddForm = forwardRef((props, ref) => {
     }, [data.to]);
 
     useEffect(() => {
-        handleChange(null, 'emailIds');
+        if(!data._id){
+            handleChange(null, 'emailIds');
+        }
     }, [users]);
 
     const checkDistrictExist = () => sdt?.find(v => v._id === data.state)?.districts.map(v => v._id)?.includes(data.district);
@@ -279,8 +281,8 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Email Template</label>
                                     <AntdSelect
                                         options={templates.map(v => ({ _id: v._id, title: v.subject })) || []}
-                                        value={data.template}
-                                        onChange={v => { handleChange(v, 'template') }}
+                                        value={data.emailTemplate}
+                                        onChange={v => { handleChange(v, 'emailTemplate') }}
                                     />
                                 </div>
                                 <div></div>
@@ -362,7 +364,7 @@ const AddForm = forwardRef((props, ref) => {
 
 
                                 {
-                                    data.template === 'custom'
+                                    data.emailTemplate === 'custom'
                                         ? <>
                                             <div></div>
                                             <div className="col-md-12 form-group">

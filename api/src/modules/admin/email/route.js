@@ -12,8 +12,8 @@ router.get('/template/list/:isAll', checkEmailTemplateListAccess, TemplateContro
 router.post('/template/save', checkEmailTemplateSaveAccess, templateValidation, formValidation, TemplateController.save);
 router.delete("/template/delete/:id", CheckEmailTemplateDeleteAccess, TemplateController.delete);
 
-// router.get('/list', checkSentEmailListAccess, EmailController.list);
-// router.get('/list/:isAll', checkSentEmailListAccess, EmailController.list);
+router.get('/list', checkSentEmailListAccess, EmailController.list);
+router.get('/list/:isAll', checkSentEmailListAccess, EmailController.list);
 router.post('/save', checkSendEmailAccess, sendEmailValidation, formValidation, EmailController.save);
 // router.delete("/delete/:id", EmailController.delete);
 

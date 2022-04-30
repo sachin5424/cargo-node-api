@@ -158,7 +158,7 @@ const AddForm = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         openForm(dt) {
             imgRef.current = {};
-            setData(dt ? { ...dt } : { isActive: true });
+            setData(dt ? { ...dt } : { code: '#000000', isActive: true });
             handleVisible(true);
             if (!dt?._id && addAccess) {
                 setChangeForm(true);

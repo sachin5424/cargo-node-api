@@ -220,6 +220,7 @@ export default class Service {
                 tplData.serviceType = data.serviceType;
             }
 
+            tplData.emailTemplate = data.emailTemplate;
             tplData.to = data.to;
             tplData.emailIds = emailIds;
 
@@ -327,4 +328,81 @@ export default class Service {
         return data.emailIds;
     }
 
+    static async listSentEmails(query, params) {
+        const isAll = params.isAll === 'ALL';
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+                page: query.page * 1 > 0 ? query.page * 1 : 1,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                total: 0,
+            },
+            status: false
+        };
+
+        try {
+            const search = {
+                _id: query._id,
+                // $or: [
+                //     {
+                //         subject: { $regex: '.*' + (query?.key || '') + '.*' }
+                //     },
+                //     {
+                //         key: { $regex: '.*' + (query?.key || '') + '.*' }
+                //     },
+                // ],
+            };
+
+            clearSearch(search);
+
+            const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
+                {
+                    "$project": {
+                        emailTemplate: 1,
+                        state: 1,
+                        district: 1,
+                        taluk: 1,
+                        serviceType: 1,
+                        to: 1,
+                        emailIds: 1,
+                        emailContent: 1,
+                    }
+                },
+            ];
+
+            const counter = await EmailSentModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+
+            response.result.data = await EmailSentModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ]);
+
+            if (response.result.data.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
 }
