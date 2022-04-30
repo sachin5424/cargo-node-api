@@ -19,7 +19,7 @@ import {jwtTokenPermission} from './jwt'
 router.post("/login", customerLoginValidation, UserController.login);
 router.get("/email-verify/:email", UserController.verifyEmail);
 router.post("/forget-pasword", UserController.genForgetPasswordUrl);
-router.get("/reset-password/:key", UserController.resetPasswordForm);
+router.get("/reset-password/:key", (req, res)=>{res.send("hello")});// UserController.resetPasswordForm);
 router.post("/reset-password/:key", customerResetPasswordValidation, UserController.resetPAssword);
 // router.post('/auth/user-register', userRegisterValidation,validationMiddleware,userRegister);
 router.post('/auth/user-register', userRegisterValidation,validationMiddleware,userRegister);
