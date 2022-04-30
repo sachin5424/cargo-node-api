@@ -27,7 +27,7 @@ const CustomerSchema = new Schema({
         ref: "taluk",
     },
     zipcode: String,
-
+    gender:String,
     isDeleted: {
         type: Boolean,
         default: false
@@ -36,6 +36,10 @@ const CustomerSchema = new Schema({
         type: Boolean,
         default: false
     },
+    emailOtp:{
+        type: Number,
+        
+    }
 }, { timestamps: true });
 
 
