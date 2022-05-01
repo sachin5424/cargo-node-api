@@ -85,7 +85,9 @@ class UserController {
         callbackUrl,
         callbackUrlText
       });
-      res.setHeader('Content-Type', 'text/html').send(html);
+      res.
+      /* setHeader('Content-Type', 'text/html'). */
+      send(html);
     } catch (e) {
       return res.status(400).send({
         message: 'Error try again!' + e.message
