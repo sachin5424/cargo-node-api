@@ -225,7 +225,7 @@ export default class Service {
 
             await tplData.save();
 
-            response.statusCode = 400;
+            response.statusCode = 200;
             response.message = "Email sent";
             response.emailIds = emailIds;
 

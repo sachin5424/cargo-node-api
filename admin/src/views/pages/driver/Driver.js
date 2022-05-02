@@ -5,6 +5,7 @@ import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/driver";
+import emailService from "../../../services/email";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
@@ -14,7 +15,7 @@ import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
 import moment from "moment";
 import Wallet from "./Wallet";
-import {AddForm as SendEmail} from "../email/Email";
+import {AddForm as Email} from "../email/Email";
 
 export const modules = {
     view: util.getModules('viewDriver'),
@@ -36,6 +37,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     const [loading, setLoading] = useState(true);
     // const [vehicles, setVehicles] = useState([]);
     const [serviceType, setServiceType] = useState([]);
+    const [templates, setTemplates] = useState();
     const [filters, setFilters] = useState([
         {
             type: 'dropdown',
@@ -198,6 +200,11 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
         list();
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
         // vehicleService.listAll({}, 'viewVehicle').then(res => { setVehicles(res.result.data || []) });
+        emailService.listAllTeplates('viewEmailTemplate').then(res => {
+            setTemplates([...(res.result.data || []), { _id: 'custom', subject: 'Custom' }]);
+        }).catch(err => {
+            AntdMsg('Email templates are not loaded! Contact super admin if you have any permission error', 'error');
+        });
         commonService.listServiceType().then(res => { setServiceType(res.result.data); });
     }, []);
 
@@ -224,7 +231,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
             }
             <AddForm ref={formRef} {...{ list, sdt, setVisibleParent, emailModalRef }} />
             <WalletModal ref={walletModalRef} />
-            <EmailModal ref={emailModalRef} />
+            <Email ref={emailModalRef} {...{templates}} />
         </>
     );
 }
@@ -342,7 +349,9 @@ export const AddForm = forwardRef((props, ref) => {
                 width={1200}
                 className="app-modal-body-overflow"
                 footer={[
-                    <Button key="sendEmail" type="dashed" onClick={()=>{emailModalRef.current.openForm(data)}}>Send Email</Button>,
+                    <Button key="sendEmail" type="dashed" onClick={()=>{emailModalRef.current.openForm(
+                        {outerData: {_id: data._id, state: data.state ,district: data.district, taluk: data.taluk, to: 'manyDrivers', emailIds: [data.email]}}
+                    )}}>Send Email</Button>,
                     <Button key="cancel" onClick={() => { handleVisible(false); }}>Cancel</Button>,
                     <Button key="save" type="primary" onClick={save}>Save</Button>,
                 ]}
@@ -520,43 +529,6 @@ export const WalletModal = forwardRef((props, ref) => {
                 className="app-modal-body-overflow"
             >
                 <Wallet driverId={data._id} />
-            </Modal>
-        </>
-    );
-});
-
-export const EmailModal = forwardRef((props, ref) => {
-    const [visible, setVisible] = useState(false);
-    const [data, setData] = useState({});
-
-    const formRef = useRef();
-
-    const handleVisible = (val) => {
-        setVisible(val);
-    }
-
-    useImperativeHandle(ref, () => ({
-        openForm(dt) {
-            setData({ ...dt });
-            handleVisible(true);
-            // formRef.current.openForm({outerData: {...data, to: 'manyDrivers', emailIds: [data._id]}});
-        }
-    }));
-
-    return (
-        <>
-            <Modal
-                title="Send Email"
-                style={{ top: 50 }}
-                visible={visible}
-                onCancel={() => { handleVisible(false); }}
-                destroyOnClose
-                maskClosable={false}
-                width={1200}
-                footer={null}
-                className="app-modal-body-overflow"
-            >
-                {/* <SendEmail ref={formRef} /> */}
             </Modal>
         </>
     );

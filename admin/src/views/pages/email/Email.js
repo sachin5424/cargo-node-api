@@ -122,8 +122,8 @@ export default function Email() {
     );
 }
 
-const AddForm = forwardRef((props, ref) => {
-    const { list, templates, sdt, customers, drivers, admins, serviceTypes } = props;
+export const AddForm = forwardRef((props, ref) => {
+    const { list, templates = [], sdt = [], customers = [], drivers = [], admins = [], serviceTypes = [] } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     let [data, setData] = useState({});
@@ -133,6 +133,7 @@ const AddForm = forwardRef((props, ref) => {
     const [userSelectMode, setUserSelectMode] = useState('multiple');
     const [districts, setDistricts] = useState([]);
     const [taluks, setTaluks] = useState([]);
+    const [outerCall, setOuterCall] = useState(false);
 
     const handleVisible = (val) => {
         setVisible(val);
@@ -140,6 +141,10 @@ const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
+            if (dt.outerData) {
+                setOuterCall(true);
+                dt = dt.outerData;
+            }
             setData(dt ? { ...dt } : { deletable: true });
             handleVisible(true);
             if (!dt?._id && addAccess) {
@@ -160,6 +165,9 @@ const AddForm = forwardRef((props, ref) => {
 
     const save = () => {
         setAjxRequesting(true);
+        if (outerCall) {
+            delete data._id;
+        }
         service.save(data, addAccess).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
@@ -207,7 +215,7 @@ const AddForm = forwardRef((props, ref) => {
     }, [data.to]);
 
     useEffect(() => {
-        if(!data._id){
+        if (!data._id) {
             handleChange(null, 'emailIds');
         }
     }, [users]);
@@ -269,7 +277,7 @@ const AddForm = forwardRef((props, ref) => {
                 onCancel={() => { handleVisible(false); }}
                 destroyOnClose
                 maskClosable={false}
-                width={1200}
+                width={outerCall ? 800 : 1200}
                 className="app-modal-body-overflow"
             >
                 <Spin spinning={ajxRequesting} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>
@@ -286,81 +294,88 @@ const AddForm = forwardRef((props, ref) => {
                                     />
                                 </div>
                                 <div></div>
-                                <div className="col-md-4 form-group">
-                                    <label className="req">State</label>
-                                    <AntdSelect
-                                        placeholder="All States"
-                                        allowClear
-                                        options={sdt.map(v => ({ value: v._id, label: v.name }))}
-                                        value={data.state}
-                                        onChange={v => { handleChange(v, 'state') }}
-                                    />
-                                </div>
-                                <div className="col-md-4 form-group">
-                                    <label className="req">District</label>
-                                    <AntdSelect
-                                        placeholder="All Districts"
-                                        allowClear
-                                        options={districts || []}
-                                        value={data.district}
-                                        onChange={v => { handleChange(v, 'district') }}
-                                    />
-                                </div>
-                                <div className="col-md-4 form-group">
-                                    <label className="req">Taluk</label>
-                                    <AntdSelect
-                                        placeholder="All Taluks"
-                                        allowClear
-                                        options={taluks || []}
-                                        value={data.taluk}
-                                        onChange={v => { handleChange(v, 'taluk') }}
-                                    />
-                                </div>
-                                <div></div>
-                                <div className="col-md-4 form-group">
-                                    <label className="req">Send To</label>
-                                    <AntdSelect
-                                        options={[
-                                            { _id: 'manyCustomers', title: 'Many Customers' },
-                                            { _id: 'manyDrivers', title: 'Many Drivers' },
-                                            { _id: 'manyAdmins', title: 'Many Admins' },
-                                            { _id: 'allCustomers', title: 'All Customers' },
-                                            { _id: 'allDrivers', title: 'All Drivers' },
-                                            { _id: 'allAdmins', title: 'All Admins' },
-                                            { _id: 'custom', title: 'Custom' }
-                                        ]}
-                                        value={data.to}
-                                        onChange={v => { handleChange(v, 'to') }}
-                                    />
-                                </div>
                                 {
-                                    ['manyDrivers', 'allDrivers'].includes(data.to)
-                                        ? <div className="col-md-4 form-group">
-                                            <label className="req">Service Type</label>
-                                            <AntdSelect
-                                                allowClear
-                                                placeholder="All Service Types"
-                                                options={serviceTypes || []}
-                                                value={data.serviceType}
-                                                onChange={v => { handleChange(v, 'serviceType') }}
-                                            />
-                                        </div>
+                                    !outerCall
+                                        ? <>
+                                            <div className="col-md-4 form-group">
+                                                <label className="req">State</label>
+                                                <AntdSelect
+                                                    placeholder="All States"
+                                                    allowClear
+                                                    options={sdt.map(v => ({ value: v._id, label: v.name }))}
+                                                    value={data.state}
+                                                    onChange={v => { handleChange(v, 'state') }}
+                                                />
+                                            </div>
+                                            <div className="col-md-4 form-group">
+                                                <label className="req">District</label>
+                                                <AntdSelect
+                                                    placeholder="All Districts"
+                                                    allowClear
+                                                    options={districts || []}
+                                                    value={data.district}
+                                                    onChange={v => { handleChange(v, 'district') }}
+                                                />
+                                            </div>
+                                            <div className="col-md-4 form-group">
+                                                <label className="req">Taluk</label>
+                                                <AntdSelect
+                                                    placeholder="All Taluks"
+                                                    allowClear
+                                                    options={taluks || []}
+                                                    value={data.taluk}
+                                                    onChange={v => { handleChange(v, 'taluk') }}
+                                                />
+                                            </div>
+                                            <div></div>
+                                            <div className="col-md-4 form-group">
+                                                <label className="req">Send To</label>
+                                                <AntdSelect
+                                                    options={[
+                                                        { _id: 'manyCustomers', title: 'Many Customers' },
+                                                        { _id: 'manyDrivers', title: 'Many Drivers' },
+                                                        { _id: 'manyAdmins', title: 'Many Admins' },
+                                                        { _id: 'allCustomers', title: 'All Customers' },
+                                                        { _id: 'allDrivers', title: 'All Drivers' },
+                                                        { _id: 'allAdmins', title: 'All Admins' },
+                                                        { _id: 'custom', title: 'Custom' }
+                                                    ]}
+                                                    value={data.to}
+                                                    onChange={v => { handleChange(v, 'to') }}
+                                                />
+                                            </div>
+                                            {
+                                                ['manyDrivers', 'allDrivers'].includes(data.to)
+                                                    ? <div className="col-md-4 form-group">
+                                                        <label className="req">Service Type</label>
+                                                        <AntdSelect
+                                                            allowClear
+                                                            placeholder="All Service Types"
+                                                            options={serviceTypes || []}
+                                                            value={data.serviceType}
+                                                            onChange={v => { handleChange(v, 'serviceType') }}
+                                                        />
+                                                    </div>
+                                                    : null
+                                            }
+                                            {
+                                                ['manyCustomers', 'manyDrivers', 'manyAdmins', 'custom'].includes(data.to)
+                                                    ? <div className="col-md-12 form-group">
+                                                        <label className="req">{data.to === 'custom' ? 'Enter Emails' : 'Select Users'}</label>
+                                                        <AntdSelect
+                                                            mode={userSelectMode}
+                                                            placeholder={data.to === 'custom' ? 'Enter Emails' : 'Select Users'}
+                                                            options={users || []}
+                                                            value={data.emailIds}
+                                                            onChange={v => { handleChange(v, 'emailIds') }}
+                                                        />
+                                                    </div>
+                                                    : null
+                                            }
+                                        </>
                                         : null
                                 }
-                                {
-                                    ['manyCustomers', 'manyDrivers', 'manyAdmins', 'custom'].includes(data.to)
-                                        ? <div className="col-md-12 form-group">
-                                            <label className="req">{data.to === 'custom' ? 'Enter Emails' : 'Select Users'}</label>
-                                            <AntdSelect
-                                                mode={userSelectMode}
-                                                placeholder={data.to === 'custom' ? 'Enter Emails' : 'Select Users'}
-                                                options={users || []}
-                                                value={data.emailIds}
-                                                onChange={v => { handleChange(v, 'emailIds') }}
-                                            />
-                                        </div>
-                                        : null
-                                }
+
 
 
                                 {

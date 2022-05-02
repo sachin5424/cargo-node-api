@@ -4,16 +4,19 @@ import EmailTemplateModel from '../data-base/models/emailTemplate';
 export const templateValidation = [
 
     check('_id')
-        .optional()
-        .notEmpty().withMessage("Provide / Select a valid data")
+        // .optional()
+        // .notEmpty().withMessage("Provide / Select a valid data")
         .custom(async (v) => {
-            try {
-                const r = await EmailTemplateModel.findOne({_id: v});
-                if (!r) {
-                    throw new Error("Data not found");
-                }
-            } catch (e) {
-                throw new Error("This data does not exit. Please check or refresh");
+            // try {
+            //     const r = await EmailTemplateModel.findOne({_id: v});
+            //     if (!r) {
+            //         throw new Error("Data not found");
+            //     }
+            // } catch (e) {
+            //     throw new Error("This data does not exit. Please check or refresh");
+            // }
+            if(v){
+                throw new Error("You can not edit this");
             }
         }),
 
@@ -46,7 +49,7 @@ export const templateValidation = [
 
 export const sendEmailValidation = [
 
-    check('template')
+    check('emailTemplate')
         .notEmpty().withMessage("The 'Template' field is required")
         .custom(async (value, { req }) => {
             if (value === 'custom') {
