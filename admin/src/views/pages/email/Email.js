@@ -141,7 +141,7 @@ export const AddForm = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         openForm(dt) {
-            if (dt.outerData) {
+            if (dt?.outerData) {
                 setOuterCall(true);
                 dt = dt.outerData;
             }
