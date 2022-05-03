@@ -667,6 +667,9 @@ export default class Service {
                 ],
                 vehicleId: typeof query.key === 'number' ? query.key : '',
                 serviceType: query.serviceType ? mongoose.Types.ObjectId(query.serviceType) : '',
+                state: query.state ? mongoose.Types.ObjectId(query.state) : '',
+                district: query.district ? mongoose.Types.ObjectId(query.district) : '',
+                taluk: query.taluk ? mongoose.Types.ObjectId(query.taluk) : '',
                 ...getAdminFilter()
             };
 
