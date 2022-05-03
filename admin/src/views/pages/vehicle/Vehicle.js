@@ -37,6 +37,9 @@ export default function Vehicle() {
     const [colors, setColors] = useState([]);
     const [sdt, setSdt] = useState([]);
     const [filters, setFilters] = useState([]);
+    const [states, setStates] = useState([]);
+    // const [districts, setDistricts] = useState([]);
+    // const [taluks, setTaluks] = useState([]);
 
     const formRef = useRef();
     const driverFormRef = useRef();
@@ -222,6 +225,12 @@ export default function Vehicle() {
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
     }, []);
 
+    useEffect(()=>{
+        if(sdt.length){
+            setStates(sdt.map(v=> ({_id: v._id, name: v.name, districts: v.districts})));
+        }
+    }, [sdt]);
+
     useEffect(() => {
         setFilters([
             {
@@ -237,9 +246,16 @@ export default function Vehicle() {
                 placeholder: 'Driver Status',
                 className: "w200 mx-1",
                 options: [{ value: true, label: "Approved" }, { value: false, label: "Not Approved" }/* , { value: 'withoutDriver', label: "Without Driver" } */]
-            }
+            },
+            {
+                type: 'dropdown',
+                key: 'state',
+                placeholder: 'State',
+                className: "w200 mx-1",
+                options: states
+            },
         ]);
-    }, [serviceType]);
+    }, [serviceType, states]);
 
     return (
         <>
