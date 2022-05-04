@@ -14,7 +14,7 @@ import util from "../../../utils/util";
 export const modules = {
     view: util.getModules('viewFareManagement'),
     add: util.getModules('addFareManagement'),
-    edit: util.getModules('addFareManagement'),
+    edit: util.getModules('editFareManagement'),
     delete: util.getModules('deleteFareManagement'),
 };
 

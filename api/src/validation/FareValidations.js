@@ -5,6 +5,50 @@ import StateModel from '../data-base/models/state';
 import DistrictModel from '../data-base/models/district';
 import TalukModel from '../data-base/models/taluk';
 import VehicleCategoryModel from '../data-base/models/vehicaleCategoryModel';
+import FarePackageModel from '../data-base/models/farePackage';
+import ServiceTypeModel from '../data-base/models/serviceType';
+
+export const packageValidations = [
+
+    check('_id')
+        .optional()
+        .custom(async (v) => {
+            try {
+                const r = await FarePackageModel.findById(v);
+                if (!r) {
+                    throw new Error("Data not found");
+                }
+            } catch (e) {
+                throw new Error("This data does not exit. Please check or refresh");
+            }
+        }),
+
+    check('serviceType')
+        .notEmpty().withMessage("The 'Service Type' field is required")
+        .custom(async (value, { req }) => {
+            const result = await ServiceTypeModel.findById(value);
+            if (!result) {
+                throw new Error("Invalid service type");
+            }
+        }),
+
+    check('name')
+        .notEmpty().withMessage("The 'Name' field is required")
+        .isString().withMessage("The 'Name' field must be valid"),
+
+    check('distance')
+        .notEmpty().withMessage("The 'Distance' field is required")
+        .isNumeric().withMessage("The 'Distance' field must be numeric"),
+
+    check('time')
+        .notEmpty().withMessage("The 'Time' field is required")
+        .isNumeric().withMessage("The 'Time' field must be numeric"),
+
+    check('isActive').
+        notEmpty().withMessage("The 'active' field is required")
+        .toBoolean(1 ? true : false),
+
+];
 
 export const fareManagementValidations = [
 

@@ -23,6 +23,7 @@ import Notification, {modules as notificationModules} from './views/pages/notifi
 import State, {modules as stateModules} from './views/pages/sdt/State';
 import District, {modules as districtModules} from './views/pages/sdt/District';
 import Taluk, {modules as talukModules} from './views/pages/sdt/Taluk';
+import Package, {modules as packageModules} from './views/pages/fare/Package';
 
 const allModules = util.getModules();
 const isSuperAdmin = util.isSuperAdmin();
@@ -77,6 +78,7 @@ const routes = {
             modules: [taxiFareManagementModules.view],
             icon: () => <CarOutlined />,
             subMenus: [
+                { name: 'Rental Package', url: '/rental-package', component: Package, modules: [packageModules.view] },
                 { name: 'Taxi Fare Management', url: '/taxi', component: TaxiFareManagement, modules: [taxiFareManagementModules.view] },
                 { name: 'Cargo Fare Management', url: '/cargo', component: ()=>{return TaxiFareManagement({activeServiceType: 'cargo'})}, modules: [taxiFareManagementModules.view] },
             ].filter(v => isSuperAdmin || v.modules?.includesAny(allModules)),
