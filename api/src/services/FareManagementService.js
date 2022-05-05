@@ -186,7 +186,8 @@ export default class Service {
                         pipeline: [
                             {
                                 $project: {
-                                    name: 1
+                                    name: 1,
+                                    key: 1
                                 }
                             }
                         ]

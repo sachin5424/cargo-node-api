@@ -40,7 +40,7 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
         {
             title: 'Fares',
             dataIndex: '',
-            width: 200,
+            width: 260,
             render: (id, row) => (
                 <>
                     <table className="text-uppercase">
@@ -53,10 +53,17 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
                                 <td>Booking Fare</td>
                                 <td>: {row.bookingFare}</td>
                             </tr>
-                            <tr className="text-info">
-                                <td>Per Minute Fare</td>
-                                <td>: {row.perMinuteFare}</td>
-                            </tr>
+                            {
+                                ["taxi-rentals", "cargo-rentals"].includes(row?.rideTypeDetails?.key)
+                                    ? <tr className="text-info">
+                                        <td>Extra Per Minute Charge</td>
+                                        <td>: {row.extraPerMinuteCharge}</td>
+                                    </tr>
+                                    : <tr className="text-info">
+                                        <td>Per Minute Fare</td>
+                                        <td>: {row.perMinuteFare}</td>
+                                    </tr>
+                            }
                         </tbody>
                     </table>
                 </>
