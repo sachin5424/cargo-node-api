@@ -133,8 +133,20 @@ export const fareManagementValidations = [
             }
         }),
 
+    check('package')
+        .optional()
+        .custom(async (value, {req})=>{
+            const result = await RideTypeModel.findById(req.body.rideType);
+            if (!result) {
+                throw new Error("Invalid ride type");
+            } else if (["taxi-rentals", "cargo-rentals"].includes(result.key)) {
+                if (!value) {
+                    throw new Error("Package Field are required");
+                }
+            }
+        }),
+
     check('baseFare')
-        .notEmpty().withMessage("The 'Base Fare' field is required")
         .isNumeric().withMessage("The 'Base Fare' field must be numeric"),
 
     check('bookingFare')
@@ -142,8 +154,32 @@ export const fareManagementValidations = [
         .isNumeric().withMessage("The 'Booking Fare' field must be numeric"),
 
     check('perMinuteFare')
-        .notEmpty().withMessage("The 'Per Minute Fare' field is required")
-        .isNumeric().withMessage("The 'Per Minute Fare' field must be numeric"),
+        .optional()
+        .isNumeric().withMessage("The 'Per Minute Fare' field must be numeric")
+        .custom(async (value, {req})=>{
+            const result = await RideTypeModel.findById(req.body.rideType);
+            if (!result) {
+                throw new Error("Invalid ride type");
+            } else if (! ["taxi-rentals", "cargo-rentals"].includes(result.key)) {
+                if (!value) {
+                    throw new Error("Per Minute Fare are required");
+                }
+            }
+        }),
+
+    check('extraPerMinuteCharge')
+        .optional()
+        .isNumeric().withMessage("The 'Extra Per Minute Charge' field must be numeric")
+        .custom(async (value, {req})=>{
+            const result = await RideTypeModel.findById(req.body.rideType);
+            if (!result) {
+                throw new Error("Invalid ride type");
+            } else if (["taxi-rentals", "cargo-rentals"].includes(result.key)) {
+                if (!value) {
+                    throw new Error("Extra Per Minute Charges are required");
+                }
+            }
+        }),
 
     check('cancelCharge')
         .notEmpty().withMessage("The 'Cancel Charge' field is required")
@@ -166,11 +202,31 @@ export const fareManagementValidations = [
             const result = await RideTypeModel.findById(req.body.rideType);
             if (!result) {
                 throw new Error("Invalid ride type");
-            } else if (["taxi-pickup-drop", "taxi-rentals", "cargo-daily-ride", "cargo-rentals"].includes(result.key)) {
+            } else if (["taxi-pickup-drop", "cargo-daily-ride"].includes(result.key)) {
                 if (!value) {
                     throw new Error("Per KM Charges are required");
                 } else if (!Array.isArray(value)) {
                     throw new Error("Per KM Charges are not valid");
+                } else {
+                    value.forEach((v, i) => {
+                        if ( !(parseFloat(i === 0 ? 0 : (value[i - 1].maxKM)) < parseFloat(v.maxKM)) || !v.charge ) {
+                            throw new Error("All maxKM & charges of 'Per KM Charges' must be valid");
+                        }
+                    });
+                }
+            }
+        }),
+
+    check('extraPerKMCharges')
+        .custom(async (value, { req }) => {
+            const result = await RideTypeModel.findById(req.body.rideType);
+            if (!result) {
+                throw new Error("Invalid ride type");
+            } else if (["taxi-rentals", "cargo-rentals"].includes(result.key)) {
+                if (!value) {
+                    throw new Error("Extra Per KM Charges are required");
+                } else if (!Array.isArray(value)) {
+                    throw new Error("Extra Per KM Charges are not valid");
                 } else {
                     value.forEach((v, i) => {
                         if ( !(parseFloat(i === 0 ? 0 : (value[i - 1].maxKM)) < parseFloat(v.maxKM)) || !v.charge ) {

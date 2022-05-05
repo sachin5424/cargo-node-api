@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Popconfirm, Input, Modal, Tag, Spin, Image } from "antd";
+import { Button, Popconfirm, Input, Modal, Tag, Spin } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/fare";

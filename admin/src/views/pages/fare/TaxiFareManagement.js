@@ -32,6 +32,7 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
     const [serviceTypes, setServiceTypes] = useState([]);
     const [rideTypes, setRideTypes] = useState([]);
     const [filters, setFilters] = useState([]);
+    const [packages, setPackages] = useState([]);
 
     const formRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, serviceTypeKey: activeServiceType });
@@ -219,11 +220,12 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
         commonService.listServiceType().then(res => setServiceTypes(res.result.data || []));
         rideService.listAllRideType({}, 'viewRideType').then(res => setRideTypes(res.result.data || []));
+        service.listPackageAll({}, 'ignoreModule').then(res => { setPackages(res.result.data || []) });
     }, []);
 
     useEffect(() => {
-        const tempRT =rideTypes.filter(v => v.serviceType?.key === activeServiceType);
-        if(tempRT.length){
+        const tempRT = rideTypes.filter(v => v.serviceType?.key === activeServiceType);
+        if (tempRT.length) {
             setFilters([...filters, {
                 type: 'dropdown',
                 key: 'rideType',
@@ -240,15 +242,15 @@ export default function TaxiFareManagement({ activeServiceType = 'taxi' }) {
                 <span>Fare List</span>
             </div>
             <div className="m-2 border p-2">
-                <MyTable {...{ data, columns, filters,  parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Search', addNew: addAccess }} />
+                <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Search', addNew: addAccess }} />
             </div>
-            <AddForm ref={formRef} {...{ list, sdt, activeServiceType, serviceTypes, rideTypes }} />
+            <AddForm ref={formRef} {...{ list, sdt, activeServiceType, serviceTypes, rideTypes, packages }} />
         </>
     );
 }
 
 const AddForm = forwardRef((props, ref) => {
-    const { list, sdt, activeServiceType, serviceTypes, rideTypes } = props;
+    const { list, sdt, activeServiceType, serviceTypes, rideTypes, packages } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
     const [data, setData] = useState({});
@@ -267,6 +269,7 @@ const AddForm = forwardRef((props, ref) => {
             if (!dt) {
                 dt = { isActive: true, serviceType: serviceTypes?.find(v => v.key === activeServiceType)?._id };
                 dt.perKMCharges = [{}];
+                dt.extraPerKMCharges = [{}];
             }
             setData({ ...dt });
             handleVisible(true);
@@ -419,6 +422,19 @@ const AddForm = forwardRef((props, ref) => {
                                         onChange={v => { handleChange(v, 'taluk') }}
                                     />
                                 </div>
+                                {
+                                    ["taxi-rentals", "cargo-rentals"].includes(activeRideTypes?.find(v => v._id === data.rideType)?.key)
+                                        ? <div className="col-md-4 form-group">
+                                            <label className="req">Package</label>
+                                            <AntdSelect
+                                                options={packages?.filter(v => v?.serviceTypeDetails?.key === activeServiceType)}
+                                                value={data.package}
+                                                onChange={v => { handleChange(v, 'package') }}
+                                            />
+                                        </div>
+                                        : null
+                                }
+
                                 <div className="col-md-4 form-group">
                                     <label className="req">Base Fare</label>
                                     <Input value={data.baseFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'baseFare')} />
@@ -427,10 +443,17 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">Booking Fare</label>
                                     <Input value={data.bookingFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'bookingFare')} />
                                 </div>
-                                <div className="col-md-4 form-group">
-                                    <label className="req">Per Minute Fare</label>
-                                    <Input value={data.perMinuteFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'perMinuteFare')} />
-                                </div>
+                                {
+                                    ["taxi-rentals", "cargo-rentals"].includes(activeRideTypes?.find(v => v._id === data.rideType)?.key)
+                                        ? <div className="col-md-4 form-group">
+                                            <label className="req">Extra Per Minute Charge</label>
+                                            <Input value={data.extraPerMinuteCharge || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'extraPerMinuteCharge')} />
+                                        </div>
+                                        : <div className="col-md-4 form-group">
+                                            <label className="req">Per Minute Fare</label>
+                                            <Input value={data.perMinuteFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'perMinuteFare')} />
+                                        </div>
+                                }
                                 <div></div>
                                 <div className="col-md-4 form-group">
                                     <label className="req">Cancel Charge</label>
@@ -449,15 +472,18 @@ const AddForm = forwardRef((props, ref) => {
                                         onChange={v => { handleChange(v, 'adminCommissionType') }}
                                     />
                                 </div>
+
                                 <div className="col-md-4 form-group">
                                     <label className="req">Admin Commission Value</label>
                                     <Input value={data.adminCommissionValue || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'adminCommissionValue')} />
                                 </div>
                                 {
-                                    
-                                    ["taxi-pickup-drop", "taxi-rentals", "cargo-daily-ride", "cargo-rentals"].includes(activeRideTypes?.find(v => v._id === data.rideType)?.key)
-                                        ? <PerKMCharges {...{ perKMCharges: data.perKMCharges, handleChange }} />
-                                        : null
+
+                                    ["taxi-pickup-drop", "cargo-daily-ride"].includes(activeRideTypes?.find(v => v._id === data.rideType)?.key)
+                                        ? <PerKMCharges {...{ perKMCharges: data.perKMCharges, parentKay: 'perKMCharges', handleChange }} />
+                                        : ["taxi-rentals", "cargo-rentals"].includes(activeRideTypes?.find(v => v._id === data.rideType)?.key)
+                                            ? <PerKMCharges {...{ perKMCharges: data.extraPerKMCharges, parentKay: 'extraPerKMCharges', handleChange }} />
+                                            : null
                                 }
 
                             </div>
@@ -469,11 +495,15 @@ const AddForm = forwardRef((props, ref) => {
     );
 });
 
-function PerKMCharges({ perKMCharges: data, handleChange }) {
+function PerKMCharges({ perKMCharges: data, parentKay, handleChange }) {
+
+    useEffect(() => {
+        console.log(parentKay, parentKay === 'extraPerKMCharges');
+    }, [parentKay])
 
     return (
         <>
-            <div><Divider orientation="left">Per KM Charge</Divider></div>
+            <div><Divider orientation="left">{parentKay === 'extraPerKMCharges' ? "Extra Per KM Charge" : "Per KM Charge"}</Divider></div>
             <div className="col-md-2 form-group">
                 <label className="req">Min KM</label>
             </div>
@@ -491,17 +521,17 @@ function PerKMCharges({ perKMCharges: data, handleChange }) {
                             <Input placeholder="Min KM" value={i === 0 ? 0 : (data[i - 1].maxKM)} disabled />
                         </div>
                         <div className="col-md-2 form-group">
-                            <Input placeholder="Max KM" value={v.maxKM || ''} onChange={(e) => { handleChange(util.handleInteger(e.target.value), `perKMCharges.${i}.maxKM`) }} />
+                            <Input placeholder="Max KM" value={v.maxKM || ''} onChange={(e) => { handleChange(util.handleInteger(e.target.value), `${parentKay}.${i}.maxKM`) }} />
                         </div>
                         <div className="col-md-4 form-group">
-                            <Input placeholder="Per KM Charge" value={v.charge || ''} onChange={(e) => { handleChange(util.handleFloat(e.target.value), `perKMCharges.${i}.charge`) }} />
+                            <Input placeholder="Per KM Charge" value={v.charge || ''} onChange={(e) => { handleChange(util.handleFloat(e.target.value), `${parentKay}.${i}.charge`) }} />
                         </div>
                         <div className="col-md-4 form-group">
                             {
                                 i + 1 === data.length
                                     ? <Button type="dashed" onClick={() => {
                                         if (v.maxKM && v.maxKM > (i === 0 ? 0 : (data[i - 1].maxKM)) && v.charge) {
-                                            handleChange([...data, {}], 'perKMCharges');
+                                            handleChange([...data, {}], parentKay);
                                         } else {
                                             AntdMsg(`Max KM must be greater than ${i === 0 ? 0 : (data[i - 1].maxKM)} and Per KM charge is required`, 'error');
                                         }
@@ -512,7 +542,7 @@ function PerKMCharges({ perKMCharges: data, handleChange }) {
                                 i + 1 === data.length && i !== 0
                                     ? <Button type="dashed" className="mx-2" danger onClick={() => {
                                         data.pop();
-                                        handleChange([...data], 'perKMCharges');
+                                        handleChange([...data], parentKay);
                                     }}>Remove</Button>
                                     : null
                             }

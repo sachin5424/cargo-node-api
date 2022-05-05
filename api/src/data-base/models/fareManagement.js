@@ -6,6 +6,10 @@ const FareManagementSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "serviceType",
     },
+    package: {
+        type: Schema.Types.ObjectId,
+        ref: "package",
+    },
     rideType: {
         type: Schema.Types.ObjectId,
         ref: "rideType",
@@ -36,6 +40,7 @@ const FareManagementSchema = new mongoose.Schema({
         default: 0
     },
     perMinuteFare: Number,
+    extraPerMinuteCharge: Number,
     cancelCharge: {
         type: Number,
         default: 0
@@ -55,6 +60,10 @@ const FareManagementSchema = new mongoose.Schema({
         default: 10
     },
     perKMCharges: [{
+        maxKM: Number,
+        charge: Number
+    }],
+    extraPerKMCharges: [{
         maxKM: Number,
         charge: Number
     }],

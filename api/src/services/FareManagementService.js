@@ -260,6 +260,7 @@ export default class Service {
                 {
                     "$project": {
                         serviceType: 1,
+                        package: 1,
                         rideType: 1,
                         vehicleCategory: 1,
                         state: 1,
@@ -279,6 +280,8 @@ export default class Service {
                         stateDetails: 1,
                         districtDetails: 1,
                         talukDetails: 1,
+                        extraPerMinuteCharge: 1,
+                        extraPerKMCharges: 1
                     }
                 },
             ];
@@ -317,6 +320,7 @@ export default class Service {
             const tplData = _id ? await FareManagementModel.findById(_id) : new FareManagementModel();
 
             tplData.serviceType = data.serviceType;
+            tplData.package = data.package;
             tplData.rideType = data.rideType;
             tplData.vehicleCategory = data.vehicleCategory;
             tplData.state = data.state;
@@ -325,11 +329,13 @@ export default class Service {
             tplData.baseFare = data.baseFare;
             tplData.bookingFare = data.bookingFare;
             tplData.perMinuteFare = data.perMinuteFare;
+            tplData.extraPerMinuteCharge = data.extraPerMinuteCharge;
             tplData.cancelCharge = data.cancelCharge;
             tplData.waitingCharge = data.waitingCharge;
             tplData.adminCommissionType = data.adminCommissionType;
             tplData.adminCommissionValue = data.adminCommissionValue;
             tplData.perKMCharges = data.perKMCharges;
+            tplData.extraPerKMCharges = data.extraPerKMCharges;
 
             await tplData.save();
 
