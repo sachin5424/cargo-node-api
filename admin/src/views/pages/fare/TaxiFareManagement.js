@@ -443,31 +443,31 @@ const AddForm = forwardRef((props, ref) => {
                                 }
 
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Base Fare</label>
+                                    <label className="req">Base Fare(In ₹)</label>
                                     <Input value={data.baseFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'baseFare')} />
                                 </div>
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Booking Fare</label>
+                                    <label className="req">Booking Fare(In ₹)</label>
                                     <Input value={data.bookingFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'bookingFare')} />
                                 </div>
                                 {
                                     ["taxi-rentals", "cargo-rentals"].includes(activeRideTypes?.find(v => v._id === data.rideType)?.key)
                                         ? <div className="col-md-4 form-group">
-                                            <label className="req">Extra Per Minute Charge</label>
+                                            <label className="req">Extra Per Minute Charge(In ₹)</label>
                                             <Input value={data.extraPerMinuteCharge || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'extraPerMinuteCharge')} />
                                         </div>
                                         : <div className="col-md-4 form-group">
-                                            <label className="req">Per Minute Fare</label>
+                                            <label className="req">Per Minute Fare(In ₹)</label>
                                             <Input value={data.perMinuteFare || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'perMinuteFare')} />
                                         </div>
                                 }
                                 <div></div>
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Cancel Charge</label>
+                                    <label className="req">Cancel Charge(In ₹)</label>
                                     <Input value={data.cancelCharge || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'cancelCharge')} />
                                 </div>
                                 <div className="col-md-4 form-group">
-                                    <label className="req">Waiting Charge(Per Minute)</label>
+                                    <label className="req">Waiting Charge(Per Minute)(In ₹)</label>
                                     <Input value={data.waitingCharge || ''} onChange={e => handleChange(util.handleFloat(e.target.value), 'waitingCharge')} />
                                 </div>
                                 <div></div>
@@ -518,7 +518,7 @@ function PerKMCharges({ perKMCharges: data, parentKay, handleChange }) {
                 <label className="req">Max KM</label>
             </div>
             <div className="col-md-4 form-group">
-                <label className="req">Per KM Charge</label>
+                <label className="req">Per KM Charge(In ₹)</label>
             </div>
             <div></div>
             {
