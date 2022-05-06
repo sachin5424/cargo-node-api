@@ -139,6 +139,10 @@ form fieldset:disabled .ant-upload-picture-card-wrapper .ant-upload-list-item-ca
   top: -3px!important;
 }
 
+.ant-pagination{
+  display: inline-flex;
+}
+
 /* fieldset {
   padding: 10px!important;
   align-items: center;

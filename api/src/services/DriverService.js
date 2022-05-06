@@ -140,26 +140,27 @@ export default class Service {
         };
 
         try {
+            query.key = typeof parseInt(query.key) === 'number' && !isNaN(parseInt(query.key)) ? parseInt(query.key) : query.key;
             const search = {
                 _id: query._id,
                 isDeleted: false,
-                // name: {
-                //     $regex: '.*' + (query?.key || '') + '.*'
-                // },
                 $or: [
                     {
-                        firstName: { $regex: '.*' + (query?.key || '') + '.*' }
+                        firstName: typeof query.key === 'string' ? { $regex: '.*' + (query?.key || '') + '.*' } : ''
                     },
                     {
-                        lastName: { $regex: '.*' + (query?.key || '') + '.*' }
+                        lastName: typeof query.key === 'string' ? { $regex: '.*' + (query?.key || '') + '.*' } : ''
                     },
                 ],
+                driverId: typeof query.key === 'number' ? query.key : '',
                 isApproved: query.isApproved ? (query.isApproved === '1' ? true : false) : '',
                 vehicle: query.vehicleId ? mongoose.Types.ObjectId(query.vehicleId) : '',
                 ...getAdminFilter()
             };
 
             clearSearch(search);
+
+            console.log(search);
 
             const $aggregate = [
                 { $match: search },
@@ -181,7 +182,58 @@ export default class Service {
                 },
                 // { $unwind: "$walletDetails" },
                 {
+                    $lookup: {
+                        from: 'states',
+                        localField: 'state',
+                        foreignField: '_id',
+                        as: 'stateDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$stateDetails" },
+                {
+                    $lookup: {
+                        from: 'districts',
+                        localField: 'district',
+                        foreignField: '_id',
+                        as: 'districtDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$districtDetails" },
+                {
+                    $lookup: {
+                        from: 'taluks',
+                        localField: 'taluk',
+                        foreignField: '_id',
+                        as: 'talukDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    name: 1
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$talukDetails" },
+                {
                     "$project": {
+                        stateDetails: 1,
+                        districtDetails: 1,
+                        talukDetails: 1,
                         vehicle: 1,
                         state: 1,
                         district: 1,

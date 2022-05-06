@@ -7,7 +7,7 @@ import { AntdSelect } from '../../utils/Antd';
 
 
 export default function MyTable(props) {
-    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder, addNew = true, addNewIcon = PlusOutlined, addNewText = 'Add New' } = props;
+    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder, addNew = true, addNewIcon = PlusOutlined, addNewText = 'Add New', csvData = [] } = props;
     let [sdata, setSData] = useState({ ...parentSData });
     const handleSData = (v, k) => {
         if (k === 'key') {
@@ -39,7 +39,7 @@ export default function MyTable(props) {
         size: 'small',
         title: () => <><Search {...{ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew, addNewIcon, addNewText }} /></>,
         showHeader: true,
-        footer: () => <MyPagination {...{ sdata, handleSData, setSData }} />,
+        footer: () => <MyPagination {...{ sdata, handleSData, setSData, csvData }} />,
         scroll: undefined,
         hasData: true,
         tableLayout: undefined,
@@ -87,7 +87,7 @@ const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder,
                                     <React.Fragment key={i}>
                                         {
                                             v.type === 'dropdown'
-                                                ? <AntdSelect style={v.style} placeholder={v.placeholder || 'Select'} className={v?.className} allowClear={true} options={v.options} value={sdata?.[v.key] || undefined } onChange={value => { handleSData(value, v.key) }} />
+                                                ? <AntdSelect style={v.style} placeholder={v.placeholder || 'Select'} className={v?.className} allowClear={true} options={v.options} value={sdata?.[v.key] || undefined} onChange={value => { handleSData(value, v.key) }} />
                                                 : null
                                         }
                                     </React.Fragment>

@@ -33,6 +33,7 @@ const deleteAccess = modules.delete;
 export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
 
     const [data, setData] = useState();
+    const [csvData, setCsvData] = useState([]);
     const [sdt, setSdt] = useState([]);
     const [loading, setLoading] = useState(true);
     // const [vehicles, setVehicles] = useState([]);
@@ -214,6 +215,30 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
         }
     }, [data]);
 
+    useEffect(()=>{
+        if(Array.isArray(data)){
+            setCsvData(data.map(v=>({
+                "First Name": v.firstName,
+                "Last Name": v.lastName,
+                "Email": v.email,
+                "Phone No": v.phoneNo,
+                "DOB": moment(v.dob).format('MMMM D, YYYY'),
+                "State": v.stateDetails?.name,
+                "District": v.districtDetails?.name,
+                "Taluk": v.talukDetails?.name,
+                "Address": v.address,
+                "Zip Code": v.zipcode,
+                "Driving Licence Number": v.drivingLicenceNumber,
+                "Driving Licence Number Expiry Date": moment(v.drivingLicenceNumberExpiryDate).format('MMMM D, YYYY'),
+                "Adhar No": v.adharNo,
+                "Pan No": v.panNo,
+                "Badge No": v.badgeNo,
+                "Approval Status": v.isApproved ? "Approved" : "Not Approved",
+                "Active Status": v.isActive ? "Active" : "Inactive",
+            })));
+        }
+    }, [data]);
+
     return (
         <>
 
@@ -224,7 +249,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
                             <span>Driver List</span>
                         </div>
                         <div className="m-2 border p-2">
-                            <MyTable {...{ data, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name or Driver Id', addNew: false }} />
+                            <MyTable {...{ data, csvData, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name or Driver Id', addNew: false }} />
                         </div>
                     </>
                     : null
