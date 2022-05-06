@@ -55,21 +55,21 @@ export const driverValidation = [
         .notEmpty().withMessage("The 'Last Name' field is required")
         .isString().withMessage("The 'Last Name' field is not valid"),
 
-    check('driverId')
-        .notEmpty().withMessage("The 'Driver ID' field is required")
-        .custom(async (value, { req }) => {
-            const body = req.body;
-            const result = await DriverModel.findOne({ driverId: value });
-            if (result) {
-                if (body._id) {
-                    if (result._id != body._id) {
-                        throw new Error("A driver already exist with this Driver ID");
-                    }
-                } else {
-                    throw new Error("A driver already exist with this Driver ID");
-                }
-            }
-        }),
+    // check('driverId')
+    //     .notEmpty().withMessage("The 'Driver ID' field is required")
+    //     .custom(async (value, { req }) => {
+    //         const body = req.body;
+    //         const result = await DriverModel.findOne({ driverId: value });
+    //         if (result) {
+    //             if (body._id) {
+    //                 if (result._id != body._id) {
+    //                     throw new Error("A driver already exist with this Driver ID");
+    //                 }
+    //             } else {
+    //                 throw new Error("A driver already exist with this Driver ID");
+    //             }
+    //         }
+    //     }),
 
     check('phoneNo')
         .notEmpty().withMessage("The 'Phone Number' field is required")

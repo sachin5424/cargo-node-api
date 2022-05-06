@@ -460,10 +460,10 @@ const AddForm = forwardRef((props, ref) => {
                                 </div>
                                 <div><Divider orientation="left" className="text-danger">Vehicle Id</Divider></div>
 
-                                <div className="col-md-3 form-group">
+                                {/* <div className="col-md-3 form-group">
                                     <label className="req">Vehicle Id</label>
                                     <Input value={data.vehicleId || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'vehicleId')} />
-                                </div>
+                                </div> */}
                                 <div><Divider orientation="left" className="text-danger">Service Type </Divider></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">Service Type</label>

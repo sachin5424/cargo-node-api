@@ -155,12 +155,12 @@ export default class Service {
                 driverId: typeof query.key === 'number' ? query.key : '',
                 isApproved: query.isApproved ? (query.isApproved === '1' ? true : false) : '',
                 vehicle: query.vehicleId ? mongoose.Types.ObjectId(query.vehicleId) : '',
+                state: query.state ? mongoose.Types.ObjectId(query.state) : '',
+                drivingLicenceNumberExpiryDate: query.licence == 'licenceExpired' ? {$lt: new Date()} : query.licence == 'licenceNotExpired' ? {$gte: new Date()} : '',
                 ...getAdminFilter()
             };
 
             clearSearch(search);
-
-            console.log(search);
 
             const $aggregate = [
                 { $match: search },
@@ -351,7 +351,7 @@ export default class Service {
             tplData.state = data.state;
             tplData.district = data.district;
             tplData.taluk = data.taluk;
-            tplData.driverId = data.driverId;
+            // tplData.driverId = data.driverId;
             tplData.firstName = data.firstName;
             tplData.lastName = data.lastName;
             tplData.phoneNo = data.phoneNo;

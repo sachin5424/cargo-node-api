@@ -867,7 +867,7 @@ export default class Service {
         try {
             const tplData = _id ? await VehicleModel.findById(_id) : new VehicleModel();
 
-            tplData.vehicleId = data.vehicleId;
+            // tplData.vehicleId = data.vehicleId;
             tplData.serviceType = data.serviceType;
             tplData.rideTypes = data.rideTypes;
             tplData.vehicleCategory = data.vehicleCategory;

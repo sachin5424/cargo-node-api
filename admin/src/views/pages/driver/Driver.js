@@ -15,7 +15,7 @@ import { AntdDatepicker } from "../../../utils/Antd";
 import util from "../../../utils/util";
 import moment from "moment";
 import Wallet from "./Wallet";
-import {AddForm as Email} from "../email/Email";
+import { AddForm as Email } from "../email/Email";
 
 export const modules = {
     view: util.getModules('viewDriver'),
@@ -39,18 +39,11 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     // const [vehicles, setVehicles] = useState([]);
     const [serviceType, setServiceType] = useState([]);
     const [templates, setTemplates] = useState();
-    const [filters, setFilters] = useState([
-        {
-            type: 'dropdown',
-            key: 'isApproved',
-            className: "w200 mx-1",
-            placeholder: 'Approval Status',
-            options: [
-                { id: 0, name: 'Not Approved' },
-                { id: 1, name: 'Approved' },
-            ]
-        }
-    ]);
+    const [states, setStates] = useState([]);
+    // const [districts, setDistricts] = useState([]);
+    // const [taluks, setTaluks] = useState([]);
+
+    const [filters, setFilters] = useState([]);
 
     const formRef = useRef();
     const walletModalRef = useRef();
@@ -60,7 +53,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
         {
             title: 'Driver Id',
             dataIndex: 'driverId',
-            width: 200,
+            width: 80,
         },
         {
             title: 'Name',
@@ -215,9 +208,9 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
         }
     }, [data]);
 
-    useEffect(()=>{
-        if(Array.isArray(data)){
-            setCsvData(data.map(v=>({
+    useEffect(() => {
+        if (Array.isArray(data)) {
+            setCsvData(data.map(v => ({
                 "First Name": v.firstName,
                 "Last Name": v.lastName,
                 "Email": v.email,
@@ -239,6 +232,45 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
         }
     }, [data]);
 
+
+    useEffect(() => {
+        if (sdt.length) {
+            setStates(sdt.map(v => ({ _id: v._id, name: v.name, districts: v.districts })));
+        }
+    }, [sdt]);
+
+    useEffect(() => {
+        setFilters([
+            {
+                type: 'dropdown',
+                key: 'isApproved',
+                className: "w200 mx-1",
+                placeholder: 'Approval Status',
+                options: [
+                    { id: 0, name: 'Not Approved' },
+                    { id: 1, name: 'Approved' },
+                ]
+            },
+            {
+                type: 'dropdown',
+                key: 'licence',
+                className: "w200 mx-1",
+                placeholder: 'Licence Status',
+                options: [
+                    { value: "licenceExpired", label: 'Licence Expired' },
+                    { value: "licenceNotExpired", label: 'Licence Not Expired' },
+                ]
+            },
+            {
+                type: 'dropdown',
+                key: 'state',
+                placeholder: 'State',
+                className: "w200 mx-1",
+                options: states
+            },
+        ]);
+    }, [states]);
+
     return (
         <>
 
@@ -249,14 +281,14 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
                             <span>Driver List</span>
                         </div>
                         <div className="m-2 border p-2">
-                            <MyTable {...{ data, csvData, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name or Driver Id', addNew: false }} />
+                            <MyTable {...{ data, csvData, columns, filters, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'Driver Id or First Name or Last Name or Driver Id', addNew: false }} />
                         </div>
                     </>
                     : null
             }
             <AddForm ref={formRef} {...{ list, sdt, setVisibleParent, emailModalRef }} />
             <WalletModal ref={walletModalRef} />
-            <Email ref={emailModalRef} {...{templates}} />
+            <Email ref={emailModalRef} {...{ templates }} />
         </>
     );
 }
@@ -374,9 +406,11 @@ export const AddForm = forwardRef((props, ref) => {
                 width={1200}
                 className="app-modal-body-overflow"
                 footer={[
-                    <Button key="sendEmail" type="dashed" onClick={()=>{emailModalRef.current.openForm(
-                        {outerData: {_id: data._id, state: data.state ,district: data.district, taluk: data.taluk, to: 'manyDrivers', emailIds: [data.email]}}
-                    )}}>Send Email</Button>,
+                    <Button key="sendEmail" type="dashed" onClick={() => {
+                        emailModalRef.current.openForm(
+                            { outerData: { _id: data._id, state: data.state, district: data.district, taluk: data.taluk, to: 'manyDrivers', emailIds: [data.email] } }
+                        )
+                    }}>Send Email</Button>,
                     <Button key="cancel" onClick={() => { handleVisible(false); }}>Cancel</Button>,
                     <Button key="save" type="primary" onClick={save}>Save</Button>,
                 ]}
@@ -392,11 +426,11 @@ export const AddForm = forwardRef((props, ref) => {
                                 {/* <Input value={data?.vehicleDetails?.name || ''} disabled />
                                 </div> */}
                                 <div><Divider orientation="left" className="text-danger">Personal Details </Divider></div>
-                                <div className="col-md-3 form-group">
+                                {/* <div className="col-md-3 form-group">
                                     <label className="req">Driver Id</label>
                                     <Input value={data.driverId || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'driverId')} />
                                 </div>
-                                <div></div>
+                                <div></div> */}
                                 <div className="col-md-6 form-group">
                                     <label className="req">First Name</label>
                                     <Input value={data.firstName || ''} onChange={e => handleChange(e.target.value, 'firstName')} />

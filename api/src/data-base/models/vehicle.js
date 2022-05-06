@@ -94,6 +94,26 @@ const VehicleSchema = new Schema({
 
 // VehicleSchema.pre('save', function (next) { return next(); });
 
+VehicleSchema.pre('save', async function (next) {
+    try{
+        if (this.password) {
+            const salt = await bcrypt.genSalt(10);
+            this.password = await bcrypt.hash(this.password, salt);
+        }
+        if(!this.vehicleId || this.vehicleId < 1232141){
+            const ld = await VehicleModel.findOne().sort({ vehicleId: -1 });
+            if(ld && ld.vehicleId >= 1232141){
+                this.vehicleId = ld.vehicleId + 1;
+            } else{
+                this.vehicleId = 1232141;
+            }
+        }
+    } catch(err){
+        next(err);
+    }
+    next();
+});
+
 const VehicleModel = model('vehicle', VehicleSchema);
 
 export default VehicleModel;

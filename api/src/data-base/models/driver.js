@@ -80,6 +80,14 @@ DriverSchema.pre('save', async function (next) {
             const salt = await bcrypt.genSalt(10);
             this.password = await bcrypt.hash(this.password, salt);
         }
+        if(!this.driverId || this.driverId < 1232141){
+            const ld = await DriverModel.findOne().sort({ driverId: -1 });
+            if(ld && ld.driverId >= 1232141){
+                this.driverId = ld.driverId + 1;
+            } else{
+                this.driverId = 1232141;
+            }
+        }
     } catch(err){
         next(err);
     }
