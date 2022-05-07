@@ -9,6 +9,7 @@ import { uploadFile } from "../utls/_helper";
 import config from "../utls/config";
 import CommonService from "./CommonService";
 import { sendResetPasswordMail } from "../thrirdParty/emailServices/driver/sendEmail";
+import DriverRatingModel from "../data-base/models/driverRating";
 
 export default class Service {
 
@@ -244,6 +245,8 @@ export default class Service {
                         lastName: 1,
                         phoneNo: 1,
                         email: 1,
+                        userName: 1,
+                        gender: 1,
                         otpVerified: 1,
                         dob: 1,
                         address: 1,
@@ -278,6 +281,8 @@ export default class Service {
                             name: "$badgePhoto"
                         },
 
+                        ratingCount:1,
+                        ratingAverage:1,
                         isApproved: 1,
                         isActive: 1,
                         walletDetails: 1,
@@ -356,6 +361,8 @@ export default class Service {
             tplData.lastName = data.lastName;
             tplData.phoneNo = data.phoneNo;
             tplData.email = data.email;
+            tplData.userName = data.userName;
+            tplData.gender = data.gender;
             !data.password || (tplData.password = data.password);
             tplData.dob = data.dob;
             tplData.address = data.address;
@@ -585,5 +592,17 @@ export default class Service {
         } catch (e) {
             throw new Error(e)
         }
+    }
+
+    static async updateRating(driverId){
+        const driverRatings = await DriverRatingModel.find({driver: driverId});
+        const ratingCount = driverRatings.length;
+        let ratingAverage = 0;
+        driverRatings?.forEach(v => {
+            ratingAverage += v.point;
+        });
+
+        ratingAverage = ratingAverage / ratingCount;
+        await DriverModel.updateOne({_id: driverId}, {ratingCount, ratingAverage});
     }
 }

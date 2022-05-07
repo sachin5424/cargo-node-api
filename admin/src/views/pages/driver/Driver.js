@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useRef, forwardRef, useState, useImperativeHandle, useEffect } from "react";
 import MyTable from "../../components/MyTable";
-import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider } from "antd";
+import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider, Rate } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/driver";
@@ -77,6 +77,16 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
             width: 100,
             render: (walletDetails, row) => (
                 <Button size="small" type="primary" className="mx-1" onClick={() => { walletModalRef.current.openForm(row) }}>Wallet  ({walletDetails?.[0]?.amount})</Button>
+            )
+        },
+        {
+            title: 'Rating',
+            dataIndex: 'ratingAverage',
+            width: 210,
+            render: (data, row) => (
+                <>
+                    ({data} / {row.ratingCount})<Rate disabled defaultValue={data} /> 
+                </>
             )
         },
         {
@@ -446,6 +456,18 @@ export const AddForm = forwardRef((props, ref) => {
                                 <div className="col-md-3 form-group">
                                     <label className="req">Phone No.</label>
                                     <Input value={data.phoneNo || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'phoneNo')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">User Name</label>
+                                    <Input value={data.userName || ''} onChange={e => handleChange(util.removeSpecialChars(e.target.value), 'userName')} />
+                                </div>
+                                <div className="col-md-3 form-group">
+                                    <label className="req">Gender</label>
+                                    <AntdSelect
+                                        options={[{ value: 'male', label: "Male" }, { value: 'female', label: "Female" }, { value: 'other', label: "Other" }]}
+                                        value={data.gender}
+                                        onChange={v => { handleChange(v, 'gender') }}
+                                    />
                                 </div>
                                 <div className="col-md-3 form-group">
                                     <label className={data._id ? "" : "req"}>{data._id ? "Update" : "Set"} Password</label>

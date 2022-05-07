@@ -27,6 +27,15 @@ const DriverSchema = new Schema({
     lastName: String,
     phoneNo: String,
     email: String,
+    userName: {
+        type: String,
+        unique: true
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female', 'other'],
+        default: 'male'
+    },
     otpVerified: { 
         type: Boolean, 
         default: false 
@@ -59,7 +68,14 @@ const DriverSchema = new Schema({
         type: Boolean,
         default: false
     },
-
+    ratingCount: {
+        type: Number,
+        default: 0
+    },
+    ratingAverage: {
+        type: Number,
+        default: 0
+    },
     isDeleted: {
         type: Boolean,
         default: false
