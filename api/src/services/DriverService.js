@@ -10,6 +10,8 @@ import config from "../utls/config";
 import CommonService from "./CommonService";
 import { sendResetPasswordMail } from "../thrirdParty/emailServices/driver/sendEmail";
 import DriverRatingModel from "../data-base/models/driverRating";
+import DriverLoginModel from "../data-base/models/driverLogin";
+import DriverActiveModel from "../data-base/models/driverActive";
 
 export default class Service {
 
@@ -604,5 +606,189 @@ export default class Service {
 
         ratingAverage = ratingAverage / ratingCount;
         await DriverModel.updateOne({_id: driverId}, {ratingCount, ratingAverage});
+    }
+
+    static async listDriverLogins(query, params) {
+        const isAll = params.isAll === 'ALL';
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+                page: query.page * 1 > 0 ? query.page * 1 : 1,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                total: 0,
+            },
+            status: false
+        };
+
+        try {
+            const search = {
+                driver: query.driverId ? mongoose.Types.ObjectId(query.driverId) : '',
+            };
+
+            clearSearch(search);
+
+            console.log(search);
+
+            const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
+                {
+                    "$project": {
+                        driver: 1,
+                        loginTime: 1,
+                        logoutTime: 1,
+                    }
+                },
+            ];
+
+            const counter = await DriverLoginModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+
+            response.result.data = await DriverLoginModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ]);
+
+            if (response.result.data.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
+
+    static async listDriverLogins(query, params) {
+        const isAll = params.isAll === 'ALL';
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+                page: query.page * 1 > 0 ? query.page * 1 : 1,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                total: 0,
+            },
+            status: false
+        };
+
+        try {
+            const search = {
+                driver: query.driver,
+            };
+
+            clearSearch(search);
+
+            const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
+                {
+                    "$project": {
+                        driver: 1,
+                        loginTime: 1,
+                        logoutTime: 1,
+                    }
+                },
+            ];
+
+            const counter = await DriverLoginModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+
+            response.result.data = await DriverLoginModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ]);
+
+            if (response.result.data.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
+
+    static async listDriverOnOff(query, params) {
+        const isAll = params.isAll === 'ALL';
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+                page: query.page * 1 > 0 ? query.page * 1 : 1,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                total: 0,
+            },
+            status: false
+        };
+
+        try {
+            const search = {
+                driverLogin: query.driverLogin,
+                driver: query.driver,
+            };
+
+            clearSearch(search);
+
+            const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
+                {
+                    "$project": {
+                        driverLogin: 1,
+                        driver: 1,
+                        startTime: 1,
+                        endTime: 1,
+                    }
+                },
+            ];
+
+            const counter = await DriverActiveModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if (isAll) {
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+
+            response.result.data = await DriverActiveModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ]);
+
+            if (response.result.data.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
     }
 }

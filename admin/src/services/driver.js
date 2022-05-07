@@ -31,4 +31,20 @@ export default class driver {
         return axios.post(this.baseURL + "save/wallet-history", data, { module });
     }
 
+    static listLogins(data, module) {
+        return axios.get(this.baseURL + 'logins/list', { params: data, module });
+    }
+
+    static listLoginsAll(data, module) {
+        return axios.get(this.baseURL + 'logins/list/ALL', { params: data, module });
+    }
+
+    static listOnOff(data, module) {
+        return axios.get(this.baseURL + 'on-off/list', { params: data, module });
+    }
+
+    static listOnOffAll(data, module) {
+        return axios.get(this.baseURL + 'on-off/list/ALL', { params: data, module });
+    }
+
 }

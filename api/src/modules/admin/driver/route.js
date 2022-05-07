@@ -11,6 +11,11 @@ router.get('/list/wallet-history', checkWalletListAccess, WalletController.list)
 router.get('/list/wallet-history/:isAll', checkWalletListAccess, WalletController.list);
 router.post('/save/wallet-history', checkWalletSaveAccess, walletValidationAdmin, formValidation, WalletController.save);
 
+router.get('/logins/list', checkDriverListAccess, DriverController.listLogins);
+router.get('/logins/list/:isAll', checkDriverListAccess, DriverController.listLogins);
+router.get('/on-off/list', checkDriverListAccess, DriverController.listOnOff);
+router.get('/on-off/list/:isAll', checkDriverListAccess, DriverController.listOnOff);
+
 router.get('/list', checkDriverListAccess, DriverController.list);
 router.get('/list/:isAll', checkDriverListAccess, DriverController.list);
 router.post('/save', checkDriverSaveAccess, driverValidation, formValidation, DriverController.save);

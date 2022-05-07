@@ -16,6 +16,7 @@ import util from "../../../utils/util";
 import moment from "moment";
 import Wallet from "./Wallet";
 import { AddForm as Email } from "../email/Email";
+import Logins from "./Logins";
 
 export const modules = {
     view: util.getModules('viewDriver'),
@@ -48,6 +49,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
     const formRef = useRef();
     const walletModalRef = useRef();
     const emailModalRef = useRef();
+    const loginsModalRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0, vehicleId: vehicleData?._id });
     const columns = [
         {
@@ -77,6 +79,14 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
             width: 100,
             render: (walletDetails, row) => (
                 <Button size="small" type="primary" className="mx-1" onClick={() => { walletModalRef.current.openForm(row) }}>Wallet  ({walletDetails?.[0]?.amount})</Button>
+            )
+        },
+        {
+            title: 'Logins',
+            dataIndex: '',
+            width: 80,
+            render: (walletDetails, row) => (
+                <Button size="small" type="default" className="mx-1" onClick={() => { loginsModalRef.current.openForm(row) }}>Logins</Button>
             )
         },
         {
@@ -299,6 +309,7 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
             <AddForm ref={formRef} {...{ list, sdt, setVisibleParent, emailModalRef }} />
             <WalletModal ref={walletModalRef} />
             <Email ref={emailModalRef} {...{ templates }} />
+            <LoginsModal ref={loginsModalRef} />
         </>
     );
 }
@@ -610,6 +621,40 @@ export const WalletModal = forwardRef((props, ref) => {
                 className="app-modal-body-overflow"
             >
                 <Wallet driverId={data._id} />
+            </Modal>
+        </>
+    );
+});
+
+const LoginsModal = forwardRef((props, ref) => {
+    const [visible, setVisible] = useState(false);
+    const [data, setData] = useState({});
+
+    const handleVisible = (val) => {
+        setVisible(val);
+    }
+
+    useImperativeHandle(ref, () => ({
+        openForm(dt) {
+            setData({ ...dt });
+            handleVisible(true);
+        }
+    }));
+
+    return (
+        <>
+            <Modal
+                title={<>Login History of <span className="text-danger">{data.name}</span></>}
+                style={{ top: 20 }}
+                visible={visible}
+                onCancel={() => { handleVisible(false); }}
+                destroyOnClose
+                maskClosable={false}
+                width={1200}
+                footer={null}
+                className="app-modal-body-overflow"
+            >
+                <Logins {...{driverId: data._id}} />
             </Modal>
         </>
     );

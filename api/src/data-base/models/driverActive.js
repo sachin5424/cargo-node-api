@@ -1,13 +1,13 @@
 import { Schema, model } from 'mongoose';
 
 const DriverActiveSchema = new Schema({
-    driver: {
-        type: Schema.Types.ObjectId,
-        ref: "driver",
-    },
     driverLogin: {
         type: Schema.Types.ObjectId,
         ref: "driverLogin",
+    },
+    driver: {
+        type: Schema.Types.ObjectId,
+        ref: "driver",
     },
     startTime: {
         type: Date,
@@ -17,7 +17,7 @@ const DriverActiveSchema = new Schema({
         type: Date,
     },
 
-}, { timestamps: true });
+}, { timestamps: false });
 
 const DriverActiveModel = model('driverActive', DriverActiveSchema);
 
