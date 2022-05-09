@@ -3,11 +3,11 @@ import { Table, Input, Button } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import MyPagination from './Pagination';
-import { AntdSelect } from '../../utils/Antd';
+import { AntdSelect, AntdDatepicker } from '../../utils/Antd';
 
 
 export default function MyTable(props) {
-    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder, addNew = true, addNewIcon = PlusOutlined, addNewText = 'Add New', csvData = [] } = props;
+    let { columns, data, parentSData, loading, formRef, list, filters, searchPlaceholder, addNew = true, addNewIcon = PlusOutlined, addNewText = 'Add New', csvData = [], allowSearch, allowDefaultSearch } = props;
     let [sdata, setSData] = useState({ ...parentSData });
     const handleSData = (v, k) => {
         if (k === 'key') {
@@ -37,7 +37,7 @@ export default function MyTable(props) {
         bordered: true,
         loading,
         size: 'small',
-        title: () => <><Search {...{ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew, addNewIcon, addNewText }} /></>,
+        title: () => <><Search {...{ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew, addNewIcon, addNewText, allowSearch, allowDefaultSearch }} /></>,
         showHeader: true,
         footer: () => <MyPagination {...{ sdata, handleSData, setSData, csvData }} />,
         scroll: undefined,
@@ -74,43 +74,59 @@ export default function MyTable(props) {
 }
 
 
-const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew, addNewIcon: AddNewIcon, addNewText }) => {
+const Search = ({ sdata, handleSData, formRef, list, filters, searchPlaceholder, addNew, addNewIcon: AddNewIcon, addNewText, allowSearch = true, allowDefaultSearch = true }) => {
     return <>
-        <div className="d-flex">
-            {
-                typeof sdata.key !== 'undefined'
-                    ? <>
-                        <Input className="w200 mx-1" allowClear placeholder={searchPlaceholder || "Search"} value={sdata.key || ''} onChange={(e) => { handleSData(e.target.value, 'key') }} />
-                        {
-                            typeof filters !== 'undefined'
-                                ? filters.map((v, i) => (
-                                    <React.Fragment key={i}>
-                                        {
-                                            v.type === 'dropdown'
-                                                ? <AntdSelect style={v.style} placeholder={v.placeholder || 'Select'} className={v?.className} allowClear={true} options={v.options} value={sdata?.[v.key] || undefined} onChange={value => { handleSData(value, v.key) }} />
-                                                : v.type === 'dropdownMultiple'
-                                                    ? <AntdSelect mode="multiple" style={v.style} placeholder={v.placeholder || 'Select'} className={v?.className} allowClear={true} options={v.options} value={sdata?.[v.key] || undefined} onChange={value => { handleSData(value, v.key) }} />
-                                                    : null
-                                        }
-                                    </React.Fragment>
-                                ))
-                                : null
-                        }
-                        <Button type="primary" onClick={() => { list(sdata) }} >Search</Button>
-                    </>
-                    : null
-            }
-            {
-                addNew
-                    ? <Button type="primary" className="ml-auto">
-                        <span className="d-flex" onClick={() => { formRef.current.openForm() }}>
-                            {<AddNewIcon className="my-auto mx-1" />}
-                            {addNewText}
-                        </span>
-                    </Button>
-                    : null
-            }
+        {
+            allowSearch
+                ? <div className="d-flex">
+                    {
+                        typeof sdata.key !== 'undefined'
+                            ? <>
+                                {
+                                    allowDefaultSearch
+                                        ? <Input className="w200 mx-1" allowClear placeholder={searchPlaceholder || "Search"} value={sdata.key || ''} onChange={(e) => { handleSData(e.target.value, 'key') }} />
+                                        : null
+                                }
+                                {
+                                    typeof filters !== 'undefined'
+                                        ? filters.map((v, i) => (
+                                            <React.Fragment key={i}>
+                                                {
+                                                    v.type === 'dropdown'
+                                                        ? <AntdSelect style={v.style} placeholder={v.placeholder || 'Select'} className={v?.className} allowClear={true} options={v.options} value={sdata?.[v.key] || undefined} onChange={value => { handleSData(value, v.key) }} />
+                                                        : v.type === 'dropdownMultiple'
+                                                            ? <AntdSelect mode="multiple" style={v.style} placeholder={v.placeholder || 'Select'} className={v?.className} allowClear={true} options={v.options} value={sdata?.[v.key] || undefined} onChange={value => { handleSData(value, v.key) }} />
+                                                            : v.type === 'datePicker'
+                                                                ? <AntdDatepicker format="MMMM D, YYYY" className={v?.className} style={v.style} placeholder={v.placeholder || 'Choose Date'}
+                                                                    value={sdata?.[v.key]}
+                                                                    onChange={value => { 
+                                                                        console.log(value, v.key);
+                                                                        handleSData(value, v.key);
+                                                                     }} />
+                                                                : null
+                                                }
+                                            </React.Fragment>
+                                        ))
+                                        : null
+                                }
+                                <Button type="primary" onClick={() => { list(sdata) }} >Search</Button>
+                            </>
+                            : null
+                    }
+                    {
+                        addNew
+                            ? <Button type="primary" className="ml-auto">
+                                <span className="d-flex" onClick={() => { formRef.current.openForm() }}>
+                                    {<AddNewIcon className="my-auto mx-1" />}
+                                    {addNewText}
+                                </span>
+                            </Button>
+                            : null
+                    }
 
-        </div>
+                </div>
+                : null
+        }
+
     </>
 }

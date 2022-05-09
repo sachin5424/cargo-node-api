@@ -607,7 +607,7 @@ export default class Service {
         ratingAverage = ratingAverage / ratingCount;
         await DriverModel.updateOne({_id: driverId}, {ratingCount, ratingAverage});
     }
-
+/* 
     static async listDriverLogins(query, params) {
         const isAll = params.isAll === 'ALL';
         const response = {
@@ -669,7 +669,7 @@ export default class Service {
             throw new Error(e)
         }
     }
-
+ */
     static async listDriverLogins(query, params) {
         const isAll = params.isAll === 'ALL';
         const response = {
@@ -686,10 +686,16 @@ export default class Service {
 
         try {
             const search = {
-                driver: query.driver,
+                driver: query.driverId ? mongoose.Types.ObjectId(query.driverId) : '',
+                startTime: query.from ? {$gte: new Date(query.from)} : '',
+                startTime: query.to ? {$lte: new Date(query.to)} : '',
             };
 
+            console.log(query);
+            console.log(1, search);
             clearSearch(search);
+
+            console.log(2, search);
 
             const $aggregate = [
                 { $match: search },
@@ -746,8 +752,8 @@ export default class Service {
 
         try {
             const search = {
-                driverLogin: query.driverLogin,
-                driver: query.driver,
+                driverLogin: query.loginId ? mongoose.Types.ObjectId(query.loginId) : '',
+                driver: query.driverId ? mongoose.Types.ObjectId(query.driverId) : '',
             };
 
             clearSearch(search);

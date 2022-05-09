@@ -644,13 +644,13 @@ const LoginsModal = forwardRef((props, ref) => {
     return (
         <>
             <Modal
-                title={<>Login History of <span className="text-danger">{data.name}</span></>}
+                title={<>Login History</>}
                 style={{ top: 20 }}
                 visible={visible}
                 onCancel={() => { handleVisible(false); }}
                 destroyOnClose
                 maskClosable={false}
-                width={1200}
+                width={700}
                 footer={null}
                 className="app-modal-body-overflow"
             >
