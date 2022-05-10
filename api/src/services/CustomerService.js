@@ -388,7 +388,7 @@ export default class Service {
                     name: data.name,
                     cardNumber: data.cardNumber,
                     expiryDate: data.expiryDate,
-                    cvv: data.cardNumber,
+                    cvv: data.cvv,
                 };
             }
 
