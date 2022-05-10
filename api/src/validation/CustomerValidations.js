@@ -241,39 +241,44 @@ export const customerResetPasswordValidation = [
 
 export const cardValidation = [
 
-    check('customer')
-        .notEmpty().withMessage("Select a customer")
-        .custom(async (v) => {
+    check('name')
+        .notEmpty().withMessage("Name field is required")
+        .isString().withMessage("Name field is not valid")
+        .custom(async (v, { req }) => {
             try {
-                const r = await CustomerModel.findById(v);
+                const r = await CustomerModel.findById(req.__cuser._id);
                 if (!r) {
                     throw new Error("Customer not found");
                 }
             } catch (e) {
-                throw new Error("Customer does not exit. Please check or refresh");
+                throw new Error("Error!");
             }
         }),
 
-    check('name')
-        .notEmpty().withMessage("Name field is required")
-        .isString().withMessage("Name field is not valid"),
-
     check('cardNumber')
         .notEmpty().withMessage("Card Number is required")
-        .custom(async (v) => {
-            // try {
-            //     config.e
-            // } catch (e) {
-            //     throw new Error("Customer does not exit. Please check or refresh");
-            // }
+        .custom(async (value) => {
+            try {
+                let err = true;
+                config.cards.forEach(v => {
+                    if (value.match(v.regEx)) {
+                        err = false;
+                    }
+
+                });
+                if (err) {
+                    throw new Error("Card Number is not valid");
+                }
+            } catch (e) {
+                throw new Error("Card Number is not valid");
+            }
         }),
 
     check('expiryDate')
-        .notEmpty().withMessage("The 'Latitude & Longitude' field is required")
-        .isLatLong().withMessage("The 'Latitude & Longitude' field is not valid"),
+        .notEmpty().withMessage("Expiry Date is required")
+        .matches(/\d{4}-(0[1-9]|1[0-2])$/).withMessage("Expiry Date field is not valid"),
+
     check('cvv')
-        .matches(/^[1-9]{1}[0-9]{5}$/).withMessage("The 'Zipcode' field is not valid")
-        // .notEmpty().withMessage("The 'Latitude & Longitude' field is required")
-        // .isLatLong().withMessage("The 'Latitude & Longitude' field is not valid"),
+        .matches(/\d{3}$/).withMessage("CVV is not valid")
 
 ];

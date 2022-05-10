@@ -130,7 +130,7 @@ const config = {
             name: 'Insta Payment Card', regEx: /^63[7-9][0-9]{13}$/
         },
         {
-            name: 'JCB Card', regEx: //
+            name: 'JCB Card', regEx: /^(?:2131|1800|35\d{3})\d{11}$/
         },
         {
             name: '', regEx: /^(?:2131|1800|35\d{3})\d{11}$/

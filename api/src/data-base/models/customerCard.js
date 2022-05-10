@@ -10,7 +10,7 @@ const CustomerCardSchema = new Schema({
         type: String,
         unique: true,
     },
-    expiryDate: Date,
+    expiryDate: String,
     cvv: String,
     
 }, { timestamps: true });

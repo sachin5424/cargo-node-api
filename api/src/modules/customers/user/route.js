@@ -1,7 +1,7 @@
 import { Router } from "express";
 import UserController from "./UserConteroller";
 import { customerResetPasswordValidation } from "../../../validation/CustomerValidations";
-import { customerLoginValidation } from "../../../validation/CustomerValidations";
+import { customerLoginValidation, cardValidation } from "../../../validation/CustomerValidations";
 import {userRegister,userOtpVerification,userLoginWithMobile,userForgetPassword,chnagePassword,profileUpdate,profileDetails} from './userAuthController';
 import {
     validationMiddleware,
@@ -33,7 +33,7 @@ router.post('/profile/update',authenticateCustomer, profileUpdateValidation,vali
 router.get('/profile/details',authenticateCustomer, profileDetails);
 
 router.get('/card/details', authenticateCustomer, UserController.customerCardDetails);
-router.post('/card/save', authenticateCustomer, UserController.saveCustomerCardDetails);
+router.post('/card/save', authenticateCustomer, cardValidation, formValidation, UserController.saveCustomerCardDetails);
 router.delete('/card/delete', authenticateCustomer, UserController.deleteCustomerCardDetails);
 
 
