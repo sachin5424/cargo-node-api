@@ -384,13 +384,14 @@ export default class Service {
 
             if (data) {
                 response.message = "Data fetched";
+                response.data = {
+                    name: data.name,
+                    cardNumber: data.cardNumber,
+                    expiryDate: data.expiryDate,
+                    cvv: data.cardNumber,
+                };
             }
-            response.data = {
-                name: data.name,
-                cardNumber: data.cardNumber,
-                expiryDate: data.expiryDate,
-                cvv: data.cardNumber,
-            };
+
             response.statusCode = 200;
             response.status = true;
 
@@ -406,7 +407,7 @@ export default class Service {
         const response = { statusCode: 400, message: 'Error!', status: false };
 
         try {
-            const tplData = await CustomerCardModel.findOne({customer: req.__cuser._id}) || new CustomerCardModel();
+            const tplData = await CustomerCardModel.findOne({ customer: req.__cuser._id }) || new CustomerCardModel();
 
             tplData.customer = req.__cuser._id;
             tplData.name = data.name;
@@ -416,7 +417,7 @@ export default class Service {
 
             await tplData.save();
 
-            response.message ="Card is Saved";
+            response.message = "Card is Saved";
             response.statusCode = 200;
             response.status = true;
 
@@ -440,5 +441,5 @@ export default class Service {
             throw new Error("Can not delete. Something went wrong.");
         }
     }
-    
+
 }
