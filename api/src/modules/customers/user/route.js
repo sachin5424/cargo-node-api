@@ -13,10 +13,12 @@ import {
     profileUpdateValidation
 } from './userValidations'
 const router = Router({ mergeParams: true });
-import {jwtTokenPermission} from './jwt'
+import {jwtTokenPermission} from './jwt';
+import {authenticateCustomer} from "./../../../middleware/jwtToken";
+import {formValidation} from "./../../../middleware/others";
 
 
-router.post("/login", customerLoginValidation, UserController.login);
+router.post("/login", customerLoginValidation, formValidation, UserController.login);
 router.get("/email-verify/:email", UserController.verifyEmail);
 router.post("/forget-pasword", UserController.genForgetPasswordUrl);
 router.get("/reset-password/:key", UserController.resetPasswordForm);
@@ -27,7 +29,13 @@ router.post('/auth/user-otp-verify', otpVerified,validationMiddleware,userOtpVer
 router.post('/auth/user-login-phone', userLoginMobileNumberValidation,validationMiddleware,userLoginWithMobile);
 router.post('/auth/user-forget-password', userForgetPasswordValidation,validationMiddleware,userForgetPassword);
 router.post('/auth/user-change-password',chnagePasswordValidation,validationMiddleware, chnagePassword);
-router.post('/profile/update',jwtTokenPermission,profileUpdateValidation,validationMiddleware,profileUpdate)
-router.get('/profile/details',jwtTokenPermission,profileDetails)
+router.post('/profile/update',authenticateCustomer, profileUpdateValidation,validationMiddleware,profileUpdate);
+router.get('/profile/details',authenticateCustomer, profileDetails);
+
+router.get('/card/details', authenticateCustomer, UserController.customerCardDetails);
+router.post('/card/save', authenticateCustomer, UserController.saveCustomerCardDetails);
+router.delete('/card/delete', authenticateCustomer, UserController.deleteCustomerCardDetails);
+
+
 //profileDetails
 export default router;

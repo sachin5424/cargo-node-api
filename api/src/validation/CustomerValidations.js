@@ -5,6 +5,7 @@ import StateModel from '../data-base/models/state';
 import DistrictModel from '../data-base/models/district';
 import TalukModel from '../data-base/models/taluk';
 import { clearSearch } from '../utls/_helper';
+import config from '../utls/config';
 
 
 export const customerLoginValidation = [
@@ -223,7 +224,6 @@ export const locationValidation = [
 
 ];
 
-
 export const customerResetPasswordValidation = [
     check('password')
         .notEmpty().withMessage("Fill the password"),
@@ -237,4 +237,43 @@ export const customerResetPasswordValidation = [
                 throw new Error("Both password does not match");
             }
         }),
+];
+
+export const cardValidation = [
+
+    check('customer')
+        .notEmpty().withMessage("Select a customer")
+        .custom(async (v) => {
+            try {
+                const r = await CustomerModel.findById(v);
+                if (!r) {
+                    throw new Error("Customer not found");
+                }
+            } catch (e) {
+                throw new Error("Customer does not exit. Please check or refresh");
+            }
+        }),
+
+    check('name')
+        .notEmpty().withMessage("Name field is required")
+        .isString().withMessage("Name field is not valid"),
+
+    check('cardNumber')
+        .notEmpty().withMessage("Card Number is required")
+        .custom(async (v) => {
+            // try {
+            //     config.e
+            // } catch (e) {
+            //     throw new Error("Customer does not exit. Please check or refresh");
+            // }
+        }),
+
+    check('expiryDate')
+        .notEmpty().withMessage("The 'Latitude & Longitude' field is required")
+        .isLatLong().withMessage("The 'Latitude & Longitude' field is not valid"),
+    check('cvv')
+        .matches(/^[1-9]{1}[0-9]{5}$/).withMessage("The 'Zipcode' field is not valid")
+        // .notEmpty().withMessage("The 'Latitude & Longitude' field is required")
+        // .isLatLong().withMessage("The 'Latitude & Longitude' field is not valid"),
+
 ];

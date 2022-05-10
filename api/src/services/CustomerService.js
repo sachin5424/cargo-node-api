@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import CustomerModel from "../data-base/models/customer";
 import CustomerLocationModel from "../data-base/models/customerLocation";
@@ -8,6 +9,7 @@ import config from "../utls/config";
 import { sendResetPasswordMail } from "../thrirdParty/emailServices/customer/sendEmail";
 import EmailServices from "./EmailService";
 import EmailTemplateModel from '../data-base/models/emailTemplate';
+import CustomerCardModel from "../data-base/models/customerCard";
 
 export default class Service {
 
@@ -17,18 +19,18 @@ export default class Service {
         const password = data.password;
 
         try {
-            const owner = await CustomerModel.findOne({ email: email, isDeleted: false });
-            let isPasswordMatched = await bcrypt.compare(password, owner.password);
+            const user = await CustomerModel.findOne({ email: email, isDeleted: false });
+            let isPasswordMatched = await bcrypt.compare(password, user.password);
             if (!isPasswordMatched) {
                 throw new Error("Invalid Credentials");
             } else {
                 const JWT_EXP_DUR = config.jwt.expDuration;
-                const accessToken = jwt.sign({ sub: owner._id.toString(), exp: Math.floor(Date.now() / 1000) + ((JWT_EXP_DUR) * 60), }, config.jwt.secretKey);
+                const accessToken = jwt.sign({ sub: user._id.toString(), exp: Math.floor(Date.now() / 1000) + ((JWT_EXP_DUR) * 60), }, config.jwt.secretKey);
 
-                if (!owner.emailVerified) {
+                if (!user.emailVerified) {
                     response.statusCode = 401;
                     response.message = "Email is not verified. Please verify from the link sent to your email!!";
-                } else if (!owner.isActive) {
+                } else if (!user.isActive) {
                     response.statusCode = 401;
                     response.message = "Your acount is blocked. Please contact admin";
                 } else {
@@ -45,7 +47,6 @@ export default class Service {
 
         return response;
     }
-
 
     static async verifyEmail(email) {
         const response = { statusCode: 400, message: 'Error!', status: false };
@@ -359,6 +360,84 @@ export default class Service {
 
         } catch (e) {
             throw new Error("Can not delete. Something went wrong.")
+        }
+    }
+
+
+
+
+    /* APIs For Customer */
+
+    static async customerCardDetails(req) {
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            data: {},
+            status: false
+        };
+
+        try {
+            const search = { customer: mongoose.Types.ObjectId(req.__cuser._id) };
+            clearSearch(search);
+
+            const data = await CustomerCardModel.findOne(search);
+
+            if (data) {
+                response.message = "Data fetched";
+            }
+            response.data = {
+                name: data.name,
+                cardNumber: data.cardNumber,
+                expiryDate: data.expiryDate,
+                cvv: data.cardNumber,
+            };
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error("Error!");
+        }
+    }
+
+    static async saveCustomerCardDetails(req) {
+        const data = req.body;
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            const tplData = await CustomerCardModel.findOne({customer: req.__cuser._id}) || new CustomerCardModel();
+
+            tplData.customer = req.__cuser._id;
+            tplData.name = data.name;
+            tplData.cardNumber = data.cardNumber;
+            tplData.expiryDate = data.expiryDate;
+            tplData.cvv = data.cvv;
+
+            await tplData.save();
+
+            response.message ="Card is Saved";
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+    static async deleteCustomerCardDetails(req) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+        try {
+            await CustomerCardModel.remove({ customer: req.__cuser._id });
+
+            response.message = "Card is removed successfully";
+            response.statusCode = 200;
+            response.status = true;
+            return response;
+
+        } catch (e) {
+            throw new Error("Can not delete. Something went wrong.");
         }
     }
     

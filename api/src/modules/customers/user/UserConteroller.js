@@ -8,14 +8,6 @@ export default class UserController {
 
     static async login(req, res) {
         try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                return res.status(422).json({
-                    message: errors.msg,
-                    errors: errors.errors
-                });
-            }
-            
 			const srvRes = await Service.customerLogin(req.body)
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
@@ -74,6 +66,33 @@ export default class UserController {
 
             const key = req.params.key;
 			const srvRes = await Service.resetPAssword(key, req.body);
+            return res.status(srvRes.statusCode).json({ srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async customerCardDetails(req, res) {
+        try {
+			const srvRes = await Service.customerCardDetails(req)
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async saveCustomerCardDetails(req, res) {
+        try {
+			const srvRes = await Service.saveCustomerCardDetails(req, req.body)
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async deleteCustomerCardDetails(req, res) {
+        try {
+			const srvRes = await Service.deleteCustomerCardDetails(req);
             return res.status(srvRes.statusCode).json({ srvRes });
         } catch (e) {
 			return res.status(400).send({message: e.message});
