@@ -95,17 +95,38 @@ export default function Driver({ vehicleData, setVisible: setVisibleParent }) {
             width: 210,
             render: (data, row) => (
                 <>
-                    ({data} / {row.ratingCount})<Rate disabled defaultValue={data} /> 
+                    ({data} / {row.ratingCount})<Rate disabled defaultValue={data} />
                 </>
             )
         },
         {
             title: 'Approval Status',
             dataIndex: 'isApproved',
-            width: 120,
-            render: isApproved => {
+            width: 200,
+            render: (isApproved, row) => {
                 if (isApproved) {
-                    return <Tag color='green'>Approved</Tag>
+                    return <>
+                        <Tag color='green'>Approved</Tag>
+                        <br/>
+                        <span className="text-danger" style={{ fontSize: 10 }}>
+                            By&nbsp;
+                            {
+                                row?.approvedByDetails?.firstName + " " + row?.approvedByDetails?.lastName
+                            }
+                            &nbsp;
+                            ({
+                                row?.approvedByDetails?.type === 'superAdmin'
+                                    ? "Super Admin"
+                                    : row?.approvedByDetails?.type === 'stateAdmin'
+                                        ? "State Admin"
+                                        : row?.approvedByDetails?.type === 'talukAdmin'
+                                            ? "Taluk Admin"
+                                            : null
+                            })
+                            {/* <br/> */}
+                            
+                        </span>
+                    </>
                 } else {
                     return <Tag color='red'>Not Approved</Tag>
                 }
@@ -654,7 +675,7 @@ const LoginsModal = forwardRef((props, ref) => {
                 footer={null}
                 className="app-modal-body-overflow"
             >
-                <Logins {...{driverId: data._id}} />
+                <Logins {...{ driverId: data._id }} />
             </Modal>
         </>
     );

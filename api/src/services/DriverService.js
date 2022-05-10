@@ -159,7 +159,7 @@ export default class Service {
                 isApproved: query.isApproved ? (query.isApproved === '1' ? true : false) : '',
                 vehicle: query.vehicleId ? mongoose.Types.ObjectId(query.vehicleId) : '',
                 state: query.state ? mongoose.Types.ObjectId(query.state) : '',
-                drivingLicenceNumberExpiryDate: query.licence == 'licenceExpired' ? {$lt: new Date()} : query.licence == 'licenceNotExpired' ? {$gte: new Date()} : '',
+                drivingLicenceNumberExpiryDate: query.licence == 'licenceExpired' ? { $lt: new Date() } : query.licence == 'licenceNotExpired' ? { $gte: new Date() } : '',
                 ...getAdminFilter()
             };
 
@@ -233,10 +233,29 @@ export default class Service {
                 },
                 { $unwind: "$talukDetails" },
                 {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'approvedBy',
+                        foreignField: '_id',
+                        as: 'approvedByDetails',
+                        pipeline: [
+                            {
+                                $project: {
+                                    type: 1,
+                                    firstName: 1,
+                                    lastName: 1,
+                                }
+                            }
+                        ]
+                    }
+                },
+                { $unwind: "$approvedByDetails" },
+                {
                     "$project": {
                         stateDetails: 1,
                         districtDetails: 1,
                         talukDetails: 1,
+                        approvedByDetails: 1,
                         vehicle: 1,
                         state: 1,
                         district: 1,
@@ -283,8 +302,8 @@ export default class Service {
                             name: "$badgePhoto"
                         },
 
-                        ratingCount:1,
-                        ratingAverage:1,
+                        ratingCount: 1,
+                        ratingAverage: 1,
                         isApproved: 1,
                         isActive: 1,
                         walletDetails: 1,
@@ -385,9 +404,14 @@ export default class Service {
             tplData.badgePhoto = await uploadFile(data.badgePhoto, config.uploadPaths.driver.document, DriverModel, 'badgePhoto', _id);
 
             tplData.owner = data.owner;
+            
+            if (!tplData.isApproved && data.isApproved) {
+                tplData.approvedBy = global.cuser._id;
+            }
 
             tplData.isApproved = data.isApproved;
             tplData.isActive = data.isActive;
+
 
             await tplData.save();
 
@@ -596,8 +620,8 @@ export default class Service {
         }
     }
 
-    static async updateRating(driverId){
-        const driverRatings = await DriverRatingModel.find({driver: driverId});
+    static async updateRating(driverId) {
+        const driverRatings = await DriverRatingModel.find({ driver: driverId });
         const ratingCount = driverRatings.length;
         let ratingAverage = 0;
         driverRatings?.forEach(v => {
@@ -605,71 +629,71 @@ export default class Service {
         });
 
         ratingAverage = ratingAverage / ratingCount;
-        await DriverModel.updateOne({_id: driverId}, {ratingCount, ratingAverage});
+        await DriverModel.updateOne({ _id: driverId }, { ratingCount, ratingAverage });
     }
-/* 
-    static async listDriverLogins(query, params) {
-        const isAll = params.isAll === 'ALL';
-        const response = {
-            statusCode: 400,
-            message: 'Data not found!',
-            result: {
-                data: [],
-                page: query.page * 1 > 0 ? query.page * 1 : 1,
-                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
-                total: 0,
-            },
-            status: false
-        };
-
-        try {
-            const search = {
-                driver: query.driverId ? mongoose.Types.ObjectId(query.driverId) : '',
-            };
-
-            clearSearch(search);
-
-            console.log(search);
-
-            const $aggregate = [
-                { $match: search },
-                { $sort: { _id: -1 } },
-                {
-                    "$project": {
-                        driver: 1,
-                        loginTime: 1,
-                        logoutTime: 1,
-                    }
+    /* 
+        static async listDriverLogins(query, params) {
+            const isAll = params.isAll === 'ALL';
+            const response = {
+                statusCode: 400,
+                message: 'Data not found!',
+                result: {
+                    data: [],
+                    page: query.page * 1 > 0 ? query.page * 1 : 1,
+                    limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                    total: 0,
                 },
-            ];
-
-            const counter = await DriverLoginModel.aggregate([...$aggregate, { $count: "total" }]);
-            response.result.total = counter[0]?.total;
-            if (isAll) {
-                response.result.page = 1;
-                response.result.limit = response.result.total;
+                status: false
+            };
+    
+            try {
+                const search = {
+                    driver: query.driverId ? mongoose.Types.ObjectId(query.driverId) : '',
+                };
+    
+                clearSearch(search);
+    
+                console.log(search);
+    
+                const $aggregate = [
+                    { $match: search },
+                    { $sort: { _id: -1 } },
+                    {
+                        "$project": {
+                            driver: 1,
+                            loginTime: 1,
+                            logoutTime: 1,
+                        }
+                    },
+                ];
+    
+                const counter = await DriverLoginModel.aggregate([...$aggregate, { $count: "total" }]);
+                response.result.total = counter[0]?.total;
+                if (isAll) {
+                    response.result.page = 1;
+                    response.result.limit = response.result.total;
+                }
+    
+                response.result.data = await DriverLoginModel.aggregate(
+                    [
+                        ...$aggregate,
+                        { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                        { $skip: response.result.limit * (response.result.page - 1) }
+                    ]);
+    
+                if (response.result.data.length) {
+                    response.message = "Data fetched";
+                }
+                response.statusCode = 200;
+                response.status = true;
+    
+                return response;
+    
+            } catch (e) {
+                throw new Error(e)
             }
-
-            response.result.data = await DriverLoginModel.aggregate(
-                [
-                    ...$aggregate,
-                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
-                    { $skip: response.result.limit * (response.result.page - 1) }
-                ]);
-
-            if (response.result.data.length) {
-                response.message = "Data fetched";
-            }
-            response.statusCode = 200;
-            response.status = true;
-
-            return response;
-
-        } catch (e) {
-            throw new Error(e)
         }
-    }
- */
+     */
     static async listDriverLogins(query, params) {
         const isAll = params.isAll === 'ALL';
         const response = {
@@ -687,8 +711,8 @@ export default class Service {
         try {
             const search = {
                 driver: query.driverId ? mongoose.Types.ObjectId(query.driverId) : '',
-                startTime: query.from ? {$gte: new Date(query.from)} : '',
-                startTime: query.to ? {$lte: new Date(query.to)} : '',
+                startTime: query.from ? { $gte: new Date(query.from) } : '',
+                startTime: query.to ? { $lte: new Date(query.to) } : '',
             };
 
             console.log(query);

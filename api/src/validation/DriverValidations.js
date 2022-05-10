@@ -289,7 +289,7 @@ export const driverValidation = [
 
     check('state')
         .notEmpty().withMessage("The 'State' field is required")
-        .isString().withMessage("The 'State' field is not valid")
+        // .isString().withMessage("The 'State' field is not valid")
         .custom(async (value) => {
             try {
                 const result = await StateModel.findById(value);
@@ -303,7 +303,7 @@ export const driverValidation = [
 
     check('district')
         .notEmpty().withMessage("The 'District' field is required")
-        .isString().withMessage("The 'District' field is not valid")
+        // .isString().withMessage("The 'District' field is not valid")
         .custom(async (value) => {
             try {
                 const result = await DistrictModel.findById(value);
@@ -317,7 +317,7 @@ export const driverValidation = [
 
     check('taluk')
         .notEmpty().withMessage("The 'Taluk' field is required")
-        .isString().withMessage("The 'Taluk' field is not valid")
+        // .isString().withMessage("The 'Taluk' field is not valid")
         .custom(async (value) => {
             try {
                 const result = await TalukModel.findById(value);

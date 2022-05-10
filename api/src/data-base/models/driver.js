@@ -18,6 +18,10 @@ const DriverSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "taluk",
     },
+    approvedBy: {
+        type: Schema.Types.ObjectId,
+        ref: "user",
+    },
     driverId: {
         type: Number,
         unique: true,
