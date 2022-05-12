@@ -182,6 +182,7 @@ export default class Service {
                         lastName: 1,
                         phoneNo: 1,
                         email: 1,
+                        userName: 1,
                         dob: 1,
                         address: 1,
                         state: 1,
@@ -241,6 +242,7 @@ export default class Service {
             tplData.phoneNo = data.phoneNo;
             tplData.email = data.email;
             (!data.password || (tplData.password = data.password));
+            tplData.userName = data.userName;
             tplData.dob = data.dob;
             tplData.photo = await uploadFile(data.photo, config.uploadPaths.customer.photo, CustomerModel, 'photo', _id);
             tplData.address = data.address;

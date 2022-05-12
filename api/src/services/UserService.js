@@ -102,6 +102,7 @@ export default class Service {
                         phoneNo: 1,
                         email: 1,
                         emailVerified: 1,
+                        userName: 1,
                         dob: 1,
                         type: 1,
                         address: 1,
@@ -169,6 +170,7 @@ export default class Service {
             tplData.email = data.email;
             tplData.emailVerified = true;
             (!data.password || (tplData.password = data.password));
+            tplData.userName = data.userName;
             tplData.dob = data.dob;
             tplData.photo = await uploadFile(data.photo, config.uploadPaths.user.photo, UserModel, 'photo', _id);
 
@@ -211,6 +213,96 @@ export default class Service {
 
         } catch (e) {
             throw new Error("Can not delete. Something went wrong.")
+        }
+    }
+
+    static async listAllModules(query, params) {
+        const isAll = params.isAll === 'ALL';
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+                page: query.page * 1 > 0 ? query.page * 1 : 1,
+                limit: query.limit * 1 > 0 ? query.limit * 1 : 20,
+                total: 0,
+            },
+            status: false
+        };
+
+        try {
+            const search = {};
+            if(global.cuser.type === 'stateAdmin'){
+                search.type = {$in: ['districtAdmin', 'talukAdmin']};
+            } else if(global.cuser.type === 'districtAdmin'){
+                search.type = {$in: ['talukAdmin']};
+            } 
+            
+            clearSearch(search);
+            // const driverFilter ={isDeleted: false, ...getAdminFilter()};
+            // clearSearch(driverFilter);
+            const $aggregate = [
+                { $match: search },
+                { $sort: { _id: -1 } },
+                {
+                    "$project": {
+                        firstName: 1,
+                        lastName: 1,
+                        phoneNo: 1,
+                        email: 1,
+                        emailVerified: 1,
+                        userName: 1,
+                        dob: 1,
+                        type: 1,
+                        address: 1,
+                        state: 1,
+                        district: 1,
+                        taluk: 1,
+                        zipcode: 1,
+                        adharNo: 1,
+                        panNo: 1,
+                        isActive: 1,
+                        image: {
+                            url: { $concat: [config.applicationFileUrl + 'user/photo/', "$photo"] },
+                            name: "$photo"
+                        },
+                        adharCardImage: {
+                            url: { $concat: [config.applicationFileUrl + 'user/document/', "$adharCardPhoto"] },
+                            name: "$photo"
+                        },
+                        panCardImage: {
+                            url: { $concat: [config.applicationFileUrl + 'user/document/', "$panCardPhoto"] },
+                            name: "$photo"
+                        }
+                    }
+                },
+            ];
+
+
+            const counter = await UserModel.aggregate([...$aggregate, { $count: "total" }]);
+            response.result.total = counter[0]?.total;
+            if(isAll){
+                response.result.page = 1;
+                response.result.limit = response.result.total;
+            }
+
+            response.result.data = await UserModel.aggregate(
+                [
+                    ...$aggregate,
+                    { $limit: response.result.limit + response.result.limit * (response.result.page - 1) },
+                    { $skip: response.result.limit * (response.result.page - 1) }
+                ]);
+
+            if (response.result.data.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
         }
     }
 

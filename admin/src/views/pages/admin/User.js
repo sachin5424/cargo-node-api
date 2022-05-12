@@ -8,7 +8,7 @@ import service from "../../../services/admin";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
-import { AntdDatepicker } from "../../../utils/Antd";
+import { AntdDatepicker, MultiChechBox } from "../../../utils/Antd";
 import util from "../../../utils/util";
 import { UserTypeSelect } from "../../components/ProComponent";
 
@@ -32,6 +32,7 @@ export default function Admin() {
     const [loading, setLoading] = useState(true);
 
     const formRef = useRef();
+    const modulesFormRef = useRef();
     let [sdata, setSData] = useState({ key: '', page: 1, limit: 20, total: 0 });
     const columns = [
         {
@@ -72,6 +73,12 @@ export default function Admin() {
             title: 'Phone No',
             dataIndex: 'phoneNo',
             width: 100,
+        },
+        {
+            title: 'Modules',
+            dataIndex: 'email',
+            width: 100,
+            render: (text, row) => (<Button size="small" type="primary" className="mx-1" onClick={() => { modulesFormRef.current.openForm(row) }}>Modules</Button>)
         },
         {
             title: 'Status',
@@ -174,6 +181,7 @@ export default function Admin() {
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, sdt }} />
+            <ModulesForm ref={modulesFormRef} />
         </>
     );
 }
@@ -303,6 +311,10 @@ const AddForm = forwardRef((props, ref) => {
                                     <Input value={data.phoneNo || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'phoneNo')} />
                                 </div>
                                 <div className="col-md-3 form-group">
+                                    <label className="req">User Name</label>
+                                    <Input value={data.userName || ''} onChange={e => handleChange(util.removeSpecialChars(e.target.value), 'userName')} />
+                                </div>
+                                <div className="col-md-3 form-group">
                                     <label className={data._id ? "" : "req"}>{data._id ? "Update" : "Set"} Password</label>
                                     <Input value={data.password || ''} onChange={e => handleChange(e.target.value, 'password')} />
                                 </div>
@@ -310,6 +322,7 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">DOB</label>
                                     <AntdDatepicker format="MMMM D, YYYY" value={data.dob || new Date()} onChange={value => { handleChange(value, 'dob') }} />
                                 </div>
+                                <div></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">State</label>
                                     <AntdSelect
@@ -372,6 +385,97 @@ const AddForm = forwardRef((props, ref) => {
                                         value={data.isActive}
                                         onChange={v => { handleChange(v, 'isActive') }}
                                     />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </Spin>
+            </Modal>
+        </>
+    );
+});
+
+const ModulesForm = forwardRef((props, ref) => {
+    // const { list } = props;
+    const [ajxRequesting, setAjxRequesting] = useState(false);
+    const [visible, setVisible] = useState(false);
+    const [data, setData] = useState({});
+    const [userData, setUserData] = useState({});
+    const [modules, setModules] = useState([]);
+    const [changeForm, setChangeForm] = useState(false);
+
+    const handleVisible = (val) => {
+        setVisible(val);
+    }
+
+    useImperativeHandle(ref, () => ({
+        openForm(dt) {
+            setUserData({ ...dt });
+            handleVisible(true);
+            if (!dt?._id && addAccess) {
+                setChangeForm(true);
+            } else if (dt._id && editAccess) {
+                setChangeForm(true);
+            } else {
+                setChangeForm(false);
+            }
+        }
+    }));
+
+    const handleChange = (v, k) => { setData({ ...data, [k]: v }); }
+
+    const save = () => {
+        setAjxRequesting(true);
+        service.save(data, data._id ? editAccess : addAccess).then((res) => {
+            AntdMsg(res.message);
+            handleVisible(false);
+        }).catch(err => {
+            if (typeof err.message === 'object') {
+                let dt = err.message[Object.keys(err.message)[0]];
+                AntdMsg(dt, 'error');
+            } else {
+                AntdMsg(err.message, 'error');
+            }
+        }).finally(() => {
+            setAjxRequesting(false);
+        });
+    }
+
+    useEffect(()=>{
+        if(userData._id){
+            
+        }
+    }, [userData]);
+
+    return (
+        <>
+            <Modal
+                title="Assign Modules"
+                style={{ top: 20 }}
+                visible={visible}
+                okText="Save"
+                onOk={save}
+                okButtonProps={{ disabled: ajxRequesting || (!changeForm), style: { display: !changeForm ? 'none' : 'inline-block' } }}
+                onCancel={() => { handleVisible(false); }}
+                destroyOnClose
+                maskClosable={false}
+                width={1200}
+                className="app-modal-body-overflow"
+            >
+                <Spin spinning={ajxRequesting} indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}>
+                    <form onSubmit={e => { e.preventDefault(); save() }} autoComplete="off" spellCheck="false">
+                        <fieldset>
+                            <div className="row mingap">
+                                <div>
+                                    <div className="col-md-12 form-group">
+                                        <div className="d-flex mb-2">
+                                            <Button size="small" danger className="ml-auto mx-2" onClick={() => { handleChange([], 'modules') }}> Uncheck All Modules</Button>
+                                            <Button size="small" type="primary" onClick={() => { handleChange(modules?.map(v => v?._id), 'modules') }}> Check All Modules</Button>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-12 form-group">
+                                        <MultiChechBox options={modules?.map(v => ({ _id: v.key, label: v.title }))} value={data.modules} onChange={v => { (!v?.length || handleChange(v, 'modules')) }} />
+                                    </div>
                                 </div>
                             </div>
                         </fieldset>

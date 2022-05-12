@@ -16,7 +16,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean, 
         default: false 
     },
-
+    userName: {
+        type: String,
+        unique: true
+    },
     password: String,
     dob: Date,
     photo: String,
@@ -42,6 +45,11 @@ const UserSchema = new mongoose.Schema({
     panNo: String,
     panCardPhoto: String,
 
+    modules: [
+        {
+            type: String,
+        }
+    ],
     isActive: {
         type: Boolean,
         default: false

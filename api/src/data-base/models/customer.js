@@ -10,6 +10,10 @@ const CustomerSchema = new Schema({
         type: Boolean, 
         default: false 
     },
+    userName: {
+        type: String,
+        unique: true
+    },
     password: String,
     dob: Date,
     photo: String,

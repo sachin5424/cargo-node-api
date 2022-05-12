@@ -83,6 +83,24 @@ export const userValidation = [
             }
         }),
 
+    check('userName')
+        .notEmpty().withMessage("The 'User Name' field is required")
+        .isSlug().withMessage("User Name field must not contain any special charecter except '-'")
+        .custom(async (value, { req }) => {
+            req.body.userName = req.body.userName.toLowerCase().replace(/[^a-z0-9 _-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+            const body = req.body;
+            const result = await UserModel.findOne({ userName: body.userName });
+            if (result) {
+                if (body._id) {
+                    if (result._id != body._id) {
+                        throw new Error("A user already exist with this user name");
+                    }
+                } else {
+                    throw new Error("A user already exist with this user name");
+                }
+            }
+        }),
+
     check('password')
         .custom((v, { req }) => {
             if (!req.body._id) {

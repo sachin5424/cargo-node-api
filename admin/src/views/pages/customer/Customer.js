@@ -266,6 +266,10 @@ const AddForm = forwardRef((props, ref) => {
                                     <Input value={data.phoneNo || ''} onChange={e => handleChange(util.handleInteger(e.target.value), 'phoneNo')} />
                                 </div>
                                 <div className="col-md-3 form-group">
+                                    <label className="req">User Name</label>
+                                    <Input value={data.userName || ''} onChange={e => handleChange(util.removeSpecialChars(e.target.value), 'userName')} />
+                                </div>
+                                <div className="col-md-3 form-group">
                                     <label className={data._id ? "" : "req"}>{data._id ? "Update" : "Set"} Password</label>
                                     <Input value={data.password || ''} onChange={e => handleChange(e.target.value, 'password')} />
                                 </div>
@@ -273,6 +277,7 @@ const AddForm = forwardRef((props, ref) => {
                                     <label className="req">DOB</label>
                                     <AntdDatepicker format="MMMM D, YYYY" value={data.dob || new Date()} onChange={value => { handleChange(value, 'dob') }} />
                                 </div>
+                                <div></div>
                                 <div className="col-md-3 form-group">
                                     <label className="req">State</label>
                                     <AntdSelect
