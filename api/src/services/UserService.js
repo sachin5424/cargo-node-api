@@ -33,16 +33,16 @@ export default class Service {
                     response.status = true;
                     response.message = "Loggedin successfully";
 
-                    let modules = [];
-                    if(user.type !== 'superAdmin'){
-                        modules = await AdminModulesModel.findOne({typeKey: user.type}).select({grantedModules: 1});
-                        modules = modules.grantedModules;
-                    } else{
-                        modules = await ModuleModel.find();
-                        modules = modules.map(v=>v.key);
-                    }
+                    // let modules = [];
+                    // if(user.type !== 'superAdmin'){
+                    //     modules = await AdminModulesModel.findOne({typeKey: user.type}).select({grantedModules: 1});
+                    //     modules = modules.grantedModules;
+                    // } else{
+                    //     modules = await ModuleModel.find();
+                    //     modules = modules.map(v=>v.key);
+                    // }
 
-                    response.data = { accessToken, modules, userType: user.type };
+                    response.data = { accessToken, modules: user.modules, userType: user.type };
                 }
             }
         } catch (e) {

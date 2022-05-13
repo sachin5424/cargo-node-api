@@ -47,23 +47,46 @@ export const checkAdminPermission = async (req, res, next, module, fillSDTValues
         idKeys = ['state', 'district', 'taluk'];
     }
 
+    
+    
     try {
-        const userType = global.cuser.type;
-
+        const userType = req.__cuser.type;
         if (userType === 'superAdmin') {
             response.status = true;
             response.statusCode = 200;
         } else if (userType === 'stateAdmin' || userType === 'districtAdmin' || userType === 'talukAdmin') {
-            const moduleData = await ModuleModel.findOne({key: module}).select('key');
-            const moduleKey = moduleData.key;
-            const adminModules = await AdminModulesModel.findOne({ typeKey: userType });
+            /* 
+                const moduleData = await ModuleModel.findOne({key: module}).select('key');
+                const moduleKey = moduleData.key;
+                const adminModules = await AdminModulesModel.findOne({ typeKey: userType });
 
-            if (adminModules && adminModules.grantedModules.includes(moduleKey)) {
+                if (adminModules && adminModules.grantedModules.includes(moduleKey)) {
+                    response.status = true;
+                    response.statusCode = 200;
+
+                    if (fillSDTValues) {
+                        const cuser = global.cuser;
+
+                        if (cuser.type === 'stateAdmin') {
+                            req.body[idKeys[0]] = cuser.state.toString();
+                        } else if (cuser.type === 'districtAdmin') {
+                            req.body[idKeys[0]] = cuser.state;
+                            req.body[idKeys[1]] = cuser.district;
+                        } else if (cuser.type === 'talukAdmin') {
+                            req.body[idKeys[0]] = cuser.state;
+                            req.body[idKeys[1]] = cuser.district;
+                            req.body[idKeys[2]] = cuser.taluk;
+                        }
+                    }
+                } 
+            */
+
+            if (req?.__cuser.modules.includes(module)) {
                 response.status = true;
                 response.statusCode = 200;
 
                 if (fillSDTValues) {
-                    const cuser = global.cuser;
+                    const cuser = req.__cuser;
 
                     if (cuser.type === 'stateAdmin') {
                         req.body[idKeys[0]] = cuser.state.toString();
