@@ -55,4 +55,33 @@ export default class CustomerController {
 			return res.status(400).send({message: e.message});
 		}
     }
+
+    static async listAllModules(req, res) {
+
+        try {
+			const srvRes = await Service.listAllModules(req);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async listUserModules(req, res) {
+
+        try {
+			const srvRes = await Service.listUserModules(req);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
+
+    static async saveUserModules(req, res) {
+        try {
+			const srvRes = await Service.saveUserModules(req.body);
+            return res.status(srvRes.statusCode).json({ ...srvRes });
+        } catch (e) {
+			return res.status(400).send({message: e.message});
+		}
+    }
 }

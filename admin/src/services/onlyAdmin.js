@@ -23,4 +23,16 @@ export default class onlyAdmin {
     static saveAdminModules(data, module) {
         return axios.post(this.baseURL + '/save-admin-modules', data, { module });
     }
+
+    static modules(data, module) {
+        return axios.get(this.baseURL + "/modules", { params: data, module });
+    }
+
+    static userModules(data, module) {
+        return axios.get(this.baseURL + '/user-modules', { params: data, module });
+    }
+
+    static saveUserModules(data, module) {
+        return axios.post(this.baseURL + "/save-user-modules", data, { module });
+    }
 }

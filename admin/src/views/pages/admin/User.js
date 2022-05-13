@@ -5,6 +5,7 @@ import { Button, Popconfirm, Input, Modal, Tag, Spin, Divider } from "antd";
 import { AntdSelect } from "../../../utils/Antd";
 import { EditOutlined, DeleteOutlined, LoadingOutlined, EyeOutlined } from "@ant-design/icons";
 import service from "../../../services/admin";
+import onlyAdminService from "../../../services/onlyAdmin";
 import { AntdMsg } from "../../../utils/Antd";
 import UploadImage from "../../components/UploadImage";
 import sdtService from "../../../services/sdt";
@@ -30,6 +31,7 @@ export default function Admin() {
     const [data, setData] = useState([]);
     const [sdt, setSdt] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [modules, setModules] = useState([]);
 
     const formRef = useRef();
     const modulesFormRef = useRef();
@@ -78,7 +80,8 @@ export default function Admin() {
             title: 'Modules',
             dataIndex: 'email',
             width: 100,
-            render: (text, row) => (<Button size="small" type="primary" className="mx-1" onClick={() => { modulesFormRef.current.openForm(row) }}>Modules</Button>)
+            render: (text, row) => (<Button size="small" type="primary" className="mx-1" onClick={() => { modulesFormRef.current.openForm(row) }}>Modules</Button>),
+            hidden: !util.isSuperAdmin()
         },
         {
             title: 'Status',
@@ -158,6 +161,15 @@ export default function Admin() {
         })
     }
 
+    const getModules = () => {
+        onlyAdminService.modules(data).then(res => {
+            setModules(res.result?.data || []);
+        }).catch(err => {
+            AntdMsg(err.message, 'error');
+        }).finally(() => {
+        });
+    }
+
     const deleteConfirm = (id) => {
         service.delete(id, deleteAccess).then(res => {
             AntdMsg(res.message);
@@ -169,6 +181,7 @@ export default function Admin() {
 
     useEffect(() => {
         list();
+        !util.isSuperAdmin() || getModules();
         sdtService.listSdt('ignoreModule').then(res => { setSdt(res.result.data || []) });
     }, []);
 
@@ -181,7 +194,12 @@ export default function Admin() {
                 <MyTable {...{ data, columns, parentSData: sdata, loading, formRef, list, searchPlaceholder: 'First Name or Last Name', addNew: addAccess }} />
             </div>
             <AddForm ref={formRef} {...{ list, sdt }} />
-            <ModulesForm ref={modulesFormRef} />
+            {
+                util.isSuperAdmin()
+                    ? <ModulesForm ref={modulesFormRef} {...{ modules }} />
+                    : null
+            }
+
         </>
     );
 }
@@ -396,12 +414,11 @@ const AddForm = forwardRef((props, ref) => {
 });
 
 const ModulesForm = forwardRef((props, ref) => {
-    // const { list } = props;
+    const { modules } = props;
     const [ajxRequesting, setAjxRequesting] = useState(false);
     const [visible, setVisible] = useState(false);
-    const [data, setData] = useState({});
     const [userData, setUserData] = useState({});
-    const [modules, setModules] = useState([]);
+    const [userModules, setUserModules] = useState();
     const [changeForm, setChangeForm] = useState(false);
 
     const handleVisible = (val) => {
@@ -422,11 +439,9 @@ const ModulesForm = forwardRef((props, ref) => {
         }
     }));
 
-    const handleChange = (v, k) => { setData({ ...data, [k]: v }); }
-
     const save = () => {
         setAjxRequesting(true);
-        service.save(data, data._id ? editAccess : addAccess).then((res) => {
+        onlyAdminService.saveUserModules({ _id: userData._id, modules: userModules }).then((res) => {
             AntdMsg(res.message);
             handleVisible(false);
         }).catch(err => {
@@ -441,9 +456,20 @@ const ModulesForm = forwardRef((props, ref) => {
         });
     }
 
-    useEffect(()=>{
-        if(userData._id){
-            
+    const getUserModules = () => {
+        setAjxRequesting(true);
+        onlyAdminService.userModules({ _id: userData._id }).then(res => {
+            setUserModules(res.result?.data || []);
+        }).catch(err => {
+            AntdMsg(err.message, 'error');
+        }).finally(() => {
+            setAjxRequesting(false);
+        });
+    }
+
+    useEffect(() => {
+        if (userData._id) {
+            getUserModules();
         }
     }, [userData]);
 
@@ -469,12 +495,12 @@ const ModulesForm = forwardRef((props, ref) => {
                                 <div>
                                     <div className="col-md-12 form-group">
                                         <div className="d-flex mb-2">
-                                            <Button size="small" danger className="ml-auto mx-2" onClick={() => { handleChange([], 'modules') }}> Uncheck All Modules</Button>
-                                            <Button size="small" type="primary" onClick={() => { handleChange(modules?.map(v => v?._id), 'modules') }}> Check All Modules</Button>
+                                            <Button size="small" danger className="ml-auto mx-2" onClick={() => { setUserModules([]) }}> Uncheck All Modules</Button>
+                                            <Button size="small" type="primary" onClick={() => { setUserModules([...modules?.map(v => v?.key)]) }}> Check All Modules</Button>
                                         </div>
                                     </div>
                                     <div className="col-md-12 form-group">
-                                        <MultiChechBox options={modules?.map(v => ({ _id: v.key, label: v.title }))} value={data.modules} onChange={v => { (!v?.length || handleChange(v, 'modules')) }} />
+                                        <MultiChechBox options={modules?.map(v => ({ _id: v.key, label: v.title }))} value={userModules} onChange={v => { (!v?.length || setUserModules(v)) }} />
                                     </div>
                                 </div>
                             </div>

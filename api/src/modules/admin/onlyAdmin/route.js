@@ -12,5 +12,9 @@ router.delete('/delete-module/:_id', validateSuperAdmin, Controller.deleteModule
 router.get('/admin-modules', Controller.adminModules);
 router.post('/save-admin-modules', adminModuleValidation, Controller.saveAdminModules);
 
+router.get('/modules', Controller.listAllModules);
+router.get('/user-modules', Controller.listUserModules);
+router.post("/save-user-modules", Controller.saveUserModules );
+
 
 export default router;

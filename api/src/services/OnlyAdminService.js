@@ -337,4 +337,85 @@ export default class AdminService {
         }
     }
 
+
+    static async listAllModules(req) {
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+            },
+            status: false
+        };
+
+        try {
+            
+            if(req.__cuser.type === 'superAdmin'){
+                response.result.data = await ModuleModel.find();
+            } else{
+                const userModules = req.__cuser.modules;
+                response.result.data = await ModuleModel.find({key: {$in: userModules}});
+            }
+            
+
+            if (response.result.data?.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
+
+    static async listUserModules(req) {
+        const response = {
+            statusCode: 400,
+            message: 'Data not found!',
+            result: {
+                data: [],
+            },
+            status: false
+        };
+
+        try {
+            const userData = await UserModel.findById( req.query?._id );
+
+            response.result.data = userData?.modules;
+
+            if (response.result.data?.length) {
+                response.message = "Data fetched";
+            }
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error(e)
+        }
+    }
+
+    static async saveUserModules(data) {
+        const response = { statusCode: 400, message: 'Error!', status: false };
+
+        try {
+            const tplData = await UserModel.findById( data?._id);
+            tplData.modules = data.modules;
+
+            await tplData.save();
+
+            response.message = "Module is Updated";
+            response.statusCode = 200;
+            response.status = true;
+
+            return response;
+
+        } catch (e) {
+            throw new Error("Error!");
+        }
+    }
 }

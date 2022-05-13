@@ -15,7 +15,6 @@ export default class UserController extends UserService {
     constructor() {
         super();
     }
-   
     // static async userList(req, res) {
     //     try {
     //         const userData = await UserModel.find().select('-password');
