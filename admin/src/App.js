@@ -27,7 +27,7 @@ function App() {
 
 	return (
 		<>
-			<BrowserRouter basename="/cargo/admin/build">
+			<BrowserRouter basename="/cargo-node-api/admin/build">
 				<If cond={isLoggedin}>
 					<Layout />
 				</If>

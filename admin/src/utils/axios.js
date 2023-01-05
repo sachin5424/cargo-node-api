@@ -6,8 +6,8 @@ const isSuperAdmin = util.isSuperAdmin();
 
 const axiosInstance = axios.create({
     baseURL: window.location.hostname !== 'localhost'
-        ? 'http://65.0.236.48:3003/admin/'
-        : 'http://localhost:3003/admin/'
+        ? 'http://52.66.147.53:3003/admin/'
+        : 'http://52.66.147.53:3003/admin/'
 });
 
 axiosInstance.interceptors.request.use(
